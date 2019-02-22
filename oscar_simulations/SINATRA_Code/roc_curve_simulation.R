@@ -542,7 +542,7 @@ compute_roc_curve_modified_vertex = function(data,class_1_causal_points,class_2_
 compute_roc_curve_features <- function(data,class_1_causal_points,class_2_causal_points,distance_to_causal_point = 0.1,
                                        rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length, truncated = 0,
                                        class = 0, ball = TRUE, ball_radius = ball_radius, dir, min_points = 2,
-                                       ball = TRUE, mode = 'grid', subdivision = 3){
+                                       mode = 'grid', subdivision = 3){
   #Assign index to Rate Values
   print('Computing ROC curve...')
   data_points = data$complex_points
