@@ -108,6 +108,8 @@ generate_equidistributed_cones <- function(num_directions, cap_radius, direction
   
   directions
 }
+
+
 generate_random_cones <- function(num_directions,cap_radius,directions_per_cone){
   # uniformly generate random directions on the sphere
   cones <- matrix(rnorm(3*num_directions),ncol = 3)
@@ -124,7 +126,8 @@ generate_random_cones <- function(num_directions,cap_radius,directions_per_cone)
   
   directions
 }
-generate_equidistributed_points <- function(N){
+
+generate_equidistributed_points <- function(desired_number, N){
   a <- 4*pi/N
   d <- sqrt(a)
   points <- matrix(NA,0,3) 
@@ -141,8 +144,15 @@ generate_equidistributed_points <- function(N){
       points <- rbind(points,point)
     }
   }
-  points
+  if (dim(points)[1] < desired_number){
+    return(generate_equidistributed_points(desired_number,N+1))
+  }
+  else{
+    points = matrix(points[1:desired_number,],ncol = 3)
+    return(points)
+  }
 }
+
 # z is the direction around which we want to rotate
 # z0 is a vector in the cone around z.
 rodriq<-function(z,r,j){
