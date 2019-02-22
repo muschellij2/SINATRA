@@ -124,6 +124,7 @@ generate_random_cones <- function(num_directions,cap_radius,directions_per_cone)
   
   directions
 }
+
 generate_equidistributed_points <- function(desired_number, N){
   a <- 4*pi/N
   d <- sqrt(a)
@@ -149,6 +150,7 @@ generate_equidistributed_points <- function(desired_number, N){
     return(points)
   }
 }
+
 # z is the direction around which we want to rotate
 # z0 is a vector in the cone around z.
 rodriq<-function(z,r,j){
