@@ -20,7 +20,7 @@ generate_data_sphere_simulation = function(nsim, curve_length, dir, noise_points
                                            ec_type = "SECT",subdivision = 3, cusps, causal_regions_1 = c(1), causal_regions_2 = c(3),
                                            shared_regions = c(4)) {
   data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]) )
-  regions =  generate_equidistributed_points(cusps)
+  regions =  generate_equidistributed_points(cusps,cusps)
   
   #Initiate the causal points
   sphere = vcgSphere(subdivision = subdivision)

@@ -86,7 +86,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
                                                causal_points = 10,shared_points = 3, desired_num_cones = 5, eta = 0.1, 
                                                truncated = FALSE, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
                                                min_points = 3,directions_per_cone = 4, cap_radius = 0.15, radius = 1,ec_type = 'DECT',
-                                               mode = 'grid', fpr = 0.05, start = 1, cusps = 50,
+                                               mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
                                                subdivision = 3,num_causal_region = 5, num_shared_region = 5){
   print("generating directions")
   # generate directions, length num_directions
@@ -101,7 +101,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   if (mode == 'sphere'){
     #cusps = 2*num_causal_region + num_shared_region + 1
     cusps = 2*num_causal_region + num_shared_region + 1
-    causal_dirs = generate_equidistributed_points(cusps)
+    causal_dirs = generate_equidistributed_points(cusps,cusps)
     causal_regions_1 = sample(1:cusps,num_causal_region)
     causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
     shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
@@ -114,7 +114,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   else{
     print(mode)
     data <- create_data_normal_fixed(num_sim = nsim, dir = directions, curve_length = curve_length,shared_points = shared_points,
-                                     causal_points = causal_points,grid_size = grid_size,eta = eta,ball_radius = ball_radius, ball = ball,
+                                     causal_points = causal_points,grid_size = grid_size,eta = eta,ball_radius = ball_radius,
                                      ec_type = ec_type)
   }
   
@@ -131,7 +131,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     #shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
     directions <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
     data = generate_data_sphere_simulation(nsim = nsim,dir = directions, curve_length = curve_length,noise_points = shared_points,
-                                           causal_points = causal_points,ball = ball, ball_radius = ball_radius, subdivision = subdivision,
+                                           causal_points = causal_points, ball_radius = ball_radius, subdivision = subdivision,
                                            cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
                                            shared_regions = shared_regions, ec_type = ec_type)
     #temp <- prune_directions_to_desired_number(data = data$data[,-1],directions = directions, num_cones = num_cones_total,
@@ -314,7 +314,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
         #sink("/dev/null")
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius)
         #sink()
         
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)

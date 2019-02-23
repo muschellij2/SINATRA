@@ -93,7 +93,7 @@ update_data_and_directions <- function(idxs, data, directions, curve_length,dir_
 ####### Generate Directions #######
 generate_equidistributed_cones <- function(num_directions, cap_radius, directions_per_cone){
   # generate central directions that are equidistributed around the sphere.
-  cones <- generate_equidistributed_points(num_directions)
+  cones <- generate_equidistributed_points(num_directions, num_directions)
   
   # renormalize these directions
   cones <- t(apply(cones, 1, function(x) x/sqrt(sum(x*x))))
