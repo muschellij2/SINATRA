@@ -24,12 +24,11 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
-n.simulations <- 2
-reconstruction_type <- "vertex" #set how we assess each reconstruction
+n.simulations <- 100
 causal_points <- 10
 shared_points <- 10
 
-num_causal_region <- 1
+num_causal_region <- 1 # take this input from command line
 num_shared_region <- 2
 
 
@@ -48,9 +47,9 @@ simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport =
     
     set.seed(3*i+j)
     
-    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 25, curve_length = 50, grid_size = 25, distance_to_causal_point = 0.1, 
+    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 50, curve_length = 50, grid_size = 25, distance_to_causal_point = 0.1, 
                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
-                                                        truncated = FALSE, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
+                                                        truncated = -1, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
                                                         min_points = 3,directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
                                                         mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
                                                         subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region),
@@ -78,11 +77,11 @@ rdfmeans <- aggregate(simulation_results[c("FPR","TPR")],
 rdfmeans$Num_Cones <- as.factor(rdfmeans$Num_Cones)
 
 ### Plot results ###
-ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Num_Cones)) +
-  geom_line(stat = "identity") +
-  labs(x = "FPR", y = "TPR") +
-  ggtitle(sprintf("causal:%d,shared:%d,type:%s",causal_points,shared_points,reconstruction_type)) +
-  geom_abline(intercept = 0, slope = 1)
+#ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Num_Cones)) +
+#  geom_line(stat = "identity") +
+#  labs(x = "FPR", y = "TPR") +
+#  ggtitle(sprintf("causal:%d,shared:%d,type:%s",causal_points,shared_points,reconstruction_type)) +
+#  geom_abline(intercept = 0, slope = 1)
 
 ######################################################################################
 ######################################################################################
@@ -91,11 +90,11 @@ ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = 
 
 # save the raw results
 sim_results_file = sprintf("~/data/Results/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_%s.RData",
-                           causal_points,shared_points,reconstruction_type)
+                           num_causal_region,num_shared_region,reconstruction_type)
 save(simulation_results, file = sim_results_file)
 
 # save the dataframe
 df_results_file = sprintf("~/data/Results/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
-                          causal_points,shared_points,reconstruction_type)
+                          num_causal_region,num_shared_region,reconstruction_type)
 save(rdfmeans, file = df_results_file)
 
