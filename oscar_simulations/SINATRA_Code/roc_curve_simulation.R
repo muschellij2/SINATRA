@@ -211,8 +211,10 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
 } 
 
 # Computes the ROC curve for a set of causal and shared points. We do this for every complex in the data set then average the ROC curves.
+# set truncated to -1 to take 1/p value
+
 compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_points,distance_to_causal_point = 0.1,
-                                    rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length,directions, truncated = 0,class = 0,
+                                    rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length,directions, truncated = -1,class = 0,
                                     ball_radius = ball_radius, ball = TRUE, mode = 'grid', subdivision = 3){
   print('Computing ROC curve...')
   #Initializing the number of vertices
@@ -222,7 +224,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
   counter = 0
   
   #Initializing the aggregate ROC curve frame
-  if (truncated == 0){
+  if (truncated == -1){
     total_rate_roc = matrix(0, nrow = length(rate_values),ncol = 2)
   }
   else{
@@ -289,6 +291,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
       #  if (min(dist2)< distance_to_causal_point) class_2_true_vertices=c(class_2_true_vertices,j)
       #}
     }
+    
     combined_true_vertices = union(class_1_true_vertices,class_2_true_vertices)
     
     class_1_false_vertices = setdiff(1:num_vertices, class_1_true_vertices)
@@ -305,16 +308,19 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
       remove = c(remove,j)
       next
     }
+    
     counter = counter + 1 
+    
     # build the ROC by varying the ROC; we bucket the rate values into quantiles and select the thresholds that way; should make length.out = 1000, or higher
     # can also recover the case where we add rate values one at a time by taking length.out to be the number of rate values.
-    if (truncated == 0){
+    if (truncated == -1){
       for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
         
         #sink("/dev/null")
-        rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
+        rate_positive_vertices <- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
                                                                  cone_size = directions_per_cone, ball_radius = ball_radius)
+        print(length(rate_positive_vertices))
         #sink()
         
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
@@ -332,6 +338,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
         else if(class == 1){
           rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
                                                         class_1_true_vertices,class_1_false_vertices))
+          
           true_vertices = class_1_true_vertices
           false_vertices = class_1_false_vertices
         }
@@ -349,7 +356,8 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
         
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius)
+        
         
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
         
@@ -380,6 +388,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
     
     total_rate_roc = total_rate_roc + rate_ROC
     
+    
   }
   total_rate_roc = (total_rate_roc / counter)
   
@@ -389,6 +398,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
   
   return(total_rate_roc)
 }
+
 compute_roc_curve_modified_vertex = function(data,class_1_causal_points,class_2_causal_points,distance_to_causal_point = 0.1,
                                              rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length,directions, truncated = 0,class = 0,
                                              ball_radius = ball_radius, ball = TRUE, mode = 'grid', subdivision = 3){
