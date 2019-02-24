@@ -1,5 +1,5 @@
-compute_selected_vertices_cones = function(dir, complex, rate_vals, len, threshold=0, cone_size, ball_radius){
-  if (threshold==0){
+compute_selected_vertices_cones = function(dir, complex, rate_vals, len, threshold=-1, cone_size, ball_radius){
+  if (threshold==-1){
     threshold=1/length(rate_vals)
   }
   if ((dim(dir)[1] %% cone_size) != 0){
