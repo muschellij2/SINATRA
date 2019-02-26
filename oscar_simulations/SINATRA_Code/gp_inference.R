@@ -3,6 +3,16 @@ library(FastGP)
 
 
 ####### RATE Code ######
+#########
+# Does GP Inference and computes the RATE values.
+#
+# Inputs:
+#  gp_data: data matrix; first column should be class labels +,-1
+#  radius: Pick the features right next to features chosen by RATE (relevant for shape data). Deprecated, don't use.
+#  bandwidth: parameter for the squared exponential kernel for the GP
+#  weights: Boolean. If true, returns the RATE values, otherwise returns the top 1/p of them.
+#  type: input one of Laplace, EP, ESS. Method for GP inference. 
+
 find_rate_variables_with_other_sampling_methods = function(gp_data,radius=0,bandwidth = 0.01,weights=FALSE ,type = 'Laplace'){
   n <- dim(gp_data)[1]
   X <- gp_data[,-1]
@@ -128,6 +138,9 @@ ExpectationPropagation <- function(K, class_labels){
 # Inputs:
 #  Kn : the covariance matrix for the GP model
 #  class_labels: +/- 1 values indicating the class labels of the data points
+#
+# Output:
+# Returns the mean, covariance matrix of the normal approximation to the latent posterior
 
 
 LaplaceApproximation <- function(Kn, class_labels){
@@ -137,12 +150,10 @@ LaplaceApproximation <- function(Kn, class_labels){
   for(k in 1:1000){
     W <- diag(as.vector(sigmoid(f)*(1-sigmoid(f))))
     B <- diag(x = 1,length(class_labels)) + sqrt(W) %*% Kn %*% sqrt(W)
-    #Kinda show
+    
     L <- chol(B)
     b <- W%*%f + (class_labels+1)/2 - sigmoid(f)
-    #Kinda slow
-    #L has components that
-    #Try to not use all the solves
+   
     a <- b - solve(sqrt(W)%*%t(L),solve(L,sqrt(W)%*%Kn%*%b))
     f <- Kn%*%a
   }
@@ -164,6 +175,9 @@ LaplaceApproximation <- function(Kn, class_labels){
 #  class_labels: the class labels for each data point, +/- 1.
 #  num_mcmc_samples: the number of desired mcmc samples to be returned
 #  probit: set TRUE if the link function in the model is probit; otherwise the function uses the logistic link.
+# Output:
+#  Returns the mean, covariance matrix of the normal approximation to the latent posterior
+
 Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = TRUE){
   if(probit){
     samples <- FastGP::ess(probit_log_likelihood, class_labels,K, num_mcmc_samples,
