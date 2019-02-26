@@ -105,6 +105,34 @@ get_RATE_weighted_heatmap <- function(complex, directions, rate_values,
   vertex_to_rate_weighted_projections
 }
 
+# Wrapper for plotting teeth within each group #
+
+plot_results_teeth_simple=function(files, features1, features2, color1, color2, alpha1=0.65, alpha2=0.65,
+                                   dir1, dir2, len=65, level=20, slices=25, n=10, thresh = 1.00,
+                                   directions_per_cone = 5){
+  #Loop through files in the directory
+  for (i in 1:length(files)){
+    #We set direction as (0,0.75,1)
+    file1=vcgImport(files[i])
+    file_1=process_off_file_v3(files[i])
+    #Try to see if this file has any critical points, if it doesn't just plot the tooth.
+    vert1 = compute_selected_vertices_cones(dir = dir1, complex =file_1, rate_vals = features1, len = len, threshold = (thresh/(length(features1))),
+                                            cone_size = directions_per_cone,ball_radius = ball_radius, ball = FALSE)
+    vert2 =  compute_selected_vertices_cones(dir = dir2, complex =file_1, rate_vals = features2, len = len, threshold = (thresh/(length(features2))),
+                                             cone_size = directions_per_cone,ball_radius = ball_radius, ball = FALSE)
+    intersected = intersect(vert1,vert2)
+    fc3 <- colorRampPalette(c(color1,color2))
+    colors = rep('white', dim(veg1$vb)[2])
+    colors[setdiff(vert1,vert2)] =fc3(10)[2]
+    colors[setdiff(vert2,vert1)] =fc3(10)[9]
+    colors[intersected] = fc3(10)[6]
+    plot3d(file1, colors = colors,axes = FALSE, xlab = '',ylab = '', zlab = '')
+    #Rotate the tooth for a view of the 'bottom'
+    rotation_matrix=matrix(c(0.99972576,0.02127766,0.00978078,0,0.01589701,-0.92330807,0.38373107,0,0.01719557,-0.38347024,-0.92339307,0,0,0,0,1),ncol=4,byrow=TRUE)
+    rgl.viewpoint(userMatrix = rotation_matrix)
+  }
+}
+
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
