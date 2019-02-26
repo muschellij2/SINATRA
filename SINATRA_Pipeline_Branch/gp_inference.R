@@ -195,3 +195,128 @@ logistic_log_likelihood <- function(latent_variables, class_labels){
   return(-sum(log(1+exp(latent_variables*class_labels))))
 }
 
+#### Other Feature Selection Functions ####
+
+#### Bayesian Variable Selection ####
+
+#' Conducts the Bayesian Feature Selection
+#'
+#' \code{find_bayesian_variables} returns a vector of the selected features/indices of the curve
+#'
+#' The function uses the package varbvs to conduct feature selection. See Carbonetto and Stephens 2012.
+#' Once the model is fitted, we set the features who's pip (posterior inclusion probability) is greater than a user specified cutoff (typically 0.1,0.5)
+#' These features are returned along with a window of neighboring features if the user wishes (typically recommended).
+#'
+#' @param data (nxm matrix) A nxm matrix containing the covariates and responses.
+#' @param param (float (0-1)) The cutoff for PIP for including features.
+#' @param radius (positive integer ). An integer parameter specifying if, and how many neighboring features should be considered for feature selection.
+#' This is done to capture critical points that may be 'close' to the selected feature.
+#' @return The output is a vector of indices/features to be selected.
+#'
+find_bayesian_variables=function(data,param=0.5,radius=0,weights=FALSE){
+  #Convert the response to 0 or 1, for binary classification in the varbvs model
+  data[,1]=ifelse(data[,1]>0,1,0)
+  #Fit the model
+  fit=varbvs(X = data[,-1],Z = NULL, y= data[,1],family='binomial',verbose = FALSE)
+  #Find the pips for each feature.
+  bayesian_probs=fit$pip
+  #Only keep the features that are above the threshold (pip).
+  if (weights==TRUE){
+    return(cbind(1:length(bayesian_probs),abs(bayesian_probs)))
+  }
+  want_indices_bayesian=which(param<bayesian_probs)
+  #If the radius is not zero, we include the 'n' neighboring features as well.
+  real_indices=c()
+  for (i in 1:(length(want_indices_bayesian))){
+    for (j in 0:radius){
+      real_indices=c(real_indices,want_indices_bayesian[i]+j)
+      real_indices=c(real_indices,want_indices_bayesian[i]-j)
+    }
+  }
+  real_indices=unique(real_indices)
+  return(real_indices)
+}
+
+#### Elastic Net ####
+#' Conducts the Lasso Feature Selection
+#'
+#' \code{find_elastic_variables} returns a vector of the selected features/indices of the curve
+#'
+#' The function uses Elastic Net to conduct feature selection. A cross validated elastic net model is fit on the binary response data,
+#' and the feature importances are extracted.
+#' Similar to lasso, the selected features are those that are non-zero.
+#' These features are returned along with a window of neighboring features if the user wishes (typically recommended).
+#'
+#' @param data (nxm matrix) A nxm matrix containing the covariates and responses.
+#' @param radius (positive integer ). An integer parameter specifying if, and how many neighboring features should be considered for feature selection.
+#' This is done to capture critical points that may be 'close' to the selected feature.
+#' @return The output is a vector of indices/features to be selected.
+#'
+find_elastic_variables=function(data,radius=0,weights=FALSE){
+  #Transforming the data to -1, and 1 if it isn't already for logistic regression purposes.
+  data[,1]=ifelse(data[,1]>0,1,0)
+  #Fit the model
+  regression_model=cv.glmnet(data[,-1], data[,1], alpha = 0.5,intercept = FALSE,family='binomial')
+  #Extract the coefficients
+  tmp_coeffs = as.matrix(coef(regression_model,s=regression_model$lambda.1se))
+  regression_coeff=as.vector(tmp_coeffs)
+  #Don't include the intercept
+  regression_coeff=regression_coeff[2:length(regression_coeff)]
+  if (weights==TRUE){
+    return(cbind(1:length(regression_coeff),abs(regression_coeff)))
+  }
+  real_indices=c()
+  #Only keep the non-zero indices.
+  want_indices_elastic=which(0<abs(regression_coeff))
+  #If the radius is not zero, we include the 'n' neighboring features as well.
+  for (i in 1:(length(want_indices_elastic))){
+    for (j in 0:radius){
+      real_indices=c(real_indices,want_indices_elastic[i]+j)
+      real_indices=c(real_indices,want_indices_elastic[i]-j)
+    }
+  }
+  real_indices=unique(real_indices)
+  return(real_indices)
+}
+
+
+#### Lasso ####
+#' Conducts the Lasso Feature Selection
+#'
+#' \code{find_lasso_variables} returns a vector of the selected features/indices of the curve
+#'
+#' The function uses Lasso to conduct feature selection. A cross validated lasso model is fit on the binary response data, and the feature importances are extracted
+#' As lasso sets many of the features to 0, the selected features are those that are non-zero.
+#' These features are returned along with a window of neighboring features if the user wishes (typically recommended).
+#'
+#' @param data (nxm matrix) A nxm matrix containing the covariates and responses.
+#' @param radius (positive integer ). An integer parameter specifying if, and how many neighboring features should be considered for feature selection.
+#' This is done to capture critical points that may be 'close' to the selected feature.
+#' @return The output is a vector of indices/features to be selected.
+#'
+find_lasso_variables=function(data,radius=0,weights=FALSE){
+  #Transforming the data to -1, and 1 if it isn't already for logistic regression purposes.
+  data[,1]=ifelse(data[,1]>0,1,0)
+  #Initialize lasso model
+  regression_model=cv.glmnet(data[,-1], data[,1], alpha = 0.95,intercept = FALSE,family='binomial')
+  #Extract the coefficients of the variables.
+  tmp_coeffs = as.matrix(coef(regression_model,s=regression_model$lambda.1se))
+  regression_coeff=as.vector(tmp_coeffs)
+  #Don't include the intercept.
+  regression_coeff=regression_coeff[2:length(regression_coeff)]
+  if (weights==TRUE){
+    return(cbind(1:length(regression_coeff),abs(regression_coeff)))
+  }
+  real_indices=c()
+  #Include the non-zero features only to be selected.
+  want_indices_lasso=which(0<abs(regression_coeff))
+  #If the radius is not zero, we include the 'n' neighboring features as well.
+  for (i in 1:(length(want_indices_lasso))){
+    for (j in 0:radius){
+      real_indices=c(real_indices,want_indices_lasso[i]+j)
+      real_indices=c(real_indices,want_indices_lasso[i]-j)
+    }
+  }
+  real_indices=unique(real_indices)
+  return(real_indices)
+}
