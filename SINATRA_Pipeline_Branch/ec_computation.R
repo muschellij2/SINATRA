@@ -43,6 +43,14 @@ compute_standardized_ec_curve <- function(complex, vertex_function, curve_length
   }
   return(ec_curve)
 }
+
+differentiate_ec_curve <- function(ec_curve){
+  differences <- diff(ec_curve[,2],lag = 1)
+  ec_curve[,2] <- c(ec_curve[1,2], differences)
+  
+  ec_curve
+}
+
 integrate_ec_curve <- function(ec_curve){
   length <- length(ec_curve[,2])
   ec_curve[,2] <- ec_curve[,2] - mean(ec_curve[,2])
@@ -50,3 +58,16 @@ integrate_ec_curve <- function(ec_curve){
   
   ec_curve
 }
+
+# helper function for the sphere data generation function
+update_ec_curve = function(curve,ec_type){
+  if (ec_type == "SECT"){
+    curve <- integrate_ec_curve(curve)
+  } else if(ec_type == "DECT"){
+    curve <- differentiate_ec_curve(curve)
+  } else{
+    curve <- curve
+  }
+  curve
+}
+
