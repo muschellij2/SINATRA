@@ -113,6 +113,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   }
   else{
     print(mode)
+    directions <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
     data <- create_data_normal_fixed(num_sim = nsim, dir = directions, curve_length = curve_length,shared_points = shared_points,
                                      causal_points = causal_points,grid_size = grid_size,eta = eta,ball_radius = ball_radius,
                                      ec_type = ec_type)
@@ -130,7 +131,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     #causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
     #shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
     directions <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
-    data = generate_data_sphere_simulation(nsim = nsim,dir = directions, curve_length = curve_length,noise_points = shared_points,
+    data <- generate_data_sphere_simulation(nsim = nsim,dir = directions, curve_length = curve_length,noise_points = shared_points,
                                            causal_points = causal_points, ball_radius = ball_radius, subdivision = subdivision,
                                            cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
                                            shared_regions = shared_regions, ec_type = ec_type)

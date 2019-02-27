@@ -216,6 +216,7 @@ create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5
         # omit the length data, for now
         ec_curve <- c(ec_curve,curve[,2])
       }
+      
       data <- rbind(data,c(1,ec_curve))
       complex=total_complex[[3]]
       ec_curve <- matrix(NA,nrow = 1,ncol=0)
@@ -228,7 +229,7 @@ create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5
         } else if(ec_type == "DECT"){
           curve <- differentiate_ec_curve(curve)
         } else {
-          stop("ec_type needs to be either 'SECT' or 'DECT'.")
+          curve <- curve
         }
         
         # omit the length data, for now

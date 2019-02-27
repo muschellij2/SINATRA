@@ -1,16 +1,19 @@
 #!/usr/bin/env Rscript
-args = commandArgs(trailingOnly=TRUE)
-
-### Ensure the proper arguments are inputted
-if (length(args) != 3) {
-  stop("At least one argument must be supplied", call.=FALSE)
-}
 
 ### Clear Console ###
 cat("\014")
 
 ### Clear Environment ###
 rm(list = ls(all = TRUE))
+
+### Take in arguments ###
+arguments <- commandArgs(trailingOnly=TRUE)
+print(arguments)
+
+### Ensure the proper arguments are inputted
+if (length(arguments) != 3) {
+  stop(sprintf("At least one argument must be supplied, there are %s args",length(arguments)), call.=FALSE)
+}
 
 ### Load in the R Libraries ###
 library(truncnorm)
@@ -32,14 +35,14 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
-n.simulations <- 100
-
+n.simulations <- 50
 
 # take this input from command line
-num_causal_region <- args[1]
-num_shared_region <- args[2]
-causal_points <- args[3]
-shared_points <- args[3]
+arguments <- as.numeric(arguments)
+num_causal_region <- arguments[1]
+num_shared_region <- arguments[2]
+causal_points <- arguments[3]
+shared_points <- arguments[3]
 
 
 ######################################################################################
@@ -55,7 +58,7 @@ registerDoParallel(cl)
 simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport = c('GaussKernel')) %:% 
   foreach(j=c(1,5,10,15,20), .combine = 'rbind', .noexport = c('GaussKernel')) %dopar% {
     
-    set.seed(3*i+j)
+    set.seed(5*i+j)
     
     res <- tryCatch( generate_ROC_with_coned_directions(nsim = 50, curve_length = 50, grid_size = 25, distance_to_causal_point = 0.1, 
                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
@@ -99,12 +102,12 @@ rdfmeans$Num_Cones <- as.factor(rdfmeans$Num_Cones)
 ### save the results ###
 
 # save the raw results
-sim_results_file = sprintf("~/data/Results/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_%s.RData",
-                           num_causal_region,num_shared_region,reconstruction_type)
+sim_results_file = sprintf("~/data/tsudijon/Results/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_region_size%s.RData",
+                           num_causal_region,num_shared_region,causal_points)
 save(simulation_results, file = sim_results_file)
 
 # save the dataframe
-df_results_file = sprintf("~/data/Results/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
-                          num_causal_region,num_shared_region,reconstruction_type)
+df_results_file = sprintf("~/data/tsudijon/Results/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
+                          num_causal_region,num_shared_region,shared_points)
 save(rdfmeans, file = df_results_file)
 

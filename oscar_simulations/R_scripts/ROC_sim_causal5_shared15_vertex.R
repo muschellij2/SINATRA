@@ -23,7 +23,7 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
-n.simulations <- 100
+n.simulations <- 1
 reconstruction_type <- "vertex" #set how we assess each reconstruction
 causal_points <- 5
 shared_points <- 15
@@ -44,10 +44,12 @@ simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport =
     
     set.seed(3*i+j)
     
-    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 100, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                       causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
-                                       truncated = FALSE, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = reconstruction_type,
-                                       min_points = 3,directions_per_cone = 4, cap_radius = 0.15, radius = 1,ec_type = 'SECT'),
+    res <- tryCatch(  generate_ROC_with_coned_directions(nsim = 50, curve_length = 50, grid_size = 25, distance_to_causal_point = 0.1, 
+                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
+                                                         truncated = -1, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
+                                                         min_points = 3,directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
+                                                         mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
+                                                         subdivision = 3,num_causal_region = 0, num_shared_region = 0),
                      error = function(x) {
                        return(matrix(nrow = 0,ncol = 3))
                      }
