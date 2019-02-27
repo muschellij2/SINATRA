@@ -87,27 +87,27 @@ generate_data_sphere_simulation = function(nsim, curve_length, dir, noise_points
     sphere2 = vcgSphere(subdivision = subdivision)
     
     # Add noise to the sphere
-    sphere1$vb[1:3,] = sphere1$vb[1:3,]  * rnorm(dim(sphere1$vb)[2], mean = 1, sd = 0.005)
-    sphere2$vb[1:3,] = sphere2$vb[1:3,]  * rnorm(dim(sphere2$vb)[2], mean = 1, sd = 0.005)
+    sphere1$vb[1:3,] = sphere1$vb[1:3,]  * rnorm(dim(sphere1$vb)[2], mean = 1, sd = 0.035)
+    sphere2$vb[1:3,] = sphere2$vb[1:3,]  * rnorm(dim(sphere2$vb)[2], mean = 1, sd = 0.035)
     
     # Elevate the causal regions - Needs to be changed
     for (j in 1:length(causal_regions_1)){
       causal_dir1 = regions[causal_regions_1[j],]
       closest_points_class1 = knnx.index(data = t(sphere$vb[-4,]),query = matrix(causal_dir1,ncol = 3), k = causal_points)
-      sphere1$vb[1:3,closest_points_class1] = sphere1$vb[1:3,closest_points_class1]  * 1.55 + rnorm(1, mean = 0, sd = 0.1)
+      sphere1$vb[1:3,closest_points_class1] = sphere1$vb[1:3,closest_points_class1]  * 0.55 + rnorm(1, mean = 0, sd = 0.1)
     }
     
     for (j in 1:length(causal_regions_2)){
       causal_dir2 = regions[causal_regions_2[j],]
       closest_points_class2 = knnx.index(data = t(sphere$vb[-4,]),query = matrix(causal_dir2,ncol = 3), k = causal_points)
-      sphere2$vb[1:3,closest_points_class2] = sphere2$vb[1:3,closest_points_class2]  * 1.55 + rnorm(1, mean = 0, sd = 0.1)
+      sphere2$vb[1:3,closest_points_class2] = sphere2$vb[1:3,closest_points_class2]  * 0.55 + rnorm(1, mean = 0, sd = 0.1)
     }
     
     # Elevate the shared regions - Needs to be changed
     for (k in 1:length(shared_regions)){
       shared_dir = regions[shared_regions[k],]
       closest_points_shared = knnx.index(data = t(sphere$vb[-4,]),query = matrix(shared_dir,ncol = 3), k = noise_points)
-      shared_points = sphere$vb[1:3,closest_points_shared]  * 1.55 + rnorm(1, mean = 0, sd = 0.1)
+      shared_points = sphere$vb[1:3,closest_points_shared]  * 1.35 + rnorm(1, mean = 0, sd = 0.1)
       sphere1$vb[1:3,closest_points_shared] = shared_points
       sphere2$vb[1:3,closest_points_shared] = shared_points
       
