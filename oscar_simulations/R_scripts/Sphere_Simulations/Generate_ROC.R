@@ -1,3 +1,11 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+
+### Ensure the proper arguments are inputted
+if (length(args) != 3) {
+  stop("At least one argument must be supplied", call.=FALSE)
+}
+
 ### Clear Console ###
 cat("\014")
 
@@ -25,11 +33,13 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
 n.simulations <- 100
-causal_points <- 10
-shared_points <- 10
 
-num_causal_region <- 1 # take this input from command line
-num_shared_region <- 2
+
+# take this input from command line
+num_causal_region <- args[1]
+num_shared_region <- args[2]
+causal_points <- args[3]
+shared_points <- args[3]
 
 
 ######################################################################################
