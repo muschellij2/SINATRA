@@ -102,12 +102,12 @@ ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = 
 ### save the results ###
 
 # save the raw results
-sim_results_file = sprintf("~/data/tsudijon/Results/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_region_size%s.RData",
+sim_results_file = sprintf("~/data/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_region_size%s.RData",
                            num_causal_region,num_shared_region,causal_points)
 save(simulation_results, file = sim_results_file)
 
 # save the dataframe
-df_results_file = sprintf("~/data/tsudijon/Results/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
+df_results_file = sprintf("~/data/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
                           num_causal_region,num_shared_region,shared_points)
 save(rdfmeans, file = df_results_file)
 
