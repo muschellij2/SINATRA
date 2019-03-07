@@ -16,7 +16,6 @@ library(geometry)
 library(misc3d)
 library(rgl)
 library(Rvcg)
-library(TDA)
 
 # For point cloud data; one option for manual nearest neighbor type thing, or just use vietoris rips
 # check https://stackoverflow.com/questions/22630226/3d-surface-plot-with-xyz-coordinates
