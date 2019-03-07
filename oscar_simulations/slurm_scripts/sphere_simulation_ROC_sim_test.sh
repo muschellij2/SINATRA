@@ -14,7 +14,7 @@ export OMP_NUM_THREADS=$nproc
 module load gcc
 module load lapack
 module load openblas
-module load R/3.5.1
+module load R/3.5.2
 
 Rscript R_scripts/Package_Setup.R
 
