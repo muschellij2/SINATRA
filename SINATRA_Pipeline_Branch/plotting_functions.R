@@ -1,4 +1,11 @@
 library(RColorBrewer)
+library(Rvcg)
+library(rgl)
+library(FNN)
+library(pracma)
+library(matlib)
+library(far)
+library(rgl)
 
 convert_off_file = function(mesh){
   vertices=as.matrix(t(mesh$vb)[,1:3])

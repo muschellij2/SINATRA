@@ -541,7 +541,7 @@ compute_roc_curve_modified_vertex = function(data,class_1_causal_points,class_2_
 
 compute_roc_curve_features <- function(data,class_1_causal_points,class_2_causal_points,distance_to_causal_point = 0.1,
                                        rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length, truncated = 0,
-                                       class = 0, ball = TRUE, ball_radius = ball_radius, dir, min_points = 2,
+                                       class = 0, ball_radius = ball_radius, dir, min_points = 2,
                                        ball = TRUE, mode = 'grid', subdivision = 3){
   #Assign index to Rate Values
   print('Computing ROC curve...')
@@ -1016,4 +1016,150 @@ feature_vertex_association=function(dir,complex,len,ball_radius = 0, ball = FALS
     }
   }
   return(vertex_list)
+}
+#### ROC Curve for Real Data ####
+compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, class_2_probs,
+                                   rate_values, directions_per_cone, curve_length,directions, truncated = 0,
+                                   ball_radius = ball_radius, ball = TRUE ){
+  roc_curve1 =  compute_roc_curve_teeth_vertex(data_dir = data_dir1, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
+                                               curve_length = curve_length,  rate_values = rate_values, 
+                                               directions_per_cone = directions_per_cone, directions = directions, class = 1,truncated = truncated, 
+                                               ball_radius = ball_radius)
+  roc_curve1 = cbind(roc_curve1, rep(1,dim(roc_curve1)[1]))
+  roc_curve1 = cbind(roc_curve1,(1:dim(roc_curve1)[1]))
+  
+  roc_curve2 =  compute_roc_curve_teeth_vertex(data_dir = data_dir2, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
+                                               curve_length = curve_length,  rate_values = rate_values, 
+                                               directions_per_cone = directions_per_cone, directions = directions, class = 2,truncated = truncated, 
+                                               ball_radius = ball_radius)
+  
+  roc_curve2 = cbind(roc_curve2, rep(2,dim(roc_curve2)[1]))
+  roc_curve2 = cbind(roc_curve2,(1:dim(roc_curve2)[1]))
+  
+  roc_curve = rbind(roc_curve1,roc_curve2)
+  return(roc_curve)}
+
+compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_probs,
+                                          rate_values,directions_per_cone, curve_length,directions, truncated = 0,class = 0,
+                                          ball_radius = ball_radius, ball = TRUE ){
+  print('Computing ROC curve...')
+  #Initializing the number of vertices
+  remove = c()
+  counter = 0
+  
+  #Initializing the aggregate ROC curve frame
+  if (truncated == 0){
+    total_rate_roc = matrix(0, nrow = length(rate_values),ncol = 2)
+  }
+  else{
+    total_rate_roc = matrix(0, nrow = min(truncated,length(rate_values)),ncol = 2)
+  }
+  roc_list = list()
+  files = list.files(data_dir,full.names = TRUE)
+  for (j in 1:length(files)){
+    print(j)
+    mesh = vcgImport(files[j])
+    complex = convert_off_file(mesh)
+    num_vertices = dim(complex$Vertices)[1]
+    class_1_true_vertices = which(class_1_probs > gamma)
+    class_2_true_vertices = which(class_2_probs > gamma)
+    
+    combined_true_vertices = union(class_1_true_vertices,class_2_true_vertices)
+    
+    class_1_false_vertices = setdiff(1:num_vertices, class_1_true_vertices)
+    class_2_false_vertices = setdiff(1:num_vertices, class_2_true_vertices)
+    
+    combined_false_vertices = setdiff(1:num_vertices, combined_true_vertices)
+    true_vertices = combined_true_vertices
+    false_vertices = combined_false_vertices
+    
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    
+    
+    if (length(true_vertices) == 0 || length(false_vertices) == 0){
+      remove = c(remove,j)
+      next
+    }
+    counter = counter + 1 
+    # build the ROC by varying the ROC; we bucket the rate values into quantiles and select the thresholds that way; should make length.out = 1000, or higher
+    # can also recover the case where we add rate values one at a time by taking length.out to be the number of rate values.
+    if (truncated == 0){
+      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
+        
+        #sink("/dev/null")
+        rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
+                                                                 len = curve_length, threshold = threshold,
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+        #sink()
+        
+        rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+        
+        # calculate the TPR, FPR
+        # To do the case where we consider true vertices to be close to any causal point, replace class_1, class_2 true vertices with the combined_true vertices
+        # Otherwise, use class_1_true_Vertices, class_2_true_vertices
+        if (class == 0)
+        {
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        combined_true_vertices,combined_false_vertices))
+          true_vertices = combined_true_vertices
+          false_vertices = combined_false_vertices
+        }
+        else if(class == 1){
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        class_1_true_vertices,class_1_false_vertices))
+          true_vertices = class_1_true_vertices
+          false_vertices = class_1_false_vertices
+        }
+        else{
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        class_2_true_vertices,class_2_false_vertices))
+          true_vertices = class_2_true_vertices
+          false_vertices = class_2_false_vertices
+        } 
+      }
+    } 
+    else{
+      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+        
+        
+        rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
+                                                                 len = curve_length, threshold = threshold,
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+        
+        rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+        
+        # calculate the TPR, FPR
+        # To do the case where we consider true vertices to be close to any causal point, replace class_1, class_2 true vertices with the combined_true vertices
+        # Otherwise, use class_1_true_Vertices, class_2_true_vertices
+        if (class == 0)
+        {
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        combined_true_vertices,combined_false_vertices))
+          true_vertices = combined_true_vertices
+          false_vertices = combined_false_vertices
+        }
+        else if(class == 1){
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        class_1_true_vertices,class_1_false_vertices))
+          true_vertices = class_1_true_vertices
+          false_vertices = class_1_false_vertices
+        }
+        else{
+          rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                        class_2_true_vertices,class_2_false_vertices))
+          true_vertices = class_2_true_vertices
+          false_vertices = class_2_false_vertices
+        } 
+      }
+    }
+    
+    total_rate_roc = total_rate_roc + rate_ROC
+    
+  }
+  total_rate_roc = (total_rate_roc / counter)
+  
+  
+  print(total_rate_roc)
+  
+  return(total_rate_roc)
 }
