@@ -1154,7 +1154,8 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
     }
     
     total_rate_roc = total_rate_roc + rate_ROC
-    
+    power = try(TPR_at_specified_FPR_metric(0.1,rate_ROC)) 
+    print(power)
   }
   total_rate_roc = (total_rate_roc / counter)
   

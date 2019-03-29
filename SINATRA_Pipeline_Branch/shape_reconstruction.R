@@ -8,10 +8,13 @@ compute_selected_vertices_cones = function(dir, complex, rate_vals, len, thresho
   }
   coned_vertices=list()
   for (j in 1:(dim(dir)[1] / cone_size)){
-    cone_dirs=dir[((j-1)*(cone_size)+1):(j*cone_size),]
+    cone_dirs=matrix(dir[((j-1)*(cone_size)+1):(j*cone_size),],ncol = 3)
     cone_rate_vals=rate_vals[(j-1)*(cone_size*len)+1:(j*cone_size*len)]
     coned_vertices[[j]]=summarize_vertices(dir = cone_dirs, complex, rate_vals = cone_rate_vals, len,
                                            reduction_operation = intersect, threshold, cone_size, ball = ball, ball_radius)
+    if (TRUE %in% (c(2677, 1391, 2891, 1562) %in% coned_vertices[[j]])){
+      #print(j)
+    }
   }
   total_selected_vertices=Reduce(union,coned_vertices)
   return(total_selected_vertices)

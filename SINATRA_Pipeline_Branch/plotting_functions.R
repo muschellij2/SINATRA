@@ -77,7 +77,7 @@ reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, 
   if (ball == TRUE){
     for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
       selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
-                                                          cone_size = directions_per_cone,ball_radius = ball_radius, ball = ball)
+                                                          cone_size = cone_size,ball_radius = ball_radius, ball = ball)
       selected_vertices = setdiff(selected_vertices,reconstructed_vertices)
       vert_matrix[selected_vertices,1] = cut
       vert_matrix[selected_vertices,2] = threshold
@@ -87,7 +87,7 @@ reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, 
   else{
     for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
       selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
-                                                          cone_size = directions_per_cone, ball = FALSE)
+                                                          cone_size = cone_size, ball = FALSE)
       selected_vertices = setdiff(selected_vertices,reconstructed_vertices)
       vert_matrix[selected_vertices,1] = cut
       vert_matrix[selected_vertices,2] = threshold
