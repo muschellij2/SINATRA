@@ -1020,18 +1020,18 @@ feature_vertex_association=function(dir,complex,len,ball_radius = 0, ball = FALS
 #### ROC Curve for Real Data ####
 compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, class_2_probs,
                                    rate_values, directions_per_cone, curve_length,directions, truncated = 0,
-                                   ball_radius = ball_radius, ball = TRUE ){
+                                   ball_radius = ball_radius, ball = TRUE , radius = 0){
   roc_curve1 =  compute_roc_curve_teeth_vertex(data_dir = data_dir1, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values, 
                                                directions_per_cone = directions_per_cone, directions = directions, class = 1,truncated = truncated, 
-                                               ball_radius = ball_radius)
+                                               ball_radius = ball_radius,radius = radius)
   roc_curve1 = cbind(roc_curve1, rep(1,dim(roc_curve1)[1]))
   roc_curve1 = cbind(roc_curve1,(1:dim(roc_curve1)[1]))
   
   roc_curve2 =  compute_roc_curve_teeth_vertex(data_dir = data_dir2, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values, 
                                                directions_per_cone = directions_per_cone, directions = directions, class = 2,truncated = truncated, 
-                                               ball_radius = ball_radius)
+                                               ball_radius = ball_radius, radius = radius)
   
   roc_curve2 = cbind(roc_curve2, rep(2,dim(roc_curve2)[1]))
   roc_curve2 = cbind(roc_curve2,(1:dim(roc_curve2)[1]))
@@ -1041,7 +1041,7 @@ compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, c
 
 compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_probs,
                                           rate_values,directions_per_cone, curve_length,directions, truncated = 0,class = 0,
-                                          ball_radius = ball_radius, ball = TRUE ){
+                                          ball_radius = ball_radius, ball = TRUE , radius = 0){
   print('Computing ROC curve...')
   #Initializing the number of vertices
   remove = c()
@@ -1089,7 +1089,7 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
         #sink("/dev/null")
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
         #sink()
         
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
@@ -1124,7 +1124,7 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
         
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball)
+                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
         
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
         

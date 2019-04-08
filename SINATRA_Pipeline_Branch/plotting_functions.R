@@ -70,31 +70,19 @@ get_projection_heatmap <- function(complex, directions, rate_values,
 
 
 #Figures out at which importance are the vertices reconstructed
-reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, cone_size, ball_radius,ball = TRUE){
+reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, cone_size, ball_radius,ball = TRUE, radius = 0){
   vert_matrix = matrix(0,nrow = dim(complex$Vertices)[1], ncol = 2)
   cut = cuts
   reconstructed_vertices = c()
-  if (ball == TRUE){
-    for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+  for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
       selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
-                                                          cone_size = cone_size,ball_radius = ball_radius, ball = ball)
+                                                          cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
       selected_vertices = setdiff(selected_vertices,reconstructed_vertices)
       vert_matrix[selected_vertices,1] = cut
       vert_matrix[selected_vertices,2] = threshold
       cut = cut-1
       reconstructed_vertices = c(reconstructed_vertices,selected_vertices)
-    }}
-  else{
-    for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
-      selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
-                                                          cone_size = cone_size, ball = FALSE)
-      selected_vertices = setdiff(selected_vertices,reconstructed_vertices)
-      vert_matrix[selected_vertices,1] = cut
-      vert_matrix[selected_vertices,2] = threshold
-      cut = cut-1
-      reconstructed_vertices = c(reconstructed_vertices,selected_vertices)
-    }
-  }
+}
   return(vert_matrix)
 }
 
