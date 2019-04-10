@@ -2,7 +2,6 @@
 #SBATCH --job-name=sphere_sim_ROC
 #SBATCH -t 48:00:00# Runtime in HH:MM:SS
 #SBATCH -n 20 # number of cores used 
-#SBATCH --mem 32G # amount of memomry allocated per node
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 

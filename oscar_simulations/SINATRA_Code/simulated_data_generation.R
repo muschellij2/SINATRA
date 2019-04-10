@@ -1,5 +1,5 @@
 library(Rcpp)
-library(rgl)
+# library(rgl) # commented out for athena
 library(ks)
 library(mvtnorm)
 library(pdist)
@@ -172,7 +172,7 @@ update_ec_curve = function(curve,ec_type){
   curve
 }
   
-create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5,causal_points=5,
+create_data_normal_fixed = function(num_sim=25,dir,curve_length=10,shared_points=5,causal_points=5,
                                   grid_size=25,func=rbf_gauss,eta=5,ball_radius = ball_radius,
                                   ec_type = "DECT"){
   
@@ -241,6 +241,7 @@ create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5
   data_list=list(data=data,noise=noise_points,causal_points1=causal_points1,causal_points2=causal_points2, complex_points = complex_points)
   return(data_list)
 }
+
 generate_normal_complex_fixed=function(grid_size=25,noise_points,causal_points1,causal_points2,func=rbf_gauss,eta=5){
   noise=cbind(noise_points,rnorm(dim(noise_points)[1],1,0.25))
   samples1=cbind(causal_points1,rnorm(dim(causal_points1)[1],1,0.25))
@@ -257,6 +258,113 @@ generate_normal_complex_fixed=function(grid_size=25,noise_points,causal_points1,
   complex=list(complex1=complex1,base_points1=samples1,complex2=complex2,base_points2=samples2,
                noise=noise, class1_points = real_samples1, class2_points = real_samples2)
 }
+
+
+### Code for putting gaussian points on random fields###
+# generate these shapes and their ec curves
+generate_data_gaussian_field <- function(nsim, curve_length, dir, shared_points = 2, causal_points = 1, ball_radius = 2,
+                                         ec_type = "ECT", grid_size = 25){
+  
+  dir <- matrix(dir, ncol = 3)
+  data <- matrix(NA,nrow=0,ncol = 1 + curve_length * dim(dir)[1] )
+  
+  
+  #Shared points
+  n1=runif(shared_points,-1,1)
+  n2=runif(shared_points,-1,1)
+  
+  #causal points
+  x1=runif(causal_points,-1,1)
+  y1=runif(causal_points,-1,1)
+  x2=runif(causal_points,-1,1)
+  y2=runif(causal_points,-1,1)
+  
+  noise_points=cbind(n1,n2)
+  causal_points1=cbind(x1,y1)
+  causal_points2=cbind(x2,y2)
+  complex_points=list()
+  for (i in 1:nsim){
+    total_complex=generate_gaussian_field(grid_size = grid_size, shared_points = noise_points, causal_points1 = causal_points1,
+                                                causal_points2 = causal_points2, 0.01)
+    if(inherits(total_complex,'try-error')){
+      i=i-1
+      next
+    }
+    else{
+      complex_points[[(2*i-1)]] = total_complex[[6]]
+      complex_points[[2*i]] = total_complex[[7]]
+      complex=total_complex[[1]]
+      ec_curve <- matrix(NA,nrow = 1,ncol=0)
+      for (j in 1:dim(dir)[1]){
+        vertex_function <- complex$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
+        curve <- compute_standardized_ec_curve(complex, vertex_function, curve_length-1, first_column_index = FALSE,ball_radius)
+        
+        ### transform the ECT as desired ###
+        if (ec_type == "SECT"){
+          curve <- integrate_ec_curve(curve)
+        } else if(ec_type == "DECT"){
+          curve <- differentiate_ec_curve(curve)
+        } else{
+          curve <- curve
+        }
+        # omit the length data, for now
+        ec_curve <- c(ec_curve,curve[,2])
+      }
+      
+      data <- rbind(data,c(1,ec_curve))
+      complex=total_complex[[3]]
+      ec_curve <- matrix(NA,nrow = 1,ncol=0)
+      for (j in 1:dim(dir)[1]){
+        vertex_function <- complex$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
+        curve <- compute_standardized_ec_curve(complex, vertex_function, curve_length-1, first_column_index = FALSE,ball_radius)
+        
+        if (ec_type == "SECT"){
+          curve <- integrate_ec_curve(curve)
+        } else if(ec_type == "DECT"){
+          curve <- differentiate_ec_curve(curve)
+        } else {
+          curve <- curve
+        }
+        
+        # omit the length data, for now
+        ec_curve <- c(ec_curve,curve[,2])
+      }
+      data <- rbind(data,c(-1,ec_curve))
+    }
+  }
+  data_list=list(data=data,noise=noise_points,causal_points1=causal_points1,causal_points2=causal_points2, complex_points = complex_points)
+  return(data_list)
+  
+}
+
+# place gaussian bumps on a plane at desired locations
+# params:
+# shared_points: matrix, rows are shared points between the classes.
+# causal_points1 should be a matrix whose rows are the causal points of class 1
+# causal_points2 should be a matrix whose rows are the causal points of class 2
+# grid_size: the fineness of the grid.
+generate_gaussian_field <- function(grid_size = 25, shared_points, causal_points1, causal_points2,
+                                    normal_std){
+  
+  class1_points <- rbind(causal_points1, shared_points)
+  class2_points <- rbind(causal_points2, shared_points)
+  
+  class1_field <- generate_random_field_matrix(grid_length = grid_size, class1_points,
+                                               normal_std)
+  class2_field <- generate_random_field_matrix(grid_length = grid_size, class1_points,
+                                               normal_std)
+    
+  complex1 <- matrix_to_simplicial_complex(class1_field, grid_length = grid_size)
+  complex2 <- matrix_to_simplicial_complex(class2_field, grid_length = grid_size)
+  
+  complex <- list(complex1 = complex1, base_points1 = causal_points1,  
+                  complex2 = complex2, base_points2 = causal_points2,
+                  shared_points = shared_points,
+                  class1_points = class1_points,
+                  class2_points = class2_points)
+}
+
+
 ######################################################################################
 ######################################################################################
 ######################################################################################
@@ -424,3 +532,38 @@ rbf_on_grid=function(grid_size=25,func=rbf_gauss,data,eta=5){
   predictions=matrix(predictions,nrow=grid_size)
   return(predictions)
 }
+
+# maps projective coordinates to euclidean coordinates
+asEuclidean <- function(coordinates){
+  return(coordinates[,1:3]/coordinates[,4])
+}
+
+######################################################################################
+######################################################################################
+######################################################################################
+### Helper functions for Gaussian on plane functions ###
+
+# Generates the values over a grid for a random field with 
+generate_random_field_matrix <- function(grid_length, points, normal_std){
+  grid_ticks <- seq(-1, 1, length = grid_length)
+  grid <- expand.grid(grid_ticks, grid_ticks)
+  
+  field_values <- function(x) sum_normals(x,points, normal_std)
+  
+  function_values <- matrix(apply(grid, 1, field_values), nrow = grid_length, byrow = TRUE)
+  
+  # add some noise to the grid values
+  function_values + matrix(runif(grid_length^2, min=-0.1, max=0.1), nrow = grid_length)
+}
+
+# Generates a function that is the sum of normals centered at inputted points, with 
+# specified standard deviation
+sum_normals <- function(test_point, points, normal_std){
+  functions <- c()
+  for(i in 1:(dim(points)[1])){
+    functions[i] <- dmvnorm(test_point,points[i,],sigma = diag(2)*normal_std)
+  }
+  
+  sum(functions)/10 #for renormalization
+}
+

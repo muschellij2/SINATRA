@@ -1,11 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=sphere_sim_ROC
-#SBATCH -t 48:00:00# Runtime in HH:MM:SS
-#SBATCH -n 20 # number of cores used 
-#SBATCH --mem 32G # amount of memomry allocated per node
+#SBATCH -t 240:00:00# Runtime in HH:MM:SS
+#SBATCH -n 50 # number of cores used 
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
-#SBATCH --array=0-11%15
+#SBATCH --array=0-5%15
 
 nproc=$(($SLURM_JOB_CPUS_PER_NODE*$SLURM_NNODES))
 #echo $nproc threads
@@ -18,14 +17,14 @@ module load R/3.5.1
 
 Rscript R_scripts/Package_Setup.R
 
-CAUSAL=(1 2 4 2 3 6)
-SHARED=(2 3 6 1 2 4)
+CAUSAL=(1 3 5)
+SHARED=(2 6 10)
 
  for j in {5,10}
  do
- 	for i in {0..5}
+ 	for i in {0..2}
  	do
-		task_id=$(( $(( 6 * $(( $(( $j/5 - 1 )) )) )) + $i ))
+		task_id=$(( $(( 3 * $(( $(( $j/5 - 1 )) )) )) + $i ))
 		causalidx=${CAUSAL[$i]}
 		sharedidx=${SHARED[$i]}
 
