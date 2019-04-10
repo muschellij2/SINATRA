@@ -171,9 +171,9 @@ real_data_summary = function(dir1,dir2,direction=dir,len=len,class1='Class 1',
   want_indices = 0
   want_indices_rate_total=find_rate_variables_with_other_sampling_methods(comparison_matrix,radius = radius, bandwidth = 0.01,
                                                                           weights = TRUE, type = 'ESS')
-  want_indices_bayesian=find_bayesian_variables(comparison_matrix,param = 0.1,radius = radius)
-  want_indices_lasso=find_lasso_variables(comparison_matrix,radius = radius)
-  want_indices_elastic=find_elastic_variables(comparison_matrix,radius=radius)
-  final_list=list(data = comparison_matrix, Rate=want_indices,Rate2=want_indices_rate_total,PPA=want_indices_bayesian,Lasso=want_indices_lasso,Elastic=want_indices_elastic)
+  #want_indices_bayesian=find_bayesian_variables(comparison_matrix,param = 0.1,radius = radius)
+  #want_indices_lasso=find_lasso_variables(comparison_matrix,radius = radius)
+  #want_indices_elastic=find_elastic_variables(comparison_matrix,radius=radius)
+  final_list=list(data = comparison_matrix, Rate=want_indices,Rate2=want_indices_rate_total)
   return(final_list)
 }

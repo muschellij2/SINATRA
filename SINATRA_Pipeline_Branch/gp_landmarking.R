@@ -1,6 +1,5 @@
 #### Rough Implementation of GP Landmarking ####
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
-source('SINATRA/SINATRA_Pipeline_Branch/mesh_functions.R')
+#setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
 library(Rvcg)
 library(Matrix)
 library(FNN)
@@ -73,7 +72,7 @@ find_landmarks = function(mesh, num_landmark = 10){
   full_phi = sparseMatrix(i = rep(1:nv,BNN+1),j = idx,x = as.vector(exp(-dist^2/bandwidth)),dims = c(nv,nv))
   full_phi = (full_phi+t(full_phi))/2
   
-  print('Constructing Full Kernel')
+  #print('Constructing Full Kernel')
   
   full_mat_prod = full_phi %*% sparseMatrix(i = (1:nv), j = 1:nv,x = lambda,dims = c(nv,nv)) %*% full_phi
   
@@ -106,3 +105,36 @@ find_landmarks = function(mesh, num_landmark = 10){
   }
   return(landmark_index)
 }
+
+plot_selected_landmarks = function(mesh, selected_vertices, num_landmarks = 20){
+  vertices = t(mesh$vb[-4,])
+  selected_vertices = c(0,selected_vertices)
+  landmarks = c(0,find_landmarks(mesh, num_landmarks))
+  lmk1 = intersect(selected_vertices,landmarks)
+  lmk2 = landmarks[-(which(landmarks %in% lmk1))]
+  found_landmarks = find_landmarks_from_vertices(vertices, selected_vertices, landmarks)
+  lmk1 = found_landmarks$found_landmarks
+  lmk2 = found_landmarks$lost_landmarks
+ # print(lmk1)
+ # print(lmk2)
+  vertices[,3] = vertices[,3] - 0.01
+  rgl.points(vertices[lmk1,] ,col = 'orange', size = 7)
+  rgl.points(vertices[lmk2,] ,col = 'black', size = 7)
+}
+
+find_landmarks_from_vertices = function(vertices, selected_vertices, landmarks, n = 10){
+  found_landmarks = c()
+  lost_landmarks = c()
+  closest_points = knnx.index(vertices, vertices, k = n)
+  for (i in 1:length(landmarks)){
+    landmark = landmarks[i]
+    if (landmark %in% closest_points[selected_vertices,]){
+      found_landmarks = c(found_landmarks,landmark)
+    }
+    else{
+      lost_landmarks = c(lost_landmarks,landmark)
+    }
+  }
+  return(list(found_landmarks = found_landmarks, lost_landmarks = lost_landmarks))
+}
+

@@ -93,7 +93,7 @@ update_data_and_directions <- function(idxs, data, directions, curve_length,dir_
 ####### Generate Directions #######
 generate_equidistributed_cones <- function(num_directions, cap_radius, directions_per_cone){
   # generate central directions that are equidistributed around the sphere.
-  cones <- generate_equidistributed_points(num_directions)
+  cones <- generate_equidistributed_points(num_directions, num_directions)
   
   # renormalize these directions
   cones <- t(apply(cones, 1, function(x) x/sqrt(sum(x*x))))
@@ -181,6 +181,24 @@ rodriq<-function(z,r,j){
   }
   return(dir)
 }
+
+# Generating a random rotation matrix
+generate_random_rotation = function(n = 3){
+  initial_matrix = matrix(rnorm(n = n^2,mean = 0, sd = 1), ncol = 3, nrow = 3)
+  svd_matrix = svd(initial_matrix)
+  det = sum(svd_matrix$d)
+  rot_mat = svd_matrix$u %*% svd_matrix$v
+  if (det == 0){
+    return(generate_random_rotation(n))
+  }
+  if (det < 0){
+    rot_mat[1,] = rot_mat[1,] * -1
+  }
+  else{
+    return(rot_mat)
+  }
+}
+
 cross<-function(x,y){
   a<-x
   a[1]<-x[2]*y[3]-x[3]*y[2]
