@@ -1,5 +1,6 @@
 setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
 library(R.utils)
+library(Rcpp)
 sourceDirectory('~/Documents/SINATRA/SINATRA_Pipeline_Branch/')
 sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
 set.seed(55)
@@ -41,7 +42,6 @@ ball = TRUE
 ball_radius = 0.5
 ec_type = 'ECT'
 #### Start Comparison #### 
-load('Teeth_v2.Rdata')
 color1='blue'
 color2='lightgreen'
 color3='orangered'
@@ -71,13 +71,13 @@ veg_colors = rep('white', dim(veg1$vb)[2])
 plot3d(veg1,col = veg_colors, back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
 #plot_selected_landmarks(veg1,veg1_vert)
 rgl.viewpoint(userMatrix = rotation_matrix)
-
+rgl.postscript(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/figures/figure1/figure1a_v1.pdf',fmt = 'pdf')
 #1b
 arrow_type = 'rotation'
 s = 1/10
 width = 1/9
 thickness = 1/20
-plot3d(fruit1,col = fruit_colors,  specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+plot3d(fruit1,col = fruit_colors,  specular="black", axes = FALSE,xlab = '', ylab = '',zlab='',alpha = 0.95)
 for (k in 101:105){
   arrow3d(-0.5*dirs[101,],0.5*dirs[k,],s = s, type = arrow_type,width= width,thickness = thickness,col = 'red')
 }
@@ -90,6 +90,63 @@ for (k in 56:60){
 #arrow3d(0.5*-dirs[1,],0.5*dirs[1,],s = 1/9, type = 'rotation',width= 1/9,thickness = 1/20)
 #plot_selected_landmarks(fruit1,fruit1_vert)
 rgl.viewpoint(userMatrix = rotation_matrix)
+rgl.postscript(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/figures/figure1/figure1b_v1.pdf',fmt = 'pdf')
+
+#1c
+
+#### Create the Filtartion ####
+
+dir_index = 101
+projections <- fruit_1$Vertices[,1:3]%*%dirs[dir_index,]
+buckets <- seq(-ball_radius,ball_radius,length.out = len+1)
+
+#bucket these projections into curve_length number of groups; could have also solved this with the cut function
+step_length <- (max(buckets) - min(buckets))/len
+#Replace projections by buckets
+projection_buckets <- apply((projections - min(buckets))/step_length,1, function(float) as.integer(float)) + (len+1)*(dir_index-1)
+#print(step_l)
+projection_buckets=projection_buckets+1
+# print(paste(min(projection_buckets), max(projection_buckets)))
+selected_vertices[[i]]=which(projection_buckets %in% indices)
+# print(paste(min(projection_buckets), max(projection_buckets)))
+min(projection_buckets)
+max(projection_buckets)
+
+
+total_projections = cbind(projections,projection_buckets)
+mfrow3d(1,5)
+s = 1/6
+width = 1/6
+thickness = 1/20
+
+for (k in seq(min(projection_buckets),max(projection_buckets),length.out = 5)){
+  alphas = rep(0, dim(fruit1$vb)[2])
+  filtration_vertex = which(projection_buckets < k)
+  alphas[filtration_vertex] = 0.97
+  if (k == max(projection_buckets)){
+    alphas[filtration_vertex] = 1
+  }
+  
+  filtered_projections = total_projections[which(total_projections[,2] < k+1),]
+  projection = 1.25*max(filtered_projections[,1])
+  colors = rep('white', dim(fruit1$vb)[2])
+  plot3d(fruit1,col = colors,  specular="black", axes = FALSE,xlab = '', ylab = '',zlab='',alpha = alphas)
+  arrow3d(-0.5*dirs[dir_index,],0.75*dirs[dir_index,],s = s, type = arrow_type,width= width,thickness = thickness,col = 'red')
+  rgl.viewpoint(userMatrix = rotation_matrix)
+}
+rgl.postscript(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/figures/figure1/figure1c_v1.pdf',fmt = 'pdf')
+rgl.snapshot(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/figures/figure1/figure1c_v1.png',fmt = 'png')
+
+#EC curve
+
+ec_curve = compute_standardized_ec_curve(complex = fruit_1, vertex_function = projections,curve_length = len,first_column_index = FALSE ,ball_radius = ball_radius)
+
+par(mfrow  = c(1,5))
+for (k in seq(min(ec_curve[,1]),max(ec_curve[,1]),length.out = 5)){
+  curve = ec_curve[which(ec_curve[,1]<=k),]
+  plot(curve,type="l", xlab="Filtration Steps", ylab="Topological Summary Statistics",bty="n",lwd=3,xlim = c(-0.5,0.5),ylim=c(-0.5,1.25))
+}
+
 
 #1d
 fruit_colors_heat=colfunc(max(fruit_heat[,1]) - min(fruit_heat[,1]))[fruit_heat[,1] - min(fruit_heat[,1])]
@@ -105,5 +162,6 @@ rgl.viewpoint(userMatrix = rotation_matrix)
 plot3d(veg1,col = veg_colors_heat, back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
 #plot_selected_landmarks(veg1,veg1_vert,num_landmarks = 20)
 rgl.viewpoint(userMatrix = rotation_matrix)
+rgl.postscript(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/figures/figure1/figure1e_v1.pdf',fmt = 'pdf')
 
 save.image('Figure1.Rdata')
