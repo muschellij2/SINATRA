@@ -74,6 +74,15 @@ reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, 
   vert_matrix = matrix(0,nrow = dim(complex$Vertices)[1], ncol = 2)
   cut = cuts
   reconstructed_vertices = c()
+  #for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+  #    selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
+  #                                                        cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
+  #    if (length(selected_vertices) > 1){
+  #      rate_vals[which(rate_vals < threshold)] = threshold
+  #      break
+  #    }
+#}
+  #print(quantile(rate_vals,probs = seq(1,0,length.out = cuts)))
   for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
       selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
                                                           cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
@@ -82,10 +91,40 @@ reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, 
       vert_matrix[selected_vertices,2] = threshold
       cut = cut-1
       reconstructed_vertices = c(reconstructed_vertices,selected_vertices)
+      if (length(reconstructed_vertices) == dim(complex$Vertices)[1]){
+        break
+      }
 }
   return(vert_matrix)
 }
 
+reconstruct_faces_on_shape = function(dir, complex, rate_vals, len, cuts=10, cone_size, ball_radius,ball = TRUE, radius = 0){
+  face_matrix = matrix(0,nrow = dim(complex$Faces)[1], ncol = 2)
+  cut = cuts
+  reconstructed_faces = c()
+  #for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+  #    selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
+  #                                                        cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
+  #    if (length(selected_vertices) > 1){
+  #      rate_vals[which(rate_vals < threshold)] = threshold
+  #      break
+  #    }
+#}
+  #print(quantile(rate_vals,probs = seq(1,0,length.out = cuts)))
+  for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+      selected_faces = compute_selected_faces_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
+                                                          cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
+      selected_faces = setdiff(selected_faces,reconstructed_faces)
+      face_matrix[selected_faces,1] = cut
+      face_matrix[selected_faces,2] = threshold
+      cut = cut-1
+      reconstructed_faces = c(reconstructed_faces,selected_faces)
+      if (length(reconstructed_faces) == dim(complex$Faces)[1]){
+        break
+      }
+}
+  return(face_matrix)
+}
 # color the vertices of the complex based on sum of RATE values on each projection it lies in
 get_RATE_weighted_heatmap <- function(complex, directions, rate_values,
                                       curve_length,ball_radius, threshold = 1/length(rate_values)){
@@ -125,6 +164,18 @@ plot_results_teeth_simple=function(files, features1, features2, color1, color2, 
     #Rotate the tooth for a view of the 'bottom'
     rotation_matrix=matrix(c(0.99972576,0.02127766,0.00978078,0,0.01589701,-0.92330807,0.38373107,0,0.01719557,-0.38347024,-0.92339307,0,0,0,0,1),ncol=4,byrow=TRUE)
     rgl.viewpoint(userMatrix = rotation_matrix)
+  }
+}
+color.bar <- function(lut, min, max=-min, nticks=11, ticks=seq(min, max, len=nticks), title='') {
+  scale = (length(lut)-1)/(max-min)
+  
+  dev.new(width=1.75, height=5)
+  par(mar=c(5,6,4,1)+.1)
+  plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
+  axis(2, ticks, las=1,cex.axis = 1.4)
+  for (i in 1:(length(lut)-1)) {
+    y = (i-1)/scale + min
+    rect(0,y,10,y+1/scale, col=lut[i], border=NA)
   }
 }
 

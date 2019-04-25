@@ -81,11 +81,11 @@ library(auto3dgm)
 library(rgl)
 library(Rvcg)
 
-#Data_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/all_files_tingran_scaled/"
-#Output_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/all_files_alignedv2"
-Data_dir = '~/Documents/face_meshes/to_be_aligned_meshes'
-Output_dir = "~/Documents/face_meshes/newly_aligned_meshes"
-Output_dir2  =  "~/Documents/face_meshes/newly_aligned_meshes/Aligned_Shapes/"
+Data_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/HDM/all_scaled"
+Output_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/all_files_alignedv4/"
+#Data_dir = '~/Documents/face_meshes/to_be_aligned_meshes'
+#Output_dir = "~/Documents/face_meshes/newly_aligned_meshes"
+#Output_dir2  =  "~/Documents/face_meshes/newly_aligned_meshes/Aligned_Shapes/"
 rotation_matrix=matrix(c(0.99972576,0.02127766,0.00978078,0,0.01589701,-0.92330807,0.38373107,0,0.01719557,-0.38347024,-0.92339307,0,0,0,0,1),ncol=4,byrow=TRUE)
 
 

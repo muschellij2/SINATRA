@@ -1120,6 +1120,7 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
     } 
     else{
       for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      
         
         
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
@@ -1149,7 +1150,14 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
                                                         class_2_true_vertices,class_2_false_vertices))
           true_vertices = class_2_true_vertices
           false_vertices = class_2_false_vertices
-        } 
+        }
+        previous_tpr_fpr = calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                          class_2_true_vertices,class_2_false_vertices)
+        if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
+         rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
+         rate_ROC = rbind(rate_ROC,rate_ROC2)
+         break
+        }
       }
     }
     
