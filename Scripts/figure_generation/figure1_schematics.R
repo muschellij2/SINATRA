@@ -243,6 +243,13 @@ show2d({
 
 
 #1d
+color1='blue'
+color2='lightgreen'
+color3='orangered'
+color3 = 'red'
+col_pal=c(color1,color2,color2,color3)
+#col_pal =c(color1,color2,color3)
+colfunc <- colorRampPalette(col_pal)
 fruit_heat =  reconstruct_vertices_on_shape(dir = dirs,complex = fruit_1,rate_vals = fruit_veg_new$Rate2[,2],
                                             len = len,cuts = 300,cone_size = directions_per_cone,ball_radius = ball_radius, ball = ball,radius =1)
 veg_heat =  reconstruct_vertices_on_shape(dir = dirs,complex = veg_1,rate_vals = fruit_veg_new$Rate2[,2],
