@@ -58,3 +58,14 @@ integrate_ec_curve <- function(ec_curve){
   
   ec_curve
 }
+
+update_ec_curve = function(curve,ec_type){
+  if (ec_type == "SECT"){
+    curve <- integrate_ec_curve(curve)
+  } else if(ec_type == "DECT"){
+    curve <- differentiate_ec_curve(curve)
+  } else{
+    curve <- curve
+  }
+  curve
+}

@@ -172,7 +172,7 @@ update_ec_curve = function(curve,ec_type){
   curve
 }
   
-create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5,causal_points=5,
+create_data_normal_fixed = function(num_sim=25,dir,curve_length=10,shared_points=5,causal_points=5,
                                   grid_size=25,func=rbf_gauss,eta=5,ball_radius = ball_radius,
                                   ec_type = "DECT"){
   
@@ -241,6 +241,7 @@ create_data_normal_fixed=function(num_sim=25,dir,curve_length=10,shared_points=5
   data_list=list(data=data,noise=noise_points,causal_points1=causal_points1,causal_points2=causal_points2, complex_points = complex_points)
   return(data_list)
 }
+
 generate_normal_complex_fixed=function(grid_size=25,noise_points,causal_points1,causal_points2,func=rbf_gauss,eta=5){
   noise=cbind(noise_points,rnorm(dim(noise_points)[1],1,0.25))
   samples1=cbind(causal_points1,rnorm(dim(causal_points1)[1],1,0.25))
@@ -261,28 +262,30 @@ generate_normal_complex_fixed=function(grid_size=25,noise_points,causal_points1,
 
 ### Code for putting gaussian points on random fields###
 # generate these shapes and their ec curves
-generate_data_gaussian_field <- function(nsim, curve_length, dir, shared_points = 2, causal_points = 1, ball_radius = 3,
+generate_data_gaussian_field <- function(nsim, curve_length, dir, shared_points = 2, causal_points = 1, ball_radius = 2,
                                          ec_type = "ECT", grid_size = 25){
   
-  data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]) )
+  dir <- matrix(dir, ncol = 3)
+  data <- matrix(NA,nrow=0,ncol = 1 + curve_length * dim(dir)[1] )
+  
   
   #Shared points
-  n1=rtruncnorm(shared_points,a=0,b=1,sd=1)
-  n2=rtruncnorm(shared_points,a=0,b=1,sd=1)
+  n1=runif(shared_points,-1,1)
+  n2=runif(shared_points,-1,1)
   
   #causal points
-  x1=rtruncnorm(causal_points,a=-1,b=0,-0.5,sd=1)
-  y1=rtruncnorm(causal_points,a=0,b=1,0.5,sd=1)
-  x2=rtruncnorm(causal_points,a=0,b=1,mean=0.5,sd=1)
-  y2=rtruncnorm(causal_points,a=-1,b=0,mean=-0.5,sd=1)
+  x1=runif(causal_points,-1,1)
+  y1=runif(causal_points,-1,1)
+  x2=runif(causal_points,-1,1)
+  y2=runif(causal_points,-1,1)
   
   noise_points=cbind(n1,n2)
   causal_points1=cbind(x1,y1)
   causal_points2=cbind(x2,y2)
   complex_points=list()
-  for (i in 1:num_sim){
-    total_complex=generate_normal_complex_fixed(grid_size=grid_size,noise_points=noise_points,causal_points1=causal_points1,
-                                                causal_points2=causal_points2, func=func,eta=eta)
+  for (i in 1:nsim){
+    total_complex=generate_gaussian_field(grid_size = grid_size, shared_points = noise_points, causal_points1 = causal_points1,
+                                                causal_points2 = causal_points2, 0.01)
     if(inherits(total_complex,'try-error')){
       i=i-1
       next

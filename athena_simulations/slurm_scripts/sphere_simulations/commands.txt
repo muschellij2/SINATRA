@@ -1,4 +1,19 @@
-sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_1_2_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_1_2_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_1_2_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_1_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_1_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_3_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_3_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_3_2_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_3_2_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_4_6_10.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_4_6_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_6_4_5.sh
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_6_4_10.sh
+
+# When using oscar simulations folder
+sbatch --account=ccmb-condo slurm_scripts/sphere_simulation_ROC_sim_test.sh 
+
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_1_2_5.sh
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_1_10.sh
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_2_1_5.sh
@@ -10,3 +25,5 @@ sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_4_6_10.sh
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_4_6_5.sh
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_6_4_5.sh
 sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim_6_4_10.sh
+
+sbatch slurm_scripts/sphere_simulations/sphere_simulation_ROC_sim.sh

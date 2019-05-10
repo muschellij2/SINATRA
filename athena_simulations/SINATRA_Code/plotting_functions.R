@@ -80,6 +80,33 @@ get_RATE_weighted_heatmap <- function(complex, directions, rate_values,
 ##########################################################################################
 ### Get Vertex Persistence for reconstruction ###
 
+reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, cone_size, ball_radius,ball = TRUE, radius = 0){
+  vert_matrix = matrix(0,nrow = dim(complex$Vertices)[1], ncol = 2)
+  cut = cuts
+  reconstructed_vertices = c()
+  #for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+  #    selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
+  #                                                        cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
+  #    if (length(selected_vertices) > 1){
+  #      rate_vals[which(rate_vals < threshold)] = threshold
+  #      break
+  #    }
+  #}
+  #print(quantile(rate_vals,probs = seq(1,0,length.out = cuts)))
+  for (threshold in quantile(rate_vals,probs = seq(1,0,length.out = cuts)) ){
+    selected_vertices = compute_selected_vertices_cones(dir = dir, complex = complex, rate_vals = rate_vals, len = len, threshold = threshold,
+                                                        cone_size = cone_size,ball_radius = ball_radius, ball = ball, radius = radius)
+    selected_vertices = setdiff(selected_vertices,reconstructed_vertices)
+    vert_matrix[selected_vertices,1] = cut
+    vert_matrix[selected_vertices,2] = threshold
+    cut = cut-1
+    reconstructed_vertices = c(reconstructed_vertices,selected_vertices)
+    if (length(reconstructed_vertices) == dim(complex$Vertices)[1]){
+      break
+    }
+  }
+  return(vert_matrix)
+}
 
 ### Code for smoothening functions ###
 

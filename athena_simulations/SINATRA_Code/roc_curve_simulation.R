@@ -81,10 +81,13 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
 # process outlined above to obtain a collection of vertices, which we consider to be 'positive'. Those that aren't selected are the 'negative' ones. We regard
 # a vertex to be a True Positive if it is within some small distance of a causal point, and conversely with a False Positive. True Negative and False Negative 
 # vertices are defined similarly.
+#
+# Mode: sphere - generates cusps on sphere
+# if gaussian_grid, generates gaussian bumps on grid; grid - generates rbf interpolated fields
 
 generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, grid_size = 25, distance_to_causal_point = 0.1, 
                                                causal_points = 10,shared_points = 3, desired_num_cones = 5, eta = 0.1, 
-                                               truncated = -1, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
+                                               truncated = 3000, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
                                                min_points = 3,directions_per_cone = 4, cap_radius = 0.15, radius = 1,ec_type = 'DECT',
                                                mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
                                                subdivision = 3,num_causal_region = 5, num_shared_region = 5){
@@ -110,6 +113,15 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     #                                       causal_points = causal_points,ball = ball, ball_radius = ball_radius, subdivision = subdivision,
     #                                       cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
     #                                       shared_regions = shared_regions, ec_type = ec_type)
+  }
+  else if (mode == 'gaussian_grid'){
+    print(mode)
+    directions <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
+    data <- generate_data_gaussian_field(nsim = nsim, dir = directions, curve_length = curve_length,shared_points = shared_points,
+                                     causal_points = causal_points,grid_size = grid_size,ball_radius = ball_radius,
+                                     ec_type = ec_type)
+    directions <- directions
+    ec_curve_data <- data$data
   }
   else{
     print(mode)
@@ -157,7 +169,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   #Compute ROC using training data
   if (type == 'vertex'){
     if (two_curves == TRUE){
-      roc_curve1 =  compute_roc_curve_vertex(data= data, class_1_causal_points = data$causal_points1, class_2_causal_points = data$causal_points2,
+      roc_curve1 =  compute_roc_curve_vertex(data = data, class_1_causal_points = data$causal_points1, class_2_causal_points = data$causal_points2,
                                              curve_length = curve_length, distance_to_causal_point = distance_to_causal_point, rate_values = rate_values, grid_size = grid_size,
                                              eta = eta, directions_per_cone = directions_per_cone, directions = directions, class = 1,truncated = truncated, 
                                              ball_radius = ball_radius,mode = mode,subdivision = subdivision)
@@ -233,7 +245,9 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
   else{
     total_rate_roc = matrix(0, nrow = min(truncated,length(rate_values)),ncol = 2)
   }
+  
   roc_list = list()
+  
   for (j in 1:length(data_points)){
     if (class == 1 && mod(j,2) != 1){
       next
@@ -245,6 +259,26 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
       class_1_causal_points = data$causal_points1
       class_2_causal_points = data$causal_points2
       predictions=rbf_on_grid(grid_size=grid_size,func=rbf_gauss,data=data_points[[j]],eta=eta)
+      complex=matrix_to_simplicial_complex(predictions,grid_length=grid_size)
+      
+      #Starting to Compute the ROC curve for a given complex
+      class_1_true_vertices = c()
+      class_2_true_vertices = c()
+      
+      for (j in 1:num_vertices){
+        #computes the 2D euclidean distance on the grid between the points
+        dist1=apply(X = class_1_causal_points[,1:2],MARGIN = 1,FUN = difference,y=complex$Vertices[j,1:2])
+        dist2=apply(X = class_2_causal_points[,1:2],MARGIN = 1,FUN = difference,y=complex$Vertices[j,1:2])
+        
+        if (min(dist1)< distance_to_causal_point) class_1_true_vertices=c(class_1_true_vertices,j) 
+        if (min(dist2)< distance_to_causal_point) class_2_true_vertices=c(class_2_true_vertices,j) 
+      }
+    }
+    
+    if (mode == 'gaussian_grid'){
+      class_1_causal_points = data$causal_points1
+      class_2_causal_points = data$causal_points2
+      predictions=generate_random_field_matrix(grid_length=grid_size, points=data_points[[j]], 0.01)
       complex=matrix_to_simplicial_complex(predictions,grid_length=grid_size)
       
       #Starting to Compute the ROC curve for a given complex

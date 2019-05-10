@@ -1,5 +1,6 @@
 library(Matrix)
 library(FastGP)
+library(mvtnorm)
 
 
 ####### RATE Code ######
@@ -25,7 +26,7 @@ find_rate_variables_with_other_sampling_methods = function(gp_data,radius=0,band
     sigma <- params[[2]]
     fhat.samples = rmvnorm(1e4,mu,sigma)
   } else if ( type == 'ESS' ){
-    fhat.samples = Elliptical_Slice_Sampling(Kn,gp_data[,1],1e4,probit = TRUE)
+    fhat.samples = Elliptical_Slice_Sampling(Kn,gp_data[,1],1e5,probit = TRUE)
   } else {
     stop(" Input one of 'Laplace','EP','ESS' as methods for Gaussian Process Inference ")
   }

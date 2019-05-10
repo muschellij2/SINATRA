@@ -1,5 +1,5 @@
 #### Aligning and Scaling the meshes ####
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
+setwd('/Users/timothysudijono/Dropbox/Data + Experiments/')
 library(Morpho)
 library(rgl)
 library(Rvcg)

@@ -17,7 +17,8 @@ compute_selected_vertices_cones = function(dir, complex, rate_vals, len, thresho
   return(total_selected_vertices)
 }
 
-summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=intersect,threshold,cone_size, ball_radius){
+
+summarize_vertices = function(dir,complex,rate_vals,len,reduction_operation=intersect,threshold,cone_size, ball_radius){
   indices=which(rate_vals>threshold)
   selected_vertices=list()
   
@@ -25,7 +26,7 @@ summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=inters
   for(i in 1:dim(dir)[1]){
     
     vtx_projection <- complex$Vertices[,1:3]%*%dir[i,]
-    buckets <- seq(-ball_radius,ball_radius,length.out = len+1)
+    buckets <- seq(-ball_radius,ball_radius,length.out = len + 1)
     
     # map vertex projection to the feature index
     projection_bucket <- cut(vtx_projection, buckets, labels = FALSE)
@@ -34,8 +35,9 @@ summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=inters
     projection_bucket <- projection_bucket + (i - 1)*len
     
     selected_vertices[[i]] <- which(projection_bucket %in% indices)
-    
   }
+  
+  
   final_selected_vertices <- Reduce(reduction_operation,selected_vertices)
   
   return(final_selected_vertices)
