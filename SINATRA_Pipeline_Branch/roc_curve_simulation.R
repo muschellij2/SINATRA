@@ -101,7 +101,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   if (mode == 'sphere'){
     #cusps = 2*num_causal_region + num_shared_region + 1
     cusps = 2*num_causal_region + num_shared_region + 1
-    causal_dirs = generate_equidistributed_points(cusps)
+    causal_dirs = generate_equidistributed_points(cusps, cusps +1)
     causal_regions_1 = sample(1:cusps,num_causal_region)
     causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
     shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
@@ -131,7 +131,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     #shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
     directions <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
     data = generate_data_sphere_simulation(nsim = nsim,dir = directions, curve_length = curve_length,noise_points = shared_points,
-                                           causal_points = causal_points,ball = ball, ball_radius = ball_radius, subdivision = subdivision,
+                                           causal_points = causal_points,ball_radius = ball_radius, subdivision = subdivision,
                                            cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
                                            shared_regions = shared_regions, ec_type = ec_type)
     #temp <- prune_directions_to_desired_number(data = data$data[,-1],directions = directions, num_cones = num_cones_total,
@@ -1020,23 +1020,35 @@ feature_vertex_association=function(dir,complex,len,ball_radius = 0, ball = FALS
 #### ROC Curve for Real Data ####
 compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, class_2_probs,
                                    rate_values, directions_per_cone, curve_length,directions, truncated = 0,
-                                   ball_radius = ball_radius, ball = TRUE , radius = 0){
+                                   ball_radius = ball_radius, ball = TRUE , radius = 0,two_curves = FALSE){
+  if (two_curves == TRUE){
+    roc_curve_label1 = 1
+    roc_curve_label2 = 2
+  }
+  else{
+    roc_curve_label1 = 0
+    roc_curve_label2 = 0
+  }
   roc_curve1 =  compute_roc_curve_teeth_vertex(data_dir = data_dir1, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values, 
-                                               directions_per_cone = directions_per_cone, directions = directions, class = 1,truncated = truncated, 
+                                               directions_per_cone = directions_per_cone, directions = directions, class = roc_curve_label1,truncated = truncated, 
                                                ball_radius = ball_radius,radius = radius)
   roc_curve1 = cbind(roc_curve1, rep(1,dim(roc_curve1)[1]))
   roc_curve1 = cbind(roc_curve1,(1:dim(roc_curve1)[1]))
   
   roc_curve2 =  compute_roc_curve_teeth_vertex(data_dir = data_dir2, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values, 
-                                               directions_per_cone = directions_per_cone, directions = directions, class = 2,truncated = truncated, 
+                                               directions_per_cone = directions_per_cone, directions = directions, class = roc_curve_label2,truncated = truncated, 
                                                ball_radius = ball_radius, radius = radius)
   
   roc_curve2 = cbind(roc_curve2, rep(2,dim(roc_curve2)[1]))
   roc_curve2 = cbind(roc_curve2,(1:dim(roc_curve2)[1]))
   
   roc_curve = rbind(roc_curve1,roc_curve2)
+  if (two_curves == FALSE){
+    roc_curve = (roc_curve1 + roc_curve2)/2
+    roc_curve[,3] = 0
+  }
   return(roc_curve)}
 
 compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_probs,
@@ -1116,6 +1128,13 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
           true_vertices = class_2_true_vertices
           false_vertices = class_2_false_vertices
         } 
+        previous_tpr_fpr = calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                             true_vertices,false_vertices)
+        if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
+          rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
+          rate_ROC = rbind(rate_ROC,rate_ROC2)
+          break
+        }
       }
     } 
     else{
@@ -1152,11 +1171,11 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
           false_vertices = class_2_false_vertices
         }
         previous_tpr_fpr = calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
-                                          class_2_true_vertices,class_2_false_vertices)
+                                             true_vertices,false_vertices)
         if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
-         rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
-         rate_ROC = rbind(rate_ROC,rate_ROC2)
-         break
+          rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
+          rate_ROC = rbind(rate_ROC,rate_ROC2)
+          break
         }
       }
     }

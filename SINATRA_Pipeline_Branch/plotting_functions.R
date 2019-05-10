@@ -178,6 +178,20 @@ color.bar <- function(lut, min, max=-min, nticks=11, ticks=seq(min, max, len=nti
     rect(0,y,10,y+1/scale, col=lut[i], border=NA)
   }
 }
+get_heat_colors = function(dir_name, cuts, pset, comp, colfunc){
+  mesh_list = list()
+  for (k in 1:length(list.files(dir_name,full.names = TRUE))){
+    file_name = list.files(dir_name,full.names = TRUE)[k]
+    print(paste('On File', file_name))
+    mesh = process_off_file_v3(file_name)
+    heat = reconstruct_vertices_on_shape(dir = pset$dirs,complex = mesh,rate_vals = comp$Rate2[,2],
+                                                len = pset$len,cuts = cuts,cone_size = pset$directions_per_cone,ball_radius = ball_radius, ball = ball,radius =1)
+    heat_colors = colfunc(1 + max(heat[,1]) - min(heat[,1]))[1 + heat[,1] - min(heat[,1])]
+    mesh_list[[k]] = heat_colors
+  }
+  return(mesh_list)
+  
+}
 
 ##########################################################################################
 ##########################################################################################
