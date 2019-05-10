@@ -351,6 +351,11 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
           true_vertices = class_2_true_vertices
           false_vertices = class_2_false_vertices
         } 
+        if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
+          rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
+          rate_ROC = rbind(rate_ROC,rate_ROC2)
+          break
+        }
       }
     } 
     else{
@@ -386,6 +391,13 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
           true_vertices = class_2_true_vertices
           false_vertices = class_2_false_vertices
         } 
+        previous_tpr_fpr = calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                             true_vertices,false_vertices)
+        if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
+          rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
+          rate_ROC = rbind(rate_ROC,rate_ROC2)
+          break
+        }
       }
     }
     
