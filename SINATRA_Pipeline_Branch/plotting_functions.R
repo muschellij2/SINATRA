@@ -169,7 +169,7 @@ plot_results_teeth_simple=function(files, features1, features2, color1, color2, 
 color.bar <- function(lut, min, max=-min, nticks=11, ticks=seq(min, max, len=nticks), title='') {
   scale = (length(lut)-1)/(max-min)
   
-  dev.new(width=1.75, height=5)
+  dev.new(width=1, height=5)
   par(mar=c(5,6,4,1)+.1)
   plot(c(0,10), c(min,max), type='n', bty='n', xaxt='n', xlab='', yaxt='n', ylab='', main=title)
   axis(2, ticks, las=1,cex.axis = 1.4)

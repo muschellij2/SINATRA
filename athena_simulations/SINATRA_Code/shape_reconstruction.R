@@ -74,10 +74,13 @@ summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=inters
       
       #bucket these projections into curve_length number of groups; could have also solved this with the cut function
       step_length <- (max(buckets) - min(buckets))/len
+      
       #Replace projections by buckets
-      projection_buckets <- apply((projections - min(buckets))/step_length,1, function(float) as.integer(float)) + (len+1)*(i-1)
+      projection_buckets <- apply((projections - min(buckets))/step_length,1, function(float) as.integer(float)) + len*(i-1)
+      
       #print(step_l)
       projection_buckets=projection_buckets+1
+      
       # print(paste(min(projection_buckets), max(projection_buckets)))
       selected_vertices[[i]]=which(projection_buckets %in% indices)
       #print(indices)

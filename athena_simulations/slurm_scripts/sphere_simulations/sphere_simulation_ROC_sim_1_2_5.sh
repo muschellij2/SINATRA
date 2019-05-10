@@ -1,7 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=sphere_sim_ROC
-#SBATCH -t 48:00:00# Runtime in HH:MM:SS
+#SBATCH -t 240:00:00# Runtime in HH:MM:SS
+#SBATCH -N 1 # number of nodes used
 #SBATCH -n 20 # number of cores used 
+#SBATCH --mem=80g
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 
@@ -12,7 +14,7 @@ export OMP_NUM_THREADS=$nproc
 module load gcc
 module load lapack
 module load openblas
-module load R/3.5.1
+module load R/3.5.2
 
 Rscript R_scripts/Package_Setup.R
 

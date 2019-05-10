@@ -87,7 +87,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
 
 generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, grid_size = 25, distance_to_causal_point = 0.1, 
                                                causal_points = 10,shared_points = 3, desired_num_cones = 5, eta = 0.1, 
-                                               truncated = -1, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
+                                               truncated = 3000, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
                                                min_points = 3,directions_per_cone = 4, cap_radius = 0.15, radius = 1,ec_type = 'DECT',
                                                mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
                                                subdivision = 3,num_causal_region = 5, num_shared_region = 5){
