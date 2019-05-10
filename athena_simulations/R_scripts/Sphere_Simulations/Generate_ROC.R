@@ -4,7 +4,7 @@
 cat("\014")
 
 ### Clear Environment ###
-#rm(list = ls(all = TRUE)) 
+rm(list = ls(all = TRUE)) 
 
 ### Take in arguments ###
 arguments <- commandArgs(trailingOnly=TRUE)
@@ -50,7 +50,7 @@ shared_points <- arguments[3]
 ######################################################################################
 
 ### Setup DoParallel ###
-no_cores <- detectCores() - 1
+no_cores <- detectCores() - 2
 cl <- makeCluster(no_cores, type="FORK")  
 registerDoParallel(cl)  
 
