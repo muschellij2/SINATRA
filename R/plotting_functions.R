@@ -3,7 +3,6 @@ library(Rvcg)
 library(rgl)
 library(pracma)
 library(matlib)
-library(far)
 library(rgl)
 
 #' Convert Mesh3d File to List
