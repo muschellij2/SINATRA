@@ -352,7 +352,8 @@ compute_metrics_cone <- function(data_points,class_1_causal_points,class_2_causa
 ######################################################################################
 
 ### Helper Functions ###
-
+#' TPR/FPR
+#' @export
 calculate_TPR_FPR <- function(positive_vertices, negative_vertices, true_vertices, false_vertices){
   TP <- length(intersect(positive_vertices, true_vertices))
   FP <- length(positive_vertices) - TP

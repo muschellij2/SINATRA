@@ -5,6 +5,7 @@
 #'
 #' @description Generates ROC curve averaged over multiple runs. We specify in the function what shapes to simulate,
 #' paramters for the about the EC comptutation, as well as assessment scheme.
+#' @export
 #'
 #' @param runs (int): Number of runs to average the curves over
 #' @param num_sim (int) : The number of replicates of data.
@@ -111,6 +112,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
 #' process outlined above to obtain a collection of vertices, which we consider to be 'positive'. Those that aren't selected are the 'negative' ones. We regard
 #' a vertex to be a True Positive if it is within some small distance of a causal point, and conversely with a False Positive. True Negative and False Negative
 #' vertices are defined similarly.
+#' @export
 #'
 #' @param nsim (int) : The number of replicates of data.
 #' @param curve_length (int) : Number of sub-level sets in each EC computation.
@@ -260,6 +262,9 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
 #'
 #' @description We compute the ROC curve by assessing the overlap of reconstructed vertices and causal vertices.
 #'We do this for every complex in the data set then average the ROC curves.
+#'
+#' @export
+#'
 #'
 #' @param data (list) : Metadata about the simulated shapes (vertex coordinates, etc.)
 #' @param class_1_causal_points : Vertex indices of causal points for class 1.
@@ -503,6 +508,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
 
 #'Computes the ROC curve by assessing the overlap of reconstructed cusps and causal cusps.
 #'
+#' @export
 #' @description We compute the ROC curve by assessing the overlap of reconstructed cusps and causal cusps. Reconstructing a causal cusp here means
 #' identifying one vertex that is in the causal cusp.
 #'We do this for every complex in the data set then average the ROC curves.
@@ -678,6 +684,7 @@ compute_roc_curve_modified_vertex = function(data,class_1_causal_points,class_2_
 
 #'Computes the ROC curve by assessing the overlap of selected features and causal features.
 #'
+#' @export
 #' @description We compute the ROC curve by assessing the overlap of selected features and causal features. A causal feature here
 #' means to be associated to more than the (min_points) number of causal vertices.
 #'We do this for every complex in the data set then average the ROC curves.
@@ -845,6 +852,8 @@ compute_roc_curve_features <- function(data,class_1_causal_points,class_2_causal
 }
 
 #'Computes the ROC curve by assessing the overlap of selected bands and causal cone.
+#'
+#' @export
 #'
 #' @description We compute the ROC curve by assessing the overlap of selected features and causal features. A causal cone here
 #' means to have every direction in a given cone that are associated with a causal vertex to be selected.
@@ -1089,6 +1098,7 @@ compute_roc_curve_cones <- function(data,class_1_causal_points,class_2_causal_po
 
 #'Computes the averaged ROC curve of caricatured teeth.
 #'
+#' @export
 #' @description We compute the ROC curve by assessing the overlap of reconstructed vertices and causal vertices.
 #'We do this for every tooth in the directory then average the ROC curves. The user must pass in the locations of the directories for the two meshes,
 #'and also the vector of transition probabilities for the caricaturization procedure.
@@ -1141,6 +1151,8 @@ compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, c
   return(roc_curve)}
 
 #'Computes the ROC curve by assessing the overlap of reconstructed vertices and causal vertices on the teeth.
+#' @export
+#' @import Rvcg
 #'
 #' @description We compute the ROC curve by assessing the overlap of reconstructed vertices and causal vertices.
 #'We do this for every tooth in the directory then average the ROC curves. The user must pass in the locations of the directories for the two meshes,
@@ -1312,7 +1324,7 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
 #'
 #' @description Computes the vertex-sub-level set association.
 #'
-#'
+#' @export
 #'@param dir (nx3 matrix):  The matrix of directions for which the (S/D) EC curve were computed over.
 #'@param complex (list) : The list containing metadata of the Vertices, Edges, and Faces of the mesh (use process_off_file_v3 to obtain).
 #'@param rate_vals (vector) : Vector of variable importances for each sub-level set across each direction in a given cone.

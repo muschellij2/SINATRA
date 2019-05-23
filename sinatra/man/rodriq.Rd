@@ -2,7 +2,8 @@
 % Please edit documentation in R/generate_directions.R
 \name{rodriq}
 \alias{rodriq}
-\title{Compute the directions about a cone using the rodrigues angle formula.}
+\title{Compute the directions about a cone using the rodrigues angle formula.
+ @export}
 \usage{
 rodriq(z, r, j)
 }
@@ -18,4 +19,5 @@ dir (jx3 matrix): of directions in a cone of radius r about z.
 }
 \description{
 Compute the directions about a cone using the rodrigues angle formula.
+ @export
 }

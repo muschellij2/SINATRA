@@ -1,9 +1,15 @@
 #### Aligning and Scaling the meshes ####
-library(Morpho)
-library(rgl)
-library(Rvcg)
+#library(Morpho)
+#library(rgl)
+#library(Rvcg)
 
 #' Scale & Translate Meshes
+#'
+#' @export
+#'
+#' @import Rvcg
+#' @import Morpho
+#' @import rgl
 #'
 #' @description Scales the meshes to have unit surface area and translates the meshes to the origin.
 #'

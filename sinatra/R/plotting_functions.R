@@ -1,12 +1,12 @@
-library(RColorBrewer)
-library(Rvcg)
-library(rgl)
-library(pracma)
-library(matlib)
-library(rgl)
+#library(RColorBrewer)
+#library(Rvcg)
+#library(pracma)
+#library(matlib)
+#library(rgl)
 
 #' Convert Mesh3d File to List
 #' @description  converts a mesh3d file to a list format that's more friendly to our ECT functions.
+#' @export
 #' @param mesh (mesh3d): The input mesh to transform to a list.
 #'
 #' @return complex (list): The mesh converted to list form.
@@ -26,6 +26,7 @@ convert_off_file = function(mesh){
 ### Heatmap Code ###
 
 #' Computes the birth times of the vertices on the shape.
+#' @export
 #' @description Given a specified number of discrete cuts and a vector of importance values, the function computes the
 #' birth times of each vertex on the shape by iterating through the importance values in descending order and running the reconstruction procedure.
 #' The vertex birth time is the first importance value at which the vertex is reconstructed.
@@ -61,6 +62,7 @@ reconstruct_vertices_on_shape = function(dir, complex, rate_vals, len, cuts=10, 
 }
 
 #' Computes the  birth times of the faces on the shape.
+#' @export
 #' @description Given a specified number of discrete cuts and a vector of importance values, the function computes the
 #' birth times of each face on the shape by iterating through the importance values in descending order and running the reconstruction procedure.
 #' The face birth time is the first importance value at which a vertex corresponding to a face face is reconstructed.
@@ -97,6 +99,7 @@ reconstruct_faces_on_shape = function(dir, complex, rate_vals, len, cuts=10, con
 
 #' Reconstructs and finds vertex colors for a set of meshes.
 #'
+#' @export
 #' @description Given a set of meshes, color function, and importance values, number of cuts to reconstruct on,the function finds the birth times of all the
 #' vertices and finds vertex colors using the color function provided.
 #'
@@ -124,6 +127,7 @@ get_heat_colors = function(dir_name, cuts, pset, comp, colfunc){
 
 #' Creates a color bar:
 #'
+#' @export
 #' @description Taken from http://www.colbyimaging.com/wiki/statistics/color-bars. Creates a color bar from a given color scale and range of tick values.
 #'
 #' @param lut (function) : The color scale.

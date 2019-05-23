@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_directions.R
 \name{generate_equidistributed_points}
 \alias{generate_equidistributed_points}
-\title{Generate Equidistributed points on a spherel}
+\title{Generate Equidistributed points on a sphere}
 \usage{
 generate_equidistributed_points(desired_number, N)
 }

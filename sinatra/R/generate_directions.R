@@ -2,6 +2,7 @@
 
 #'Generate Equidistributed Cones
 #'
+#' @export
 #'@description  Generate cones that are equidistributed about the sphere. We first generate equidistributed points, then use the rodrigues angle formula
 #'to compute cones about those points.
 #'
@@ -44,7 +45,9 @@ generate_random_cones <- function(num_directions,cap_radius,directions_per_cone)
   directions
 }
 
-#' Generate Equidistributed points on a spherel
+#' Generate Equidistributed points on a sphere
+#'
+#' @export
 #' @description Generate equidistributed points about a sphere using (insert reference)
 #'
 #' @param desired_number (int): the desired number of equidistributed points on the 2-sphere.
@@ -78,6 +81,7 @@ generate_equidistributed_points <- function(desired_number, N){
 
 #'
 #' Compute the directions about a cone using the rodrigues angle formula.
+#'  @export
 #' @param z (vector of length 3) The direction around which we want to rotate.
 #' @param r (float): The radius of the cone we want. Controls the cone size.
 #' @param j (int): The number of directions in the cone.
@@ -110,6 +114,7 @@ rodriq<-function(z,r,j){
 }
 
 #' Cross Product
+#'
 #' @description Compute the Cross Product
 #' @param x (vector): the first (1,3) vector in the cross product.
 #' @param y (vector): the second (1,3) vector in the cross product.

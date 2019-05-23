@@ -1,9 +1,8 @@
 #### Functions to help work with real meshes ####
-library(rgl)
-library(Rvcg)
-
 
 #' Read in OFF files to list form
+#' @export
+#' @import Rvcg
 #' @description  Processing OFF files in a format friendly to our EC curve computations.
 #'
 #' @param input_dir (string): The input directory of our off file.
@@ -21,6 +20,7 @@ process_off_file_v3=function(input_dir){
 #### Processing OFF files from a Directory
 
 #' Create EC matrix from meshes.
+#' @export
 #'
 #' @description  Create an EC curve matrix given an input directory and set of directions to compute the (S/D) EC curve over.
 #' Each row corresponds to one mesh, and the columns correspond to the sub-level sets of the directions in the matrix.
@@ -81,6 +81,7 @@ create_ec_matrix_mult_d=function(directory,directions,len,ball_radius = 1, ball 
 
 #' Generate design matrix from meshes in two directories.
 #'  @description Given two classes & directories, we generate the (S/D) EC curves and the associated class labels
+#' @export
 #'
 #' @param directory1 (string): The first directory corresponding to class 1.
 #' @param directory2 (string): The second directory correponding to class 2.
@@ -105,6 +106,8 @@ create_comparison_matrix_mult_d=function(directory1,directory2,directions,len, b
 #### Summary Function for the Real Data ####
 
 #' Creates Design Matrix and Run Rate
+#'
+#' @export
 #' @description  Creates the EC comparison matrix for two classes of meshes, and runs variable selection on the two class matrix.
 #' We currently fit a Gaussian Process Classifier and use RATE for variable selection.
 #' @param dir1 (string): The first directory corresponding to class 1.

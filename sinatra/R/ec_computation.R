@@ -2,6 +2,7 @@
 
 #' Computes the EC curve on a ball
 #'
+#' @export
 #' @description Computes the EC curve of a mesh on a bounding ball of specified radius $radius$. The filtration steps for which the
 #' (S/D) EC curve are computed is done relative to the bounding ball. For filtrations steps that are computed relative to the shape, use
 #' \code{compute_discrete_ec_curve}. For comparisons with multiple shapes, this is the recommended function.
@@ -62,6 +63,7 @@ compute_standardized_ec_curve <- function(complex, vertex_function, curve_length
 }
 
 #' Computes the EC curve relative to the shape
+#' @export
 #'
 #' @description Computes the EC curve of a mesh on relative to the shape. The filtration steps for which the
 #' (S/D) EC curve are computed is done relative to the shape. For filtrations steps that are computed relative to a bounding ball, use
@@ -122,6 +124,7 @@ compute_discrete_ec_curve <- function(complex, vertex_function, curve_length, fi
 }
 
 #' Differentiates an EC curve
+#' @export
 #'
 #' @description Computes the numerical derivative of an Euler Characteristic Curve curve using successive differences.
 #' @param ec_curve (matrix) : The Euler Characteristic Curve from \code{compute_standardized_ec_curve} or \code{compute_discrete_ec_curve}.
@@ -135,6 +138,7 @@ differentiate_ec_curve <- function(ec_curve){
 }
 
 #' Integrates an EC curve
+#' @export
 #'
 #' @description Computes the numerical integral of an Euler Characteristic Curve curve by computinig the area under the EC curve.
 #' @param ec_curve (matrix) : The Euler Characteristic Curve from \code{compute_standardized_ec_curve} or \code{compute_discrete_ec_curve}.
@@ -149,6 +153,7 @@ integrate_ec_curve <- function(ec_curve){
 }
 
 #' Updates the EC curve
+#' @export
 #'
 #' @description Transforms the Euler Characteristic Curve into our desired form.
 #' @param ec_curve (matrix) : The Euler Characteristic Curve from \code{compute_standardized_ec_curve} or \code{compute_discrete_ec_curve}.

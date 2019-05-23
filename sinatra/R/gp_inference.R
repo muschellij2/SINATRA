@@ -1,11 +1,14 @@
 library(Matrix)
 library(FastGP)
-library(mvtnorm)
 
 
 ####### RATE Code ######
 
 #' Derive Rate Values
+#'
+#' @export
+#'
+#' @import mvtnorm
 #' @description \code{find_rate_variables_with_other_sampling_methods} returns a vector of variable importances using RATE.
 #' We fit a GPC classifier to the data, draw samples from the latent posterior using one of Lapace Approximation, Elliptical Slice Samping,
 #' or Expectation Propogation. After posterior inference, we fit RATE to derive association measure for each sub-level set of the design matrix.
@@ -60,8 +63,9 @@ find_rate_variables_with_other_sampling_methods = function(gp_data,bandwidth = 0
 #' approximated posterior. To actually generate samples from the latent posterior, generate samples from a multivariate
 #' normal with the parameters returned by this function.
 #'
+#' @export
+#' @import mvtnorm
 #'
-#' Inputs:
 #' @param K (matrix): the covariance matrix for the GP model
 #' @param class_labels (vector): +/- 1 values indicating the class labels of the data points
 #'
@@ -111,6 +115,8 @@ ExpectationPropagation <- function(K, class_labels){
 ##############
 #' Use Laplace Approximation to Approximate mean & covariance
 #'
+#' @export
+#'
 #' @description \code{LaplaceApproximation}
 #' Approximates the latent posterior with a Gaussian distribution; it does so by finding the mode of the posterior, and
 #' using the Hessian (second order Taylor expansion) as an approximation of the covariance. Newton Raphson is used to find
@@ -154,6 +160,10 @@ LaplaceApproximation <- function(Kn, class_labels){
 ####### MCMC Inference for Posterior of Latent Values #######
 
 #'  Draw samples from posterior using Elliptical Slice Sampling
+#'
+#'  @export
+#'  @import FastGP
+#'
 #'   @description  \code{Elliptical_Slice_Sampling} Based on Iain Murray's paper 'Elliptical Slice Sampling'. Implemented using the FastGP package. The function returns
 #' the desired number of mcmc samples
 #'  @param K (matrix): the covariance matrix of the GP model
@@ -181,6 +191,9 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 ##### Helper Functions #####
 
 #'Sigmoid Transformation
+#'
+#'
+#' @export
 #'@description \code{sigmoid} Applies the sigmoid transformation
 #'
 #'@param x (vector): vector of values to apply the sigmoid transformation
@@ -190,12 +203,15 @@ sigmoid <- function(x){
   return(1/(1+exp(-x)))
 }
 
-# When the link function is probit
+#' Probit Log Likelihood
+#' @export
 probit_log_likelihood <- function(latent_variables, class_labels){
   return(sum(log(pnorm(latent_variables*class_labels))))
 }
 
-# When the link function is logistic
+#' Probit Log Likelihood
+#' @export
+#' @description When the link function is logistic
 logistic_log_likelihood <- function(latent_variables, class_labels){
   return(-sum(log(1+exp(latent_variables*class_labels))))
 }

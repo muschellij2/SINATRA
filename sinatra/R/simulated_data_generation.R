@@ -1,16 +1,19 @@
-library(Rcpp)
-library(mvtnorm)
-library(pdist)
-library(MASS)
-library(truncnorm)
-library(Rvcg)
-library(plyr)
-library(reshape2)
-library(FNN)
+#library(Rcpp)
+#library(mvtnorm)
+#library(pdist)
+#library(MASS)
+#library(plyr)
+#library(reshape2)
+#library(FNN)
 
 # cusps are the equidistributed points on the sphere - the 'grid' points.
 
 #' Generate (S/D) EC curves for a collection of perturbed spheres
+#'
+#' @export
+#' @import Rvcg
+#' @import pdist
+#' @import FNN
 #'
 #' @description Given a set of input parameters, \code{create_data_sphere_simulation} generates replicates of perturbed spheres.
 #' Cusps are initialized by generating equidistributed points on the sphere. The cusps are created by taking the $k$ nearest vertices of these central points,
@@ -189,6 +192,8 @@ generate_data_sphere_simulation = function(nsim, curve_length, dir, noise_points
 }
 #' Generate (S/D) EC curves for a collection of interpolations on the plane
 #'
+#' @export
+#' @import truncnorm
 #' @description Given a set of input parameters, \code{create_data_normal_fixed} generates replicates of interpolations on the plane.
 #' These interpolations are then converted to simplicial complexes, and have the (S/D) EC curve computed over them.
 #'
@@ -284,6 +289,7 @@ create_data_normal_fixed = function(num_sim=25,dir,curve_length=10,shared_points
 }
 
 #'Generate Kernel interpolated meshes.
+#' @export
 #'
 #' @description Given a set of input data of shared points and causal points,
 #'  the function generates two classes of interpolated 3d shapes with a specified kernel.
@@ -392,6 +398,7 @@ generate_data_gaussian_field <- function(nsim, curve_length, dir, shared_points 
 }
 
 #' Place Gaussian Bumps on a Plane
+#' @export
 #'
 #'
 #' @description Place gaussian bumps on a plane at desired locations.
@@ -429,7 +436,8 @@ generate_gaussian_field <- function(grid_size = 25, shared_points, causal_points
 ######################################################################################
 
 #' Convert 2d function to simplicial complex
-#'
+#' @export
+#' @import Rvcg
 #' @description Using Rvcg, we turn a matrix into a triangular simplicial complex.
 #'
 #' @param matrix (nx3 matrix) The matrix we want to convert into a simplicial complex
@@ -497,6 +505,7 @@ matrix_to_simplicial_complex <- function(matrix,grid_length){
 ### Radial Basis Function Generation ###
 
 #' Euclidean Distance
+#' @export
 #'
 #' @description Computes the Euclidean distance between two vectors
 #'
@@ -509,6 +518,7 @@ difference=function(x,y){
   return(sqrt(sumxy))
 }
 #' RBF Kernel
+#' @export
 #'
 #' @description Computes the squared euclidean distance between two vectors
 #'
@@ -522,6 +532,7 @@ rbf_gauss=function(x,y,eta=5){
 }
 
 #' Inverse Quadratic Kernel
+#' @export
 #'
 #' @description Computes the inverse quadratic distance between two vectors
 #'
@@ -535,6 +546,7 @@ inv_quad=function(x,y,eta=5){
 }
 
 #' Computes the RBF Kernel
+#' @export
 #'
 #' @description Computes the inverse quadratic distance between two vectors
 #'
@@ -556,6 +568,7 @@ compute_rbf_model=function(data,eta=5,func){
 }
 
 #' RBF prediction
+#' @export
 #'
 #' @description Computes the RBF kernel interpolation on a provided grid.
 #'
@@ -579,6 +592,7 @@ rbf_predict=function(rbf_model,grid){
 }
 
 #' Wrapper for RBF Kernel Interpolation
+#' @export
 #'
 #' @description Provides Kernel Interpolated predictions.
 #'

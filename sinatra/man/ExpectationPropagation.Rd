@@ -19,7 +19,4 @@ params (list): list of the posterior mean and variances.
 Pseudocode taken from Rasmussen and Williams, Chapter 3. This function outputs the mean and covariance of the
 approximated posterior. To actually generate samples from the latent posterior, generate samples from a multivariate
 normal with the parameters returned by this function.
-
-
-Inputs:
 }

@@ -2,6 +2,7 @@
 
 #' Reconstruct Vertices
 #'
+#' @export
 #' @description Given a set of variable importances, threshold, the function reconstructs the vertices above the threshold
 #' by intersecting the sub-level sets of the directions in a cone with variable importance greater than the threshold.
 #' This function loops over each cone, and computes the reconstructed vertices using intersections of sub-level sets. The vertices
@@ -43,6 +44,7 @@ compute_selected_vertices_cones = function(dir, complex, rate_vals, len, thresho
 #' @description Given a set of variable importances, threshold, the function reconstructs the faces above the threshold
 #' by intersecting the sub-level sets of the directions in a cone with variable importance greater than the threshold.
 #'
+#' @export
 #'@param dir (nx3 matrix) The matrix of directions that were used to compute the (S/D) EC curve over.
 #'@param complex (list) : The list containing metadata of the Vertices, Edges, and Faces of the mesh (use process_off_file_v3 to obtain).
 #'@param rate_vals (vector) : Vector of variable importances for each sub-level set across each direction
@@ -84,7 +86,7 @@ compute_selected_faces_cones = function(dir, complex, rate_vals, len, threshold=
 #' we compute the set of vertices that are associated with the selected sub-level sets. We then intersect the set of
 #' vertices that are associated with the sub-level sets across each direction in the cone; only taking the vertices that are reconstructed in each direction of the cone.
 #'
-#'
+#' @export
 #'@param dir (nx3 matrix) : The matrix of directions in the cone that were used to compute the (S/D) EC curve over.
 #'@param complex (list) : The list containing metadata of the Vertices, Edges, and Faces of the mesh (use process_off_file_v3 to obtain).
 #'@param rate_vals (vector) : Vector of variable importances for each sub-level set across each direction in a given cone.
