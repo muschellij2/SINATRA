@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=sphere_sim_ROC
-#SBATCH -t 240:00:00# Runtime in HH:MM:SS
+#SBATCH --job-name=dirpercone
+#SBATCH -t 360:00:00# Runtime in HH:MM:SS
 #SBATCH -N 1 # number of nodes used
 #SBATCH -n 20 # number of cores used 
-#SBATCH --mem=120g
+#SBATCH --mem=200g
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 

@@ -35,7 +35,7 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
-n.simulations <- 10
+n.simulations <- 50
 
 # take this input from command line
 arguments <- as.numeric(arguments)
@@ -50,20 +50,20 @@ shared_points <- arguments[3]
 ######################################################################################
 
 ### Setup DoParallel ###
-no_cores <- detectCores() - 2
+no_cores <- detectCores() 
 cl <- makeCluster(no_cores, type="FORK")  
 registerDoParallel(cl)  
 
 ### Run the analysis in Parallel ###
 simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport = c('GaussKernel')) %:% 
-  foreach(j=c(1,5,10), .combine = 'rbind', .noexport = c('GaussKernel')) %dopar% {
+  foreach(j=c(1,10,20,30,40,50,60,70,80), .combine = 'rbind', .noexport = c('GaussKernel')) %dopar% {
     
-    set.seed(4*i+j)
+    set.seed(9*i+j)
     
-    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
+    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 25, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
-                                                        truncated = -1, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                                        min_points = 3,directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
+                                                        truncated = 250, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
+                                                        min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
                                                         mode = 'sphere', fpr = 0.05, start = 1, cusps = 50,
                                                         subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region),
                      error = function(x) {
@@ -102,12 +102,12 @@ print(ROC_curve_plt)
 ### save the results ###
 
 # save the raw results
-sim_results_file = sprintf("~/data/SINATRA/Sphere_Simulation/data_ROC_causal%d_shared%d_region_size%s.RData",
+sim_results_file = sprintf("~/data/SINATRA/new/data_ROC_causal%d_shared%d_region_size%s.RData",
                            num_causal_region,num_shared_region,causal_points)
 save(simulation_results, file = sim_results_file)
 
 # save the dataframe
-df_results_file = sprintf("~/data/SINATRA/Sphere_Simulation/df_ROC_causal%d_shared%d_%s.RData",
+df_results_file = sprintf("~/data/SINATRA/new/df_ROC_causal%d_shared%d_%s.RData",
                           num_causal_region,num_shared_region,shared_points)
 save(rdfmeans, file = df_results_file)
 
