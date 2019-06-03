@@ -29,8 +29,8 @@ set.seed(4913, kind = "L'Ecuyer-CMRG")
 n.simulations <- 50
 
 # take this input from command line
-num_causal_region <- 3
-num_shared_region <- 6
+num_causal_region <- 5
+num_shared_region <- 10
 causal_points <- 10
 shared_points <- 10
 
@@ -82,9 +82,12 @@ rdfmeans$Dir_Per_Cone <- as.factor(rdfmeans$Dir_Per_Cone)
 ### Plot results ###
 ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Dir_Per_Cone)) +
   geom_line(stat = "identity") +
-  labs(x = "FPR", y = "TPR") +
-  ggtitle(sprintf("Directions per cone sensitivity")) +
-  geom_abline(intercept = 0, slope = 1)
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  ggtitle(sprintf("Directions per Cone Sensitivity - Easy Case")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
 ######################################################################################
 ######################################################################################

@@ -3,7 +3,7 @@
 #SBATCH -t 480:00:00# Runtime in HH:MM:SS
 #SBATCH -N 1 # number of nodes used
 #SBATCH -n 20 # number of cores used 
-#SBATCH --mem=400g
+#SBATCH --mem=300g
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 #SBATCH --array=0-5%15
