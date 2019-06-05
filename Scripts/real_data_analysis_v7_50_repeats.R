@@ -511,18 +511,61 @@ for (dir in data_dirs){
     roc_curves[[k]] = roc_frame
   }
   roc_curves_total1 = roc_curves[[1]][1:500,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
   write.csv(roc_curves_total1,file = paste(dir,'/roc_angles1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
   write.csv(roc_curves_total2,file = paste(dir,'/roc_angles2.csv',sep=''),row.names = FALSE)
   save.image(paste(dir,'/rocs_and_rate_angles.R',sep=''))
 }
 
+#dirpercone
+base_dir = '~/Documents/new_aligned_shapesv4/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+for (dir in data_dirs){
+  old_data_dir = paste(dir,'/mesh/gp1',sep='')
+  new_data_dir = paste(dir,'/mesh/gp2',sep='')
+  old_data_files = list.files(old_data_dir, full.names = TRUE)
+  new_data_files = list.files(new_data_dir, full.names = TRUE)
+  class_1_probs = read.csv(paste(dir,'/gp1_spt.csv',sep=''), header = FALSE)
+  class_2_probs = read.csv(paste(dir,'/gp2_spt.csv',sep=''), header = FALSE)
+  roc_curves = list()
+  dirs = 15
+  angle = 0.15
+  len = 50
+  dpc = c(1,3,5,7,9)
+  #total_dirs = c(1)
+  for (k in 1:length(dpc)){
+    dirpercone = dpc[k]
+    print(paste("on length", len, 'dir', dirs, 'angle', angle,'dirpercone',dirpercone))
+    pset = list(num_cones = dirs, cap_radius = angle, len = len, directions_per_cone = dirpercone,
+                      dirs = generate_equidistributed_cones(num_directions = dirs, cap_radius =  angle, directions_per_cone = dirpercone))
+    data_summary=real_data_summary(dir1=new_data_dir,dir2 = old_data_dir,direction=pset$dirs,class1='Vegetable', class2='Vegetable',
+                                      radius=0,accuracy=FALSE,len = pset$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
+    roc_curve = compute_roc_curve_teeth(data_dir1 = old_data_dir, data_dir2 = new_data_dir, gamma = 0.25,class_1_probs = class_1_probs,class_2_probs = class_2_probs,
+                                 rate_values = data_summary$Rate2[,2],directions_per_cone = pset$directions_per_cone,curve_length = pset$len,
+                                 directions = pset$dirs,truncated = 500,ball_radius = ball_radius, ball = ball, radius = 1, two_curves = TRUE)
+    #print(roc_curve)
+    roc_curve[,3] = dirpercone
+    roc_frame = data.frame(roc_curve)
+    roc_curves[[k]] = roc_frame
+  }
+  roc_curves_total1 = roc_curves[[1]][1:500,]
+  for (k in 2:length(dpc)){
+    roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
+  }
+  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  roc_curves_total2 = roc_curves[[1]][501:1000,]
+  for (k in 2:length(dpc)){
+    roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
+  }
+  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  save.image(paste(dir,'/rocs_and_rate_dpc.R',sep=''))
+}
 
 
 # Plotting now
