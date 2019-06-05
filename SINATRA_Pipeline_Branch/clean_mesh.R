@@ -2,8 +2,8 @@
 library(Morpho)
 library(rgl)
 library(Rvcg)
-dir='Data/all_files_tingran_clean/'
-out_path = 'Data/all_files_tingran_scaled/'
+dir='Data/doug_new_teeth_raw/'
+out_path = 'Data/doug_new_teeth_scaled/'
 
 clean_files=function(input_dir,output_dir){
     files=list.files(path = dir,full.names = TRUE)
@@ -12,7 +12,10 @@ clean_files=function(input_dir,output_dir){
     for (i in 1:num_files){
         print(files[i])
         file=vcgImport(files[i])
-        filename=paste(out_path,filenames[i],sep='')
+        temp_file_name = filenames[i]
+        new_file_name = tolower(gsub(pattern = "\\.|\\?|\\!|\\-", replacement = '_',x = temp_file_name))
+        new_file_name = tolower(gsub(pattern = "_off", replacement = '.off',x = new_file_name))
+        filename=paste(out_path,new_file_name,sep='')
         area=vcgArea(file)
         file2=scalemesh(file,1/sqrt(area),center='mean')
         centroid <- colMeans(vert2points(file2))
@@ -21,7 +24,7 @@ clean_files=function(input_dir,output_dir){
         vcgOffWrite(file3,filename = filename)
     }
 }
-#clean_files(dir)
+#clean_files(dir,out_path)
 
 
 

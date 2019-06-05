@@ -256,7 +256,7 @@ ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 
 
 base_dir = '~/Documents/new_aligned_shapesv3/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
-#data_dirs = data_dirs[-(1:47)]
+data_dirs = data_dirs[-(1:5)]
 #omit 6,47
 for (dir in data_dirs){
   old_data_dir = paste(dir,'/mesh/gp1',sep='')
@@ -286,12 +286,12 @@ for (dir in data_dirs){
     roc_curves[[k]] = roc_frame
   }
   roc_curves_total1 = roc_curves[[1]][1:500,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
   write.csv(roc_curves_total1,file = paste(dir,'/roc_angles1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
   write.csv(roc_curves_total2,file = paste(dir,'/roc_angles2.csv',sep=''),row.names = FALSE)
@@ -511,12 +511,12 @@ for (dir in data_dirs){
     roc_curves[[k]] = roc_frame
   }
   roc_curves_total1 = roc_curves[[1]][1:500,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_anglees)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
   write.csv(roc_curves_total1,file = paste(dir,'/roc_angles1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
   write.csv(roc_curves_total2,file = paste(dir,'/roc_angles2.csv',sep=''),row.names = FALSE)
