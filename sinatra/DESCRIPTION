@@ -1,8 +1,8 @@
 Package: sinatra
-Title: Sub Image Analysis using Topological Summary Statistics (SINATRA!)
+Title: Sub Image Analysis using Topological Summary Statistics (SINATRA)
 Version: 0.0.0.9000
 Authors@R: c(person("Bruce", "Wang", email = "bruce.waang55@gmail.com", role = c("aut", "cre")),
-			person("Timothy","Sudijono", email = "tim_put_your_email_here@gmail.com", role = c("aut")))
+			person("Timothy","Sudijono", email = "ts3.14159265@gmail.com", role = c("aut")))
 Description: Framework for feature selection and association mapping using topological summary statistics.
 Depends: R (>= 3.4.3)
 License: What license is it under?
@@ -27,6 +27,5 @@ Imports:
 	pdist,
 	reshape2,
 	MASS,
-	
-	
-	
+	parallel,
+LinkingTo: 

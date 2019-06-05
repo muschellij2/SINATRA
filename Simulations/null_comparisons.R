@@ -1,6 +1,7 @@
 library(Rcpp)
 library(parallel)
 library(Rvcg)
+library(rgl)
 library(svd)
 library(R.utils)
 
@@ -11,8 +12,8 @@ source("../athena_simulations/SINATRA_Code/RATEv2.R")
 source("../athena_simulations/SINATRA_Code/shape_reconstruction.R")
 source("../athena_simulations/SINATRA_Code/gp_inference.R")
 source("../athena_simulations/SINATRA_Code/plotting_functions.R")
-sourceCpp("../athena_simulations/SINATRA_Code/BAKRGibbs.cpp") 
-# Need gcc; fortran included as part of gcc in new mac OS # solved by creating .R/Makevars and 
+sourceCpp("../athena_simulations/SINATRA_Code/BAKRGibbs.cpp")
+# Need gcc; fortran included as part of gcc in new mac OS # solved by creating .R/Makevars and
 #updating flibs variable = FLIBS=-L/opt/local/lib/gcc48/ - solves Rcpp Armadillo issue
 
 ### Helper functions
@@ -25,9 +26,9 @@ difference <- function(x,y){
 # Two classes of spheres with random noise on the surface, assign random classes
 
 
-desired_num_cones <- 30
-cap_radius <- 0.005
-directions_per_cone <- 5
+desired_num_cones <- 20
+cap_radius <- 0.15
+directions_per_cone <- 10
 
 
 ### Generate directions ###
@@ -43,64 +44,63 @@ subdivision <- 4
 data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
 
 for (i in 1:nsim){
-  
+
   sphere1 = vcgSphere(subdivision = subdivision)
   sphere2 = vcgSphere(subdivision = subdivision)
-  
+
   num_v <- (dim(sphere1$vb)[2])
   # Add noise to the sphere
-  
+
   sphere2$vb[1:3,] = sphere2$vb[1:3,]  * rnorm(num_v, mean = 1, sd = 0.01)
-  
+
   # draw a parabola on the sphere
   # find closest k points to (0,0,1) on the sphere
   # scale by distance away from the point
   sphere1$vb[1:3,] = sphere1$vb[1:3,] * rnorm(num_v, mean = 1, sd = 0.01)
-  
+
   for (i in 1:num_v){
     #computes the 2D euclidean distance on the grid between the points
     dist1 = difference(dir[1,], sphere1$vb[1:3,i])
-    if (dist1 < 0.2){ 
+    if (dist1 < 0.2){
       sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
     }
   }
-  
-  
-  
+
+
+
   sphere_mesh1 = convert_off_file(sphere1)
   sphere_mesh2 = convert_off_file(sphere2)
 
   ec_curve_class1 <- matrix(NA,nrow = 1,ncol=0)
   ec_curve_class2 <- matrix(NA,nrow = 1,ncol=0)
-  
+
   ### compute EC curves for both classes of curves
   for (j in 1:dim(dir)[1]){
-    
+
     vertex_function_class_1 <- sphere_mesh1$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
     vertex_function_class_2 <- sphere_mesh2$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
-    
+
     curve1 <- compute_standardized_ec_curve(sphere_mesh1, vertex_function_class_1, curve_length-1, first_column_index = FALSE,ball_radius)
     curve2 <- compute_standardized_ec_curve(sphere_mesh2, vertex_function_class_2, curve_length-1, first_column_index = FALSE,ball_radius)
-    
+
     # transform the ECT as desired
     curve1 <- update_ec_curve(curve1, "DECT")
     curve2 <- update_ec_curve(curve2, "DECT")
-    
+
     # omit the length data, for now
     ec_curve_class1 <- c(ec_curve_class1,curve1[,2])
     ec_curve_class2 <- c(ec_curve_class2,curve2[,2])
   }
-  
+
   data <- rbind(data,c(1,ec_curve_class1))
   data <- rbind(data,c(0,ec_curve_class2))
-  
+
 }
 
 
  ### Run the model + select features with RATE
-# how does bandwidth impact reconstruction? 
-rate_values <- find_rate_variables_with_other_sampling_methods(data,radius = 0, bandwidth = 0.01,
-                                                               weights = TRUE, type = 'EP')[,2]
+# how does bandwidth impact reconstruction?
+rate_values <- find_rate_variables_with_other_sampling_methods(data, bandwidth = 0.01, type = 'EP')[,2]
 
 plot(rate_values)
 ### Plot it back onto shape, and make rotating plot
@@ -111,16 +111,16 @@ neighbors <- c()
 for (i in 1:num_v){
   #computes the 2D euclidean distance on the grid between the points
   dist1 = difference(dir[1,], sphere1$vb[1:3,i])
-  if (dist1 < 0.2){ 
-    sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5 
+  if (dist1 < 0.2){
+    sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
     neighbors <- c(neighbors,i)
   }
 }
 complex <- convert_off_file(sphere1)
 
 #### Test reconstruction of vertices
-reconstructed_vs <- compute_selected_vertices_cones(dir, complex, rate_values, curve_length, 0.0005,
-                                directions_per_cone, ball_radius, 
+reconstructed_vs <- compute_selected_vertices_cones(dir, complex, rate_values, curve_length, 0.001,
+                                directions_per_cone, ball_radius,
                                 TRUE, 0)
 print(length(reconstructed_vs))
 cols = rep('white', dim(complex$Vertices)[1])
@@ -175,46 +175,46 @@ subdivision <- 3
 data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
 
 for (i in 1:nsim){
-  
+
   obj1 = vcgSphere(subdivision = subdivision)
   obj2 = vcgSphere(subdivision = subdivision)
-  
+
   # Add noise to the sphere
   obj1$vb[1:3,] = obj1$vb[1:3,]  * rnorm(dim(obj1$vb)[2], mean = 1, sd = 0.02)
   obj2$vb[1:3,] = obj2$vb[1:3,]  * rnorm(dim(obj2$vb)[2], mean = 1, sd = 0.3)
-  
+
   obj_mesh1 = convert_off_file(obj1)
   obj_mesh2 = convert_off_file(obj2)
-  
+
   ec_curve_class1 <- matrix(NA,nrow = 1,ncol=0)
   ec_curve_class2 <- matrix(NA,nrow = 1,ncol=0)
-  
+
   ### compute EC curves for both classes of curves
   for (j in 1:dim(dir)[1]){
-    
+
     vertex_function_class_1 <- obj_mesh1$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
     vertex_function_class_2 <- obj_mesh2$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
-    
+
     curve1 <- compute_standardized_ec_curve(obj_mesh1, vertex_function_class_1, curve_length-1, first_column_index = FALSE,ball_radius)
     curve2 <- compute_standardized_ec_curve(obj_mesh2, vertex_function_class_2, curve_length-1, first_column_index = FALSE,ball_radius)
-    
+
     # transform the ECT as desired
     curve1 <- update_ec_curve(curve1, "ECT")
     curve2 <- update_ec_curve(curve2, "ECT")
-    
+
     # omit the length data, for now
     ec_curve_class1 <- c(ec_curve_class1,curve1[,2])
     ec_curve_class2 <- c(ec_curve_class2,curve2[,2])
   }
-  
+
   data <- rbind(data,c(1,ec_curve_class1))
   data <- rbind(data,c(-1,ec_curve_class2))
-  
+
 }
 
 
 ### Run the model + select features with RATE
-# how does bandwidth impact reconstruction? 
+# how does bandwidth impact reconstruction?
 rate_values <- find_rate_variables_with_other_sampling_methods(data,radius = 0, bandwidth = 0.1,
                                                                weights = TRUE, type = 'ESS')[,2]
 
@@ -276,45 +276,45 @@ mushroom <- vcgImport("nullcomparisonshapes/mushroom.off")
 data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
 
 for (i in 1:nsim){
-  
+
   obj1 <- dragon
   obj2 <- mushroom
-  
+
   # Add noise to the objects
   obj1$vb[1:3,] <- obj1$vb[1:3,] + rnorm(dim(obj1$vb)[2], mean = 1, sd = 0.02)
   obj2$vb[1:3,] <- obj2$vb[1:3,] + rnorm(dim(obj2$vb)[2], mean = 1, sd = 0.02)
-  
+
   obj_mesh1 <- convert_off_file(obj1)
   obj_mesh2 <- convert_off_file(obj2)
-  
+
   ec_curve_class1 <- matrix(NA,nrow = 1,ncol=0)
   ec_curve_class2 <- matrix(NA,nrow = 1,ncol=0)
-  
+
   ### compute EC curves for both classes of curves
   for (j in 1:dim(dir)[1]){
-    
+
     vertex_function_class_1 <- obj_mesh1$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
     vertex_function_class_2 <- obj_mesh2$Vertices%*%c(dir[j,1],dir[j,2],dir[j,3])
-    
+
     curve1 <- compute_standardized_ec_curve(obj_mesh1, vertex_function_class_1, curve_length-1, first_column_index = FALSE,ball_radius)
     curve2 <- compute_standardized_ec_curve(obj_mesh2, vertex_function_class_2, curve_length-1, first_column_index = FALSE,ball_radius)
-    
+
     # transform the ECT as desired
     curve1 <- update_ec_curve(curve1, "ECT")
     curve2 <- update_ec_curve(curve2, "ECT")
-    
+
     # omit the length data, for now
     ec_curve_class1 <- c(ec_curve_class1,curve1[,2])
     ec_curve_class2 <- c(ec_curve_class2,curve2[,2])
   }
-  
+
   data <- rbind(data,c(1,ec_curve_class1))
   data <- rbind(data,c(-1,ec_curve_class2))
-  
+
 }
 
 ### Run the model + select features with RATE
-# how does bandwidth impact reconstruction? 
+# how does bandwidth impact reconstruction?
 rate_values <- find_rate_variables_with_other_sampling_methods(data,radius = 0, bandwidth = 0.1,
                                                                weights = TRUE, type = 'ESS')[,2]
 

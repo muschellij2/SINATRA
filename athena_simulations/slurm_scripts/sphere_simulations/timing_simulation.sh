@@ -3,7 +3,7 @@
 #SBATCH -t 96:00:00# Runtime in HH:MM:SS
 #SBATCH -N 1 # number of nodes used
 #SBATCH -n 1 # number of cores used 
-#SBATCH --mem=50g
+#SBATCH --mem=350g
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 #SBATCH --array=0-35%40
@@ -32,16 +32,16 @@ for i in {0..2}
  		do
  			for l in {0,1}
  			do
-				task_id= $(( 2 * $(( $(( 2 * $(( $(( 3 * $(( $i )) )) + $j )) )) + $k )) )) + $l
+				task_id=$(( $(( 2 * $(( $(( 2 * $(( $(( 3 * $(( $i )) )) + $j )) )) + $k )) )) + $l ))
 				shapes=${SHAPES_PER_CLASS[$i]}
-				numcones=${SHARED[$j]}
+				numcones=${NUM_CONES[$j]}
 				dirpercone=${DIR_PER_CONE[$k]}
 				curvelength=${CURVE_LENGTH[$l]}
 
 
 				if [ "$task_id" = "$SLURM_ARRAY_TASK_ID" ] 
 				then 
-					Rscript --vanilla R_scripts/Sphere_Simulations/Generate_ROC.R $shapes $numcones $dirpercone $curvelength
+					Rscript --vanilla R_scripts/Sphere_Simulations/timing_simulation.R $shapes $numcones $dirpercone $curvelength
 				fi
 			done
 		done

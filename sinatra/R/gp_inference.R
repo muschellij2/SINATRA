@@ -1,14 +1,41 @@
 library(Matrix)
 library(FastGP)
+library(parallel)
 
 
 ####### RATE Code ######
+
+#' Gaussian Kernel Implementation
+#'
+#' @description \code{GaussKernel} computes the covariance matrix given by the Gaussian kernel below.
+#'
+#' @param X (p x n matrix): the design matrix where columns are observations
+#' @param bandwidth (float): free parameter for the Gaussian kernel
+#'
+GaussKernel <- function(X,bandwidth){
+  n <- dim(X)[2]
+  p <- dim(X)[1]
+
+  K <- matrix(0,nrow = n, ncol = n)
+  for(i in 1:n){
+    for(j in 1:n){
+        if(i != j){
+          K[i,j] <- exp(-bandwidth*sum((X[,i] - X[,j])^2)/p)
+        }
+    }
+  }
+  return(K + t(K))
+}
+
+
 
 #' Derive Rate Values
 #'
 #' @export
 #'
 #' @import mvtnorm
+#' @import parallel
+#'
 #' @description \code{find_rate_variables_with_other_sampling_methods} returns a vector of variable importances using RATE.
 #' We fit a GPC classifier to the data, draw samples from the latent posterior using one of Lapace Approximation, Elliptical Slice Samping,
 #' or Expectation Propogation. After posterior inference, we fit RATE to derive association measure for each sub-level set of the design matrix.
@@ -18,7 +45,7 @@ library(FastGP)
 #' @param type (string) : The sampling method used. We currently support Laplace's method, Elliptical Slice Sampling, and Expectation Propogation.
 #'
 #' @return rate_values (nx2 matrix) : The derived variable importance values and the row number denoting which sub-level set it corresponds to.
-find_rate_variables_with_other_sampling_methods = function(gp_data,bandwidth = 0.01,type = 'Laplace'){
+find_rate_variables_with_other_sampling_methods <- function(gp_data,bandwidth = 0.01,type = 'Laplace'){
   n <- dim(gp_data)[1]
   X <- gp_data[,-1]
   gp_data[,1]=ifelse(gp_data[,1]>0,1,-1)
