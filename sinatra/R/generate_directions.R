@@ -23,7 +23,9 @@ generate_equidistributed_cones <- function(num_directions, cap_radius, direction
   directions <- matrix(0,ncol=3,nrow=0)
   for (i in 1:(dim(cones)[1]) ){
     directions <- rbind(directions,cones[i,])
-    directions <- rbind(directions,rodriq(cones[i,],cap_radius,directions_per_cone-1))
+    if (directions_per_cone > 1){
+      directions <- rbind(directions,rodriq(cones[i,],cap_radius,directions_per_cone-1))
+    }
   }
 
   directions
