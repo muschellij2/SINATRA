@@ -191,8 +191,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   num_cones <- dim(directions)[1]/directions_per_cone
 
   print("getting rate values")
-  rate_values <- find_rate_variables_with_other_sampling_methods(ec_curve_data,radius = 0, bandwidth = 0.01,
-                                                                 weights = TRUE, type = 'ESS')[,2]
+  rate_values <- find_rate_variables_with_other_sampling_methods(ec_curve_data, bandwidth = 0.01, type = 'ESS')[,2]
   #Indices for Two Classes
   index1 = seq(1,nsim,2)
   complex_points1 = data$complex_points[index1]
