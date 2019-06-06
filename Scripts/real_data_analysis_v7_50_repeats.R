@@ -256,7 +256,7 @@ ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 
 
 base_dir = '~/Documents/new_aligned_shapesv3/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
-data_dirs = data_dirs[-(1:5)]
+data_dirs = data_dirs[-(1:32)]
 #omit 6,47
 for (dir in data_dirs){
   old_data_dir = paste(dir,'/mesh/gp1',sep='')
