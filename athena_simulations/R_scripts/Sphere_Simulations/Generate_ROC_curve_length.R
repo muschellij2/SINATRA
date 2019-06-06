@@ -28,8 +28,8 @@ set.seed(4913, kind = "L'Ecuyer-CMRG")
 n.simulations <- 50
 
 # take this input from command line
-num_causal_region <- 3
-num_shared_region <- 6
+num_causal_region <- 1
+num_shared_region <- 2
 causal_points <- 10
 shared_points <- 10
 
@@ -51,7 +51,7 @@ simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport =
     
     set.seed(10*i+j)
     
-    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 10, curve_length = lengths[j], grid_size = 25, distance_to_causal_point = 0.1, 
+    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 25, curve_length = lengths[j], grid_size = 25, distance_to_causal_point = 0.1, 
                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = 20, eta = 0.1, 
                                                         truncated = 300, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
                                                         min_points = 3,directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
@@ -81,12 +81,15 @@ rdfmeans <- aggregate(simulation_results[c("FPR","TPR")],
 rdfmeans$Lengths <- as.factor(rdfmeans$Lengths)
 
 ## Plot results ###
-# ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Lengths)) +
-#  geom_line(stat = "identity") +
-#  labs(x = "FPR", y = "TPR") +
-#  ggtitle(sprintf("Curve Length Sensitivity")) +
-#  geom_abline(intercept = 0, slope = 1)
-# print(ROC_curve_plt)
+ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Lengths)) +
+ geom_line(stat = "identity") +
+ labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Lengths") +
+# ggtitle(sprintf("Curve Length Sensitivity - Hard Case")) +
+ geom_abline(intercept = 0, slope = 1) +
+ coord_equal(ratio=1) +
+ theme_bw() +
+ theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt)
 ######################################################################################
 ######################################################################################
 ######################################################################################

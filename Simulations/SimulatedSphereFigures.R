@@ -17,11 +17,11 @@ library(FNN)
 
 ### Get the causal and shared regions on the sphere ###
 cusps <- 50
-causal_points <- 5
-noise_points <- 5
-causal_regions_1 <- c(23)
-causal_regions_2 <- c(42)
-shared_regions <- c(10, 45)
+causal_points <- 10
+noise_points <- 10
+causal_regions_1 <- c(10,20,23,45,7)
+causal_regions_2 <- c(1,15,25,35,50)
+shared_regions <- c(12, 30, 40, 35,5,19,32, 42,17,42)
 subdivision <- 3
 
 
@@ -60,6 +60,7 @@ for (k in 1:length(shared_regions)){
   total_shared_points = c(total_shared_points,closest_points_shared)
 }
 
+set.seed(17)
 ### Create the data ###
 sphere1 = vcgSphere(subdivision = subdivision)
 sphere2 = vcgSphere(subdivision = subdivision)
@@ -106,11 +107,11 @@ plot3d(sphere2,col = cols2,axes = FALSE, xlab = '', ylab = '',zlab='')
 ########################################################################
 ### Run the SINATRA Analysis ###
 
-desired_num_cones <- 20
+desired_num_cones <- 50
 cap_radius <- 0.15
-directions_per_cone <- 5
+directions_per_cone <- 10
 
-nsim <- 50
+nsim <- 25
 curve_length <- 20
 ball_radius <- 1.5
 subdivision <- 3
@@ -215,6 +216,7 @@ for (i in 1:nsim){
 rate_values_sim <- find_rate_variables_with_other_sampling_methods(data,radius = 0, bandwidth = 0.1,
                                                                    weights = TRUE, type = 'ESS')[,2]
 
+set.seed(17)
 ### Plot it back onto shape, and make rotating plot
 sphere1 <- vcgSphere(subdivision = subdivision)
 sphere1$vb[1:3,] <- sphere1$vb[1:3,]  * rnorm(dim(sphere1$vb)[2], mean = 1, sd = 0.02)
@@ -226,21 +228,20 @@ sphere2$vb[1:3,] <- sphere2$vb[1:3,]  * rnorm(dim(sphere2$vb)[2], mean = 1, sd =
 for (j in 1:length(causal_regions_1)){
   causal_dir1 = regions[causal_regions_1[j],]
   closest_points_class1 = knnx.index(data = t(sphere$vb[-4,]),query = matrix(causal_dir1,ncol = 3), k = causal_points)
-  sphere1$vb[1:3,closest_points_class1] = sphere1$vb[1:3,closest_points_class1]  * 1.55 
+  sphere1$vb[1:3,closest_points_class1] = sphere1$vb[1:3,closest_points_class1]  * 0.55 + rnorm(1, mean = 0, sd = 0.1)
 }
 
 for (j in 1:length(causal_regions_2)){
   causal_dir2 = regions[causal_regions_2[j],]
   closest_points_class2 = knnx.index(data = t(sphere$vb[-4,]),query = matrix(causal_dir2,ncol = 3), k = causal_points)
-  sphere2$vb[1:3,closest_points_class2] = sphere2$vb[1:3,closest_points_class2]  * 1.55 
+  sphere2$vb[1:3,closest_points_class2] = sphere2$vb[1:3,closest_points_class2]  * 0.55 + rnorm(1, mean = 0, sd = 0.1)
 }
 
 for (k in 1:length(shared_regions)){
   shared_dir = regions[shared_regions[k],]
   closest_points_shared = knnx.index(data = t(sphere$vb[-4,]),query = matrix(shared_dir,ncol = 3), k = noise_points)
-  shared_points = sphere1$vb[1:3,closest_points_shared]  * 0.55 
+  shared_points = sphere$vb[1:3,closest_points_shared]  * 1.35 + rnorm(1, mean = 0, sd = 0.1)
   sphere1$vb[1:3,closest_points_shared] = shared_points
-  shared_points = sphere2$vb[1:3,closest_points_shared]  * 0.55 
   sphere2$vb[1:3,closest_points_shared] = shared_points
 }
 

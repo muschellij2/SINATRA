@@ -35,7 +35,7 @@ sourceCpp("SINATRA_Code/BAKRGibbs.cpp")
 
 ### Set the parameters for the analysis ###
 set.seed(4913, kind = "L'Ecuyer-CMRG")
-n.simulations <- 50
+n.simulations <- 45
 
 # take this input from command line
 arguments <- as.numeric(arguments)
@@ -60,7 +60,7 @@ simulation_results <- foreach(i=1:n.simulations, .combine = 'rbind', .noexport =
     
     set.seed(9*i+j)
     
-    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 25, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
+    res <- tryCatch( generate_ROC_with_coned_directions(nsim = 10, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
                                                         causal_points = causal_points,shared_points = shared_points, desired_num_cones = j, eta = 0.1, 
                                                         truncated = 250, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
                                                         min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
@@ -92,10 +92,14 @@ rdfmeans$Num_Cones <- as.factor(rdfmeans$Num_Cones)
 ### Plot results ###
 ROC_curve_plt <- ggplot(data <- rdfmeans[rdfmeans$Class == 1,],aes(x = FPR, y = TPR, color = Num_Cones)) +
   geom_line(stat = "identity") +
-  labs(x = "FPR", y = "TPR") +
-  ggtitle(sprintf("causal_regions:1,shared_regions:2_10")) +
-  geom_abline(intercept = 0, slope = 1)
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  ggtitle(sprintf("3 Causal Regions, 6 Shared Regions, Size 10")) +
+  geom_abline(intercept = 0, slope = 1) + 
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
+ggsave("test.png")
 ######################################################################################
 ######################################################################################
 ######################################################################################

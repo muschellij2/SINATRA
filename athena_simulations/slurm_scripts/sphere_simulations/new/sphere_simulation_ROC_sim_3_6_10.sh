@@ -3,7 +3,7 @@
 #SBATCH -t 240:00:00# Runtime in HH:MM:SS
 #SBATCH -N 1 # number of nodes used
 #SBATCH -n 20 # number of cores used 
-#SBATCH --mem=350g
+#SBATCH --mem=375g
 #SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=timothy_sudijono@brown.edu # Email to which notifications will be sent
 
@@ -21,7 +21,7 @@ Rscript R_scripts/Package_Setup.R
 CAUSAL=(1 2 4 2 3 6)
 SHARED=(2 3 6 1 2 4)
 
-Rscript --vanilla R_scripts/Sphere_Simulations/Generate_ROC_joinedclass.R 3 6 10
+Rscript --vanilla R_scripts/Sphere_Simulations/Generate_ROC.R 3 6 10
 
 
 

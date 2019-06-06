@@ -133,7 +133,7 @@ find_directions_with_power <- function(runs = 1, nsim = 50, curve_length = 10, g
         total_cor  = c(total_cor, cors)
         next
         # If we want to assess accuracy too, remove the next.
-        roc_curve = try(compute_roc_curve_cones(data_points = data$complex_points, class_1_causal_points = data$causal_points1, class_2_causal_points = data$causal_points2,
+        roc_curve = try(compute_roc_curve_cones(data = data$complex_points, class_1_causal_points = data$causal_points1, class_2_causal_points = data$causal_points2,
                                                 curve_length = curve_length, distance_to_causal_point = distance_to_causal_point, rate_values = rate_values, grid_size = grid_size,
                                                 eta = eta, directions_per_cone = directions_per_cone, class = 0, truncated = truncated,
                                                 ball = ball, ball_radius = ball_radius,
