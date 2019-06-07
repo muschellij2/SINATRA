@@ -35,15 +35,6 @@ The SECT transforms a shape, represented as a simplicial complex, into a collect
 	directions <- matrix(c(1,0,0),ncol=3, byrow = TRUE)
 	directions <- generate_equidistributed_directions(N)
 
-We define the critical points as the points of the complex at which the EC curve changes value, for one of the specified directions above. We get these with the functions
-
-	critical_points <- find_critical_points_multiple_directions(directions,bean,curve_length,phi)
-	critical_point_coordinates <- get_all_critical_points(critical_points)
-
-The second line is a simple function; it just extracts the coordinates of the critical points.
-
-
-As parameters to the reconstruction function, we have `phi` and `curve_length`. Curve length dictates the length of the ec curve. Phi does not have to be specified, but is the angle between an input direction and its perturbed directions (which are used to reconstruct the critical points).
 
 ### Feature Selection
 

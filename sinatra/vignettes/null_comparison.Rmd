@@ -14,6 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r imports}
 library(sinatra)
+library(rgl)
+library(Rvcg)
+```
+
+```{r setup, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r data_generation, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r rate, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r reconstruction, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r visualization, webgl=TRUE,echo=FALSE, message=FALSE}
+
 ```
