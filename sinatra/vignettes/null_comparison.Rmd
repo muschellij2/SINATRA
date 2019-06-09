@@ -1,0 +1,41 @@
+---
+title: "null_comparison"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{null_comparison}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r imports}
+library(sinatra)
+library(rgl)
+library(Rvcg)
+```
+
+```{r setup, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r data_generation, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r rate, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r reconstruction, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```
+
+```{r visualization, webgl=TRUE,echo=FALSE, message=FALSE}
+
+```

@@ -9,9 +9,10 @@ Elliptical_Slice_Sampling(K, class_labels, num_mcmc_samples,
 }
 \description{
 @export
- @import FastGP
 }
 \details{
+@import FastGP
+
 @description  \code{Elliptical_Slice_Sampling} Based on Iain Murray's paper 'Elliptical Slice Sampling'. Implemented using the FastGP package. The function returns
 the desired number of mcmc samples
  @param K (matrix): the covariance matrix of the GP model
