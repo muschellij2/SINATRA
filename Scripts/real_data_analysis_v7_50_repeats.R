@@ -301,6 +301,7 @@ for (dir in data_dirs){
 #dirpercone
 base_dir = '~/Documents/new_aligned_shapesv3/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
+data_dirs = data_dirs[-(1:42)]
 for (dir in data_dirs){
   old_data_dir = paste(dir,'/mesh/gp1',sep='')
   new_data_dir = paste(dir,'/mesh/gp2',sep='')
@@ -333,12 +334,12 @@ for (dir in data_dirs){
   for (k in 2:length(dpc)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
-  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
   for (k in 2:length(dpc)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
-  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc2.csv',sep=''),row.names = FALSE)
   save.image(paste(dir,'/rocs_and_rate_dpc.R',sep=''))
 }
 

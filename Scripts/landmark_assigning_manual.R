@@ -7,10 +7,14 @@ library(FNN)
 library(R.utils)
 sourceDirectory('~/Documents/SINATRA/SINATRA_Pipeline_Branch/')
 dir='~/Documents/doug_new_teeth_by_species/Tarsius/'
+# Mesh 1 has vertex 261
+# Mesh 2 has vertex 295
+# Mesh 3 has vertex 833
+# Mesh 4 has vertex 224
 #Vertex 290,357 for Mesh 10 in Tarsius
 rotation_matrix=matrix(c(0.8065218,0.5911149,0.01028626,0,0.5583186,-0.7558216,0.34207344,0,0.1944301,-0.2816325,-0.93961692,0,0,0,0,1),ncol=4,byrow=TRUE)
 files = list.files(dir,full.names = TRUE)
-n = 10
+n = 4
 mesh = vcgImport(files[n])
 plot3d(mesh, col = 'white')
 
@@ -18,23 +22,15 @@ rgl.viewpoint(userMatrix =rotation_matrix)
 
 
 plot3d(mesh, col = 'white')
-coord = matrix(c(-0.300355,0.180715,-0.147777),ncol = 3)
 
-rgl.points(coord,size = 8, col = 'red')
+lm = find_landmarks(mesh, 30)
+
+#rgl.points(coord,size = 8, col = 'red')
 
 vertex = t(mesh$vb[-4,])
 
-indices = knnx.index(vertex,coord,k= 1)
-rgl.points(matrix(vertex[indices,],ncol = 3),size = 10, col = 'blue')
-b = knnx.index(vertex,matrix(vertex[indices,],ncol = 3),200)
-cols = rep('white',dim(vertex)[1])
-cols[b] = 'red'
-plot3d(mesh, col = cols)
-
-lm = find_landmarks(mesh, num_landmark = 30)
-
 plot3d(mesh, col = 'white')
-rgl.points(matrix(vertex[lm[22],],ncol = 3), size = 8, col = 'blue')
+rgl.points(matrix(vertex[lm[4],],ncol = 3), size = 8, col = 'blue')
 
 
 

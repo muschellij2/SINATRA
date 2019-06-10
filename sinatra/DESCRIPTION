@@ -28,4 +28,8 @@ Imports:
 	reshape2,
 	MASS,
 	parallel,
-LinkingTo: 
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
