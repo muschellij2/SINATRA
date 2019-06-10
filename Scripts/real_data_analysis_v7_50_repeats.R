@@ -256,7 +256,7 @@ ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 
 
 base_dir = '~/Documents/new_aligned_shapesv3/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
-#data_dirs = data_dirs[-(1:47)]
+data_dirs = data_dirs[-(1:32)]
 #omit 6,47
 for (dir in data_dirs){
   old_data_dir = paste(dir,'/mesh/gp1',sep='')
@@ -286,24 +286,155 @@ for (dir in data_dirs){
     roc_curves[[k]] = roc_frame
   }
   roc_curves_total1 = roc_curves[[1]][1:500,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
   write.csv(roc_curves_total1,file = paste(dir,'/roc_angles1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
-  for (k in 2:length(total_lens)){
+  for (k in 2:length(total_angles)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
   write.csv(roc_curves_total2,file = paste(dir,'/roc_angles2.csv',sep=''),row.names = FALSE)
   save.image(paste(dir,'/rocs_and_rate_angles.R',sep=''))
 }
+### ROC Curve for angle ###
+base_dir = '~/Documents/new_aligned_shapesv3/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
 
+roc_curve1 = read.csv('~/Documents/new_aligned_shapesv3/V13_3peak_2gp_v1_bw/roc_angles1.csv')
+roc_curve2 = read.csv('~/Documents/new_aligned_shapesv3/V13_3peak_2gp_v1_bw/roc_angles2.csv')
+
+data_dirs2 = data_dirs[-1]
+
+for (dir in data_dirs2){
+  roc_curve1.5 = read.csv(paste(dir,'/roc_angles1.csv',sep=''))
+  roc_curve2.5 = read.csv(paste(dir,'/roc_angles2.csv',sep=''))
+  roc_curve1 = roc_curve1 + roc_curve1.5
+  roc_curve2 = roc_curve2 + roc_curve2.5
+}
+roc_curve1 = roc_curve1/50
+roc_curve2 = roc_curve2/50
+
+roc_curve1_frame = data.frame(roc_curve1)
+roc_curve2_frame = data.frame(roc_curve2)
+
+ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
+  ggtitle(sprintf("ROC Curve for Class 1 Teeth - 3 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_angles.pdf')
+ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
+  ggtitle(sprintf("ROC Curve for Class 2 Teeth - 3 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt2)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_angles.pdf')
+
+
+
+#dirpercone
+base_dir = '~/Documents/new_aligned_shapesv3/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+data_dirs = data_dirs[-(1:42)]
+for (dir in data_dirs){
+  old_data_dir = paste(dir,'/mesh/gp1',sep='')
+  new_data_dir = paste(dir,'/mesh/gp2',sep='')
+  old_data_files = list.files(old_data_dir, full.names = TRUE)
+  new_data_files = list.files(new_data_dir, full.names = TRUE)
+  class_1_probs = read.csv(paste(dir,'/gp1_spt.csv',sep=''), header = FALSE)
+  class_2_probs = read.csv(paste(dir,'/gp2_spt.csv',sep=''), header = FALSE)
+  roc_curves = list()
+  dirs = 15
+  angle = 0.15
+  len = 50
+  dpc = c(1,3,5,7,9)
+  #total_dirs = c(1)
+  for (k in 1:length(dpc)){
+    dirpercone = dpc[k]
+    print(paste("on length", len, 'dir', dirs, 'angle', angle,'dirpercone',dirpercone))
+    pset = list(num_cones = dirs, cap_radius = angle, len = len, directions_per_cone = dirpercone,
+                      dirs = generate_equidistributed_cones(num_directions = dirs, cap_radius =  angle, directions_per_cone = dirpercone))
+    data_summary=real_data_summary(dir1=new_data_dir,dir2 = old_data_dir,direction=pset$dirs,class1='Vegetable', class2='Vegetable',
+                                      radius=0,accuracy=FALSE,len = pset$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
+    roc_curve = compute_roc_curve_teeth(data_dir1 = old_data_dir, data_dir2 = new_data_dir, gamma = 0.25,class_1_probs = class_1_probs,class_2_probs = class_2_probs,
+                                 rate_values = data_summary$Rate2[,2],directions_per_cone = pset$directions_per_cone,curve_length = pset$len,
+                                 directions = pset$dirs,truncated = 500,ball_radius = ball_radius, ball = ball, radius = 1, two_curves = TRUE)
+    #print(roc_curve)
+    roc_curve[,3] = dirpercone
+    roc_frame = data.frame(roc_curve)
+    roc_curves[[k]] = roc_frame
+  }
+  roc_curves_total1 = roc_curves[[1]][1:500,]
+  for (k in 2:length(dpc)){
+    roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
+  }
+  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc1.csv',sep=''),row.names = FALSE)
+  roc_curves_total2 = roc_curves[[1]][501:1000,]
+  for (k in 2:length(dpc)){
+    roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
+  }
+  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc2.csv',sep=''),row.names = FALSE)
+  save.image(paste(dir,'/rocs_and_rate_dpc.R',sep=''))
+}
+
+#### Making ROC curves ####
+
+base_dir = '~/Documents/new_aligned_shapesv3/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+data_dirs = data_dirs[-c(42,33,34,35,25,20)]
+
+roc_curve1 = read.csv('~/Documents/new_aligned_shapesv3/V13_3peak_2gp_v1_bw/roc_dpc1.csv')
+roc_curve2 = read.csv('~/Documents/new_aligned_shapesv3/V13_3peak_2gp_v1_bw/roc_dpc2.csv')
+
+data_dirs2 = data_dirs[-1]
+
+for (dir in data_dirs2){
+  roc_curve1.5 = read.csv(paste(dir,'/roc_dpc1.csv',sep=''))
+  roc_curve2.5 = read.csv(paste(dir,'/roc_dpc2.csv',sep=''))
+  roc_curve1 = roc_curve1 + roc_curve1.5
+  roc_curve2 = roc_curve2 + roc_curve2.5
+}
+roc_curve1 = roc_curve1/44
+roc_curve2 = roc_curve2/44
+
+roc_curve1_frame = data.frame(roc_curve1)
+roc_curve2_frame = data.frame(roc_curve2)
+
+ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  ggtitle(sprintf("ROC Curve for Class 1 Teeth - 3 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dir_per_cone.pdf')
+ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  ggtitle(sprintf("ROC Curve for Class 2 Teeth - 3 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt2)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dir_per_cone.pdf')
 
 
 #### 5 v 5 ####
 base_dir = '~/Documents/new_aligned_shapesv4/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
-data_dirs = data_dirs[(12:21)]
+#data_dirs = data_dirs[(12:21)]
 for (dir in data_dirs){
   old_data_dir = paste(dir,'/mesh/gp1',sep='')
   new_data_dir = paste(dir,'/mesh/gp2',sep='')
@@ -317,7 +448,7 @@ for (dir in data_dirs){
   for (k in 1:length(total_dirs)){
     dirs = total_dirs[k]
     print(paste("on dir", dirs))
-    pset = list(num_cones = dirs, cap_radius = 0.15, len = 100, directions_per_cone = 5,
+    pset = list(num_cones = dirs, cap_radius = 0.15, len = 50, directions_per_cone = 5,
                       dirs = generate_equidistributed_cones(num_directions = dirs, cap_radius =  0.15, directions_per_cone = 5))
     data_summary=real_data_summary(dir1=new_data_dir,dir2 = old_data_dir,direction=pset$dirs,class1='Vegetable', class2='Vegetable',
                                       radius=0,accuracy=FALSE,len = pset$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
@@ -371,7 +502,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
@@ -381,7 +512,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc.pdf')
 
 # Varying Length Up
 
@@ -523,6 +654,49 @@ for (dir in data_dirs){
   save.image(paste(dir,'/rocs_and_rate_angles.R',sep=''))
 }
 
+### ROC Curve for angle ###
+base_dir = '~/Documents/new_aligned_shapesv4/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+
+roc_curve1 = read.csv('~/Documents/new_aligned_shapesv4/V13_5peak_2gp_v1_bw/roc_angles1.csv')
+roc_curve2 = read.csv('~/Documents/new_aligned_shapesv4/V13_5peak_2gp_v1_bw/roc_angles2.csv')
+
+data_dirs2 = data_dirs[-1]
+
+for (dir in data_dirs2){
+  roc_curve1.5 = read.csv(paste(dir,'/roc_angles1.csv',sep=''))
+  roc_curve2.5 = read.csv(paste(dir,'/roc_angles2.csv',sep=''))
+  roc_curve1 = roc_curve1 + roc_curve1.5
+  roc_curve2 = roc_curve2 + roc_curve2.5
+}
+roc_curve1 = roc_curve1/50
+roc_curve2 = roc_curve2/50
+
+roc_curve1_frame = data.frame(roc_curve1)
+roc_curve2_frame = data.frame(roc_curve2)
+
+ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
+  ggtitle(sprintf("ROC Curve for Class 1 Teeth - 5 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt)
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_angles.pdf')
+ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
+  ggtitle(sprintf("ROC Curve for Class 2 Teeth - 5 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt2)
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_angles.pdf')
+
+
 #dirpercone
 base_dir = '~/Documents/new_aligned_shapesv4/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)
@@ -558,14 +732,56 @@ for (dir in data_dirs){
   for (k in 2:length(dpc)){
     roc_curves_total1 = rbind(roc_curves_total1,roc_curves[[k]][1:500,])
   }
-  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  write.csv(roc_curves_total1,file = paste(dir,'/roc_dpc1.csv',sep=''),row.names = FALSE)
   roc_curves_total2 = roc_curves[[1]][501:1000,]
   for (k in 2:length(dpc)){
     roc_curves_total2 = rbind(roc_curves_total2,roc_curves[[k]][501:1000,])
   }
-  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc.csv',sep=''),row.names = FALSE)
+  write.csv(roc_curves_total2,file = paste(dir,'/roc_dpc2.csv',sep=''),row.names = FALSE)
   save.image(paste(dir,'/rocs_and_rate_dpc.R',sep=''))
 }
+### ROC Curve for dpc ###
+base_dir = '~/Documents/new_aligned_shapesv4/'
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+
+roc_curve1 = read.csv('~/Documents/new_aligned_shapesv4/V13_5peak_2gp_v1_bw/roc_dpc1.csv')
+roc_curve2 = read.csv('~/Documents/new_aligned_shapesv4/V13_5peak_2gp_v1_bw/roc_dpc2.csv')
+
+data_dirs2 = data_dirs[-1]
+
+for (dir in data_dirs2){
+  roc_curve1.5 = read.csv(paste(dir,'/roc_dpc1.csv',sep=''))
+  roc_curve2.5 = read.csv(paste(dir,'/roc_dpc2.csv',sep=''))
+  roc_curve1 = roc_curve1 + roc_curve1.5
+  roc_curve2 = roc_curve2 + roc_curve2.5
+}
+roc_curve1 = roc_curve1/50
+roc_curve2 = roc_curve2/50
+
+roc_curve1_frame = data.frame(roc_curve1)
+roc_curve2_frame = data.frame(roc_curve2)
+
+ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  ggtitle(sprintf("ROC Curve for Class 1 Teeth - 5 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt)
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_dir_per_cone.pdf')
+ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
+  geom_line(stat = "identity",aes(color = factor(X3) )) +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  ggtitle(sprintf("ROC Curve for Class 2 Teeth - 5 Peaks")) +
+  geom_abline(intercept = 0, slope = 1) +
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+print(ROC_curve_plt2)
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_dir_per_cone.pdf')
+
 
 
 # Plotting now
