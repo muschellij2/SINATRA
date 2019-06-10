@@ -1,5 +1,5 @@
 ---
-title: "simulated_sphere_reconstruction"
+title: "Simulated Sphere Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{simulated_sphere_reconstruction}
@@ -14,29 +14,47 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r imports}
+```{r setup}
 library(sinatra)
 library(rgl)
 library(Rvcg)
+library(FNN)
 ```
 
-```{r setup}
+## SINATRA Parameters
+
+To implement the SINATRA pipeline, we first vectorize a given shape by scanning the euler characteristic of sublevel sets of the shape over a set of directions. 
+
+For theoretical reasons, we structure these directions (thought of as points on the unit sphere) to be clumped into cones -- sets of close directions. Three parameters must be specified:
+
+- The desired number of cones
+- The number of directions within a cone
+- The angle between directions within a cone -- 'cap radius'.
+
+We can also specify the number of sublevel sets to use, which is also the length of the outputted Euler characteristic. This is the parameter `curve_length`.
+
+Finally, the variable `ball_radius` is the position at which to start measuring Euler Characteristic for our centered shapes. To be consistent in measuring the euler characteristic, we start measuring the sublevel sets at the same distance from the origin in each direction. One should take the ball radius large enough to make encapsulate all the shapes in the dataset.
+
+```{r parameters}
 desired_num_cones <- 15
 cap_radius <- 0.10
 directions_per_cone <- 4 
 
-nsim <- 50
+nsim <- 50 # number of shapes in the data set to generate
 curve_length <- 30
 ball_radius <- 1.5
-subdivision <- 3
 ec_type <- 'ECT'
-cusps <- 50
 
+# generate the set of directions to on which measure EC
 dir <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_per_cone)
 ```
 
+## Sphere Simulation Setup
+To test SINATRA, we generate simulated shapes. In this case, we generate two classes of shapes: each class has an indent, called a 'cusp' in a class specific location. There is a similar cusp in a location shared by both classes. The surfaces of the shapes in both classes are perturbed with noise.
+
 ```{r data_generation, webgl=TRUE,echo=FALSE, message=FALSE}
 cusps <- 50
+subdivision <- 3 # granularity of the generated shape
 
 ### Create the Cusps on the sphere ###
 regions =  generate_equidistributed_points(cusps,cusps)
@@ -61,14 +79,21 @@ causal_regions_1 <- c(1)
 causal_regions_2 <- c(50)
 shared_regions <- c(25)
 
+# set the size of the causal / shared regions.
 causal_points <- 10
 noise_points <- 10
-
-### Get the causal and shared regions on the sphere ###
-data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
 ```
 
-```{r ec_computation, webgl=TRUE,echo=FALSE, message=FALSE}
+## EC computation
+
+For each shape in the dataset, the Euler characteristic curves are computed via the function `compute_standardized_ec_curve`. These are concatenated into a data matrix - each row represents the concatenated euler characteristic curves for a given shape in the dataset. 
+
+One can also use different variants of the EC curve - the SECT (an integrated version of the ECT) or the DECT (a differentiated version). The function `update_ec_curve` accomplishes this.
+
+```{r ec_computation, webgl=TRUE, message=FALSE}
+### Get the causal and shared regions on the sphere ###
+data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
+
 for (i in 1:nsim){
   sphere1 = vcgSphere(subdivision = subdivision)
   sphere2 = vcgSphere(subdivision = subdivision)
@@ -131,11 +156,12 @@ for (i in 1:nsim){
 }
 ```
 
+## Feature Selection
 
+One simply calls the function `find_rate_variables_with_other_sampling_methods` to find the most important EC features using RATE, under the Gaussian Process Classification model. Inference can be done using MCMC methods (Elliptical Slice Sampling) or simple approximation techniques like the Laplace approximation.
 
 ```{r rate, message=FALSE}
-rate_values_sim <- find_rate_variables_with_other_sampling_methods(data,radius = 0, bandwidth = 0.1,
-                                                               weights = TRUE, type = 'ESS')[,2]
+rate_values_sim <- find_rate_variables_with_other_sampling_methods(data, bandwidth = 0.1, type = 'ESS')[,2]
 
 ```
 
@@ -174,6 +200,10 @@ complex1<- convert_off_file(sphere1)
 complex2 <- convert_off_file(sphere2)
 ```
 
+## Reconstruction
+
+To map the selected features back onto the shapes in the dataset, we call the function `reconstruct_vertices_on_shape` on the shapes in our dataset, one from each class. This generates the heatmap of subshape importances. The function `get_selected_vertices_cones` reconstructs the points on the shape for all features whose RATE values are above some threshold. Red regions indicate greater importance.
+
 ```{r reconstruction}
 # reconstruct birth times of vertices
 vert_matrix1 <- reconstruct_vertices_on_shape(dir, complex1, rate_values_sim, curve_length, cuts = length(rate_values_sim),
@@ -184,7 +214,8 @@ vert_matrix2 <- reconstruct_vertices_on_shape(dir, complex2, rate_values_sim, cu
 ```
 
 
-```{r visualization,echo=FALSE, message=FALSE, webgl=TRUE}
+
+```{r visualization, message=FALSE, webgl=TRUE}
 color1='blue'
 color2='lightgreen'
 color3='orangered'
@@ -193,7 +224,6 @@ col_pal=c(color1,color2,color2,color3)
 colfunc <- colorRampPalette(col_pal)
 
 # plot, using absolute birth times
-rgl.close()
 mfrow3d(2,1)
 # vert_heat1 <- colfunc(cuts)[vert_matrix1[,1]] #absolute
 vert_heat1 = colfunc(1 + max(vert_matrix1[,1]) - min(vert_matrix1[,1]))[1 + vert_matrix1[,1] - min(vert_matrix1[,1])] # relative
