@@ -189,6 +189,7 @@ LaplaceApproximation <- function(Kn, class_labels){
 #'  Draw samples from posterior using Elliptical Slice Sampling
 #'
 #'  @export
+#'
 #'  @import FastGP
 #'
 #'   @description  \code{Elliptical_Slice_Sampling} Based on Iain Murray's paper 'Elliptical Slice Sampling'. Implemented using the FastGP package. The function returns
@@ -221,6 +222,7 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 #'
 #'
 #' @export
+#'
 #'@description \code{sigmoid} Applies the sigmoid transformation
 #'
 #'@param x (vector): vector of values to apply the sigmoid transformation
