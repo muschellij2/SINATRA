@@ -136,4 +136,39 @@ summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=inters
   return(final_selected_vertices)
 }
 
+#' Compute a null distribution for function values on a region of a mesh
+#'
+#' @description Input a region on the mesh, and the function finds N other connected regions of the same size, uniformly sampled from the
+#' mesh. The goal is to compare the function values on the input region to those on the N other regions in order to generate the analog of p values.
+#' 
+#' 
+#' @export
+#'
+#' @param mesh mesh3d object.
+#' @param mesh_fcn (2 x M vector) the values of the function on the vertices of the mesh.
+#' @param vertex (int) the index of the desired vertex to analyze on the mesh
+#' @param region_size (int) the number of vertices to be in the region. We choose the region via knn. The assumption is that the 
+#'  density if vertices in the mesh is uniform, or at least approximately. 
+#' @param num_test_regions (int) the number of regions to sample from 
+#'
+#' @return sum of function values for the input region, and a vector of length N of the sum of function values for the random test regions 
+compute_differential_evidence <- function(complex, mesh_fcn, vertex, region_size, num_test_regions){
+  
+  # compute region size
+  region <- knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,vertex]), k = region_size)
+  region_val <- sum(mesh_fcn[region])
+  
+  # select random regions
+  random_regions <- sample(1:dim(complex$vb)[2], num_test_regions)
+  random_region_vals <- matrix(0,nrow = 1, ncol = num_test_regions)
+  
+  for(i in 1:num_test_regions){
+    random_vertex <- random_regions[i]
+    random_region <- knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = region_size)
+    random_region_vals[i] <- sum(mesh_fcn[random_region])
+  }
+  
+  return(c(region_val,random_region_vals))
+}
+
 
