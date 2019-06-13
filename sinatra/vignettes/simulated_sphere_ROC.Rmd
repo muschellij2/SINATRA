@@ -27,10 +27,10 @@ library(numbers)
 set.seed(4913, kind = "L'Ecuyer-CMRG")
 n.simulations <- 5
 
-num_causal_region <- arguments[1]
-num_shared_region <- arguments[2]
-causal_points <- arguments[3]
-shared_points <- arguments[3]
+num_causal_region <- 1
+num_shared_region <- 2
+causal_points <- 10
+shared_points <- 10
 ```
 
 ```{r generate roc}
