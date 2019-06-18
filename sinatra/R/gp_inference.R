@@ -108,26 +108,27 @@ ExpectationPropagation <- function(K, class_labels){
   # change this stopping condition
   for(j in 1:5000){
     for (i in 1:n){
-      tau_minus_i = sigma[i,i]^-2 - tau_tilde[i]
-      nu_minus_i = (sigma[i,i]^-2)*mu[i] - nu_tilde[i]
+      tau_minus[i] = sigma[i,i]^-2 - tau_tilde[i]
+      nu_minus[i] = (sigma[i,i]^-2)*mu[i] - nu_tilde[i]
 
-      mu_minus_i = nu_minus_i/tau_minus_i
-      sigma_minus_i = tau_minus_i^-0.5
+      mu_minus[i] = nu_minus[i]/tau_minus[i]
+      sigma_minus[i] = tau_minus[i]^-0.5
 
       # Compute Marginal Moments
-      z_i = class_labels[i]*mu_minus_i/(sqrt(1+sigma_minus_i^2))
-      mu_hat_i = mu_minus_i + (class_labels[i] * sigma_minus_i^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus_i^2))
-      sigma_hat_i = sqrt( sigma_minus_i^2 - (sigma_minus_i^4*dnorm(z_i))/((1+sigma_minus_i^2)*pnorm(z_i))*(z_i + dnorm(z_i)/pnorm(z_i)) )
+      z_i = class_labels[i]*mu_minus[i]/(sqrt(1+sigma_minus[i]^2))
+      mu_hat[i] = mu_minus[i] + (class_labels[i] * sigma_minus[i]^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus_i^2))
+      sigma_hat[i] = sqrt( sigma_minus[i]^2 - (sigma_minus[i]^4*dnorm(z_i))/((1+sigma_minus[i]^2)*pnorm(z_i))*(z_i + dnorm(z_i)/pnorm(z_i)) )
 
       # Update Site Parameters
-      delta_tau_tilde = sigma_hat_i^-2 - tau_minus_i - tau_tilde[i]
+      delta_tau_tilde = sigma_hat[i]^-2 - tau_minus[i] - tau_tilde[i]
       tau_tilde[i] = tau_tilde[i] + delta_tau_tilde
-      nu_tilde[i] = (sigma_hat_i^-2)*mu_hat_i - nu_minus_i
+      nu_tilde[i] = (sigma_hat[i]^-2)*mu_hat[i] - nu_minus[i]
 
       # Update Sigma, mu - the parameters of the posterior
       sigma = sigma - (( delta_tau_tilde^-1 + sigma[i,i])^-1)*sigma[,i]%*%t(sigma[,i])
       mu = sigma%*%nu_tilde
     }
+
     #Recompute posterior parameters
     S_tilde = diag(as.vector(tau_tilde))
     L = chol(diag(n) + sqrt(S_tilde)%*%K%*%sqrt(S_tilde))
@@ -135,7 +136,18 @@ ExpectationPropagation <- function(K, class_labels){
     sigma = K - t(V)%*%V
     mu = sigma%*%nu_tilde
   }
-  params <- list(mu,sigma)
+  # Compute Log Marginal Likelihood
+  B <- eye(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde)
+  T <- diag(tau_minus)
+  term1 <- 0.5*sum(log(1 + tau_tilde/tau_minus)) - sum(log(diag(L)))
+  term2 <- 0.5*log
+  term3 <- 0.5*t(nu_tilde)%*%(K - K %*% sqrt(S_tilde) %*% solve(B) %*% sqrt(S_tilde) %*% K - (T + solve(S_tilde)) ) %*% (nu_tilde)
+  term4 <- 0.5* t(mu_minus)%*% T %*% solve(S_tilde + T) %*% (S_tilde %*% mu_minus - 2*nu_tilde)
+
+  log_Z <- term1 + term2 + term3 + term4
+
+
+  params <- list(mu,sigma,log_Z)
   return(params)
 }
 
@@ -214,8 +226,31 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 
 }
 
+############################################################
+############################################################
+############################################################
+##### Model Selection Code #####
+
+#'
+#'
+#' @export
+#'
+#' @description \code{compute_approx_marginal_likelihood} Computes Approximate Marginal likeilhood for the GPC Model, when using Expectation Prop.
+#' Used for as model evidence in order to compute optimal parameters/ hyperparameters for the model.
+#'
+#' @param
+#'
+#' @return Z (float): the approximate log likelihood given the parameters.
+compute_approx_marginal_likelihood <- function(){
+
+}
+
+optimize_params_EP <- function()
 
 
+############################################################
+############################################################
+############################################################
 ##### Helper Functions #####
 
 #'Sigmoid Transformation
