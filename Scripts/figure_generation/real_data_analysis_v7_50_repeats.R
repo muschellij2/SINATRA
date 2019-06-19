@@ -89,6 +89,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dirs.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
@@ -98,6 +99,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
+ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dirs.pdf')
 
 # Plotting Now
 dir = data_dirs[10]

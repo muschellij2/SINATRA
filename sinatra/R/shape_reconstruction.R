@@ -161,17 +161,17 @@ summarize_vertices=function(dir,complex,rate_vals,len,reduction_operation=inters
 compute_differential_evidence = function(complex,mesh_fcn,vertex, region_size = 100, num_test_regions = 100, method = 'knn'){
   region <- knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,vertex]), k = region_size)
   region_val <- sum(mesh_fcn[region])
-  nv = nverts(mesh)
-  nf = nfaces(mesh)
-  I = cbind(matrix(mesh$it[1,], nrow = 1),matrix(mesh$it[2,],nrow = 1), matrix(mesh$it[3,],nrow =1))
+  nv = nverts(complex)
+  nf = nfaces(complex)
+  I = cbind(matrix(complex$it[1,], nrow = 1),matrix(complex$it[2,],nrow = 1), matrix(complex$it[3,],nrow =1))
   J = matrix(rep(1:nf, 3),nrow = 1)
   f2v = sparseMatrix(i = J,j = I,x = 1,dims = c(nf,nv))
   
-  face_area = vcgArea(mesh, TRUE)$pertriangle
+  face_area = vcgArea(complex, TRUE)$pertriangle
   
-  vert_area = (face_area%*% f2v)/3
+  vert_area = ((face_area%*% f2v)/3)[1,]
   
-  roi_mask = rep(0,nv)
+  roi_mask = rep(0,length(vert_area))
   roi_mask[region] = 1
   
   # select random regions
@@ -188,16 +188,29 @@ compute_differential_evidence = function(complex,mesh_fcn,vertex, region_size = 
       random_region <- knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = region_size)
     }
     if (method == 'area'){
-      base_area = 0
-      knn = 1
+      knn = region_size
+      random_region = knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = knn)
+      random_mask = rep(0,length(vert_area))
+      random_mask[random_region] = 1
+      base_area = sum(random_mask * vert_area)
       
-      while(base_area < roi_area){
-        
-        random_region = knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = knn)
-        random_mask = rep(0,nv)
-        random_mask[random_region] = 1
-        base_area = sum(random_mask * vert_area)
-        knn = knn + 1
+      if (base_area < roi_area){
+        while(base_area < roi_area){
+          random_region = knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = knn)
+          random_mask = rep(0,length(vert_area))
+          random_mask[random_region] = 1
+          base_area = sum(random_mask * vert_area)
+          knn = knn + 1
+        }
+      }
+      else{
+        while(base_area > roi_area && knn > 1){
+          random_region = knnx.index(data = t(complex$vb[-4,]),query = t(complex$vb[-4,random_vertex]), k = knn)
+          random_mask = rep(0,length(vert_area))
+          random_mask[random_region] = 1
+          base_area = sum(random_mask * vert_area)
+          knn = knn - 1
+        }
       }
     }
     random_region_vals[i] <- sum(mesh_fcn[random_region])
