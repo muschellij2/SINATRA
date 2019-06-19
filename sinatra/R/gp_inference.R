@@ -130,8 +130,17 @@ ExpectationPropagation <- function(K, class_labels){
   sigma <- K
   mu <- matrix(0,nrow = n,ncol = 1)
 
+  #initialize vectors
+  nu_minus<- matrix(0,nrow = n,ncol = 1)
+  tau_minus <- matrix(0,nrow = n,ncol = 1)
+  mu_minus<- matrix(0,nrow = n,ncol = 1)
+  sigma_minus <- matrix(0,nrow = n,ncol = 1)
+  mu_hat <- matrix(0,nrow = n,ncol = 1)
+  sigma_hat <- matrix(0,nrow = n,ncol = 1)
+
+
   # change this stopping condition
-  for(j in 1:5000){
+  for(j in 1:100){
     for (i in 1:n){
       tau_minus[i] <- sigma[i,i]^-2 - tau_tilde[i]
       nu_minus[i] <- (sigma[i,i]^-2)*mu[i] - nu_tilde[i]
@@ -141,7 +150,7 @@ ExpectationPropagation <- function(K, class_labels){
 
       # Compute Marginal Moments
       z_i <- class_labels[i]*mu_minus[i]/(sqrt(1+sigma_minus[i]^2))
-      mu_hat[i] <- mu_minus[i] + (class_labels[i] * sigma_minus[i]^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus_i^2))
+      mu_hat[i] <- mu_minus[i] + (class_labels[i] * sigma_minus[i]^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus[i]^2))
       sigma_hat[i] <- sqrt( sigma_minus[i]^2 - (sigma_minus[i]^4*dnorm(z_i))/((1+sigma_minus[i]^2)*pnorm(z_i))*(z_i + dnorm(z_i)/pnorm(z_i)) )
 
       # Update Site Parameters
@@ -156,13 +165,14 @@ ExpectationPropagation <- function(K, class_labels){
 
     #Recompute posterior parameters
     S_tilde <- diag(as.vector(tau_tilde))
-    L <- chol(diag(n) + sqrt(S_tilde)%*%K%*%sqrt(S_tilde))
+    B <- diag(n) + sqrt(S_tilde)%*%K%*%sqrt(S_tilde)
+    L <- chol(B)
     V <- solve(t(L),sqrt(S_tilde)%*%K)
     sigma <- K - t(V)%*%V
     mu <- sigma%*%nu_tilde
   }
   # Compute Log Marginal Likelihood
-  B <- eye(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde)
+  B <- diag(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde)
   T <- diag(tau_minus)
   term1 <- 0.5*sum(log(1 + tau_tilde/tau_minus)) - sum(log(diag(L)))
   term2 <- 0.5*log
@@ -268,14 +278,14 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 #'
 #' @return grad_log_Z (float): the gradient log likelihood given the parameters.
 compute_marginal_likelihood_gradient <- function(X, kernel_param, class_labels){
-  K <- GaussKernel(X, kernel_param)
+  K <- GaussKernel(t(X), kernel_param)
   params <- ExpectationPropagation(K, class_labels)
   nu_tilde <- params[3]
   tau_tilde <- params[4]
 
   # compute gradient
   S_tilde = diag(as.vector(tau_tilde))
-  L <- chol(eye(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde))
+  L <- chol(diag(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde))
   b <- nu_tilde - sqrt(S_tilde) %*% solve(L) %*% solve(t(L)) %*% sqrt(S_tilde) %*% K %*% nu_tilde
   R <- b%*%t(b) - sqrt(S_tilde) %*% solve(t(L)) %*% solve(L) %*% sqrt(S_tilde)
   C <- gradGaussKernel(X, kernel_param)
@@ -298,7 +308,7 @@ compute_marginal_likelihood_gradient <- function(X, kernel_param, class_labels){
 #'
 #' @return log_Z (float): the EP log likelihood given the parameters.
 compute_marginal_likelihood <- function(X, kernel_param, class_labels){
-  K <- GaussKernel(X, kernel_param)
+  K <- GaussKernel(t(X), kernel_param)
   params <- ExpectationPropagation(K, class_labels)
   log_Z <- params[5]
 
