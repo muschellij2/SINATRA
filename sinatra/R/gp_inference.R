@@ -1,6 +1,7 @@
 library(Matrix)
 library(FastGP)
 library(parallel)
+library(Rcgmin)
 
 
 ####### RATE Code ######
@@ -24,7 +25,32 @@ GaussKernel <- function(X,bandwidth){
         }
     }
   }
-  return(K + t(K))
+
+  cov <- K + t(K)
+  diag(cov) <- 1
+
+  return(cov)
+}
+
+#'
+#' Computes the gradient of the Gauss kernel with respect to the bandwidth
+gradGaussKernel <- function(X,bandwidth){
+  n <- dim(X)[2]
+  p <- dim(X)[1]
+
+  K <- matrix(0,nrow = n, ncol = n)
+  for(i in 1:n){
+    for(j in 1:n){
+      if(i != j){
+        K[i,j] <- -exp(-bandwidth*sum((X[,i] - X[,j])^2)/p)*sum((X[,i] - X[,j])^2)/p
+      }
+    }
+  }
+
+  grad_cov <- K + t(K)
+  diag(grad_cov) <- 0
+
+  return(grad_cov)
 }
 
 
@@ -53,7 +79,6 @@ find_rate_variables_with_other_sampling_methods <- function(gp_data,bandwidth = 
   #RATE
   f <- rep(0,n)
   Kn <- GaussKernel(t(X),1/(2*h^2))
-  diag(Kn)=1
 
   # Get the samples of the latent posterior. The code for each of these methods can be found in 'GPC_Approximate_Inference'
   if ( type == 'Laplace' ){
@@ -99,42 +124,42 @@ find_rate_variables_with_other_sampling_methods <- function(gp_data,bandwidth = 
 #' @return params (list): list of the posterior mean and variances.
 #'
 ExpectationPropagation <- function(K, class_labels){
-  n = length(class_labels)
-  nu_tilde = matrix(0,nrow = n,ncol = 1)
-  tau_tilde = matrix(0,nrow = n,ncol = 1)
-  sigma = K
-  mu = matrix(0,nrow = n,ncol = 1)
+  n <- length(class_labels)
+  nu_tilde <- matrix(0,nrow = n,ncol = 1)
+  tau_tilde <- matrix(0,nrow = n,ncol = 1)
+  sigma <- K
+  mu <- matrix(0,nrow = n,ncol = 1)
 
   # change this stopping condition
   for(j in 1:5000){
     for (i in 1:n){
-      tau_minus[i] = sigma[i,i]^-2 - tau_tilde[i]
-      nu_minus[i] = (sigma[i,i]^-2)*mu[i] - nu_tilde[i]
+      tau_minus[i] <- sigma[i,i]^-2 - tau_tilde[i]
+      nu_minus[i] <- (sigma[i,i]^-2)*mu[i] - nu_tilde[i]
 
-      mu_minus[i] = nu_minus[i]/tau_minus[i]
-      sigma_minus[i] = tau_minus[i]^-0.5
+      mu_minus[i] <- nu_minus[i]/tau_minus[i]
+      sigma_minus[i] <- tau_minus[i]^-0.5
 
       # Compute Marginal Moments
-      z_i = class_labels[i]*mu_minus[i]/(sqrt(1+sigma_minus[i]^2))
-      mu_hat[i] = mu_minus[i] + (class_labels[i] * sigma_minus[i]^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus_i^2))
-      sigma_hat[i] = sqrt( sigma_minus[i]^2 - (sigma_minus[i]^4*dnorm(z_i))/((1+sigma_minus[i]^2)*pnorm(z_i))*(z_i + dnorm(z_i)/pnorm(z_i)) )
+      z_i <- class_labels[i]*mu_minus[i]/(sqrt(1+sigma_minus[i]^2))
+      mu_hat[i] <- mu_minus[i] + (class_labels[i] * sigma_minus[i]^2 * dnorm(z_i) )/(pnorm(z_i)*sqrt(1+sigma_minus_i^2))
+      sigma_hat[i] <- sqrt( sigma_minus[i]^2 - (sigma_minus[i]^4*dnorm(z_i))/((1+sigma_minus[i]^2)*pnorm(z_i))*(z_i + dnorm(z_i)/pnorm(z_i)) )
 
       # Update Site Parameters
-      delta_tau_tilde = sigma_hat[i]^-2 - tau_minus[i] - tau_tilde[i]
-      tau_tilde[i] = tau_tilde[i] + delta_tau_tilde
-      nu_tilde[i] = (sigma_hat[i]^-2)*mu_hat[i] - nu_minus[i]
+      delta_tau_tilde <- sigma_hat[i]^-2 - tau_minus[i] - tau_tilde[i]
+      tau_tilde[i] <- tau_tilde[i] + delta_tau_tilde
+      nu_tilde[i] <- (sigma_hat[i]^-2)*mu_hat[i] - nu_minus[i]
 
       # Update Sigma, mu - the parameters of the posterior
-      sigma = sigma - (( delta_tau_tilde^-1 + sigma[i,i])^-1)*sigma[,i]%*%t(sigma[,i])
-      mu = sigma%*%nu_tilde
+      sigma <- sigma - (( delta_tau_tilde^-1 + sigma[i,i])^-1)*sigma[,i]%*%t(sigma[,i])
+      mu <- sigma%*%nu_tilde
     }
 
     #Recompute posterior parameters
-    S_tilde = diag(as.vector(tau_tilde))
-    L = chol(diag(n) + sqrt(S_tilde)%*%K%*%sqrt(S_tilde))
-    V = solve(t(L),sqrt(S_tilde)%*%K)
-    sigma = K - t(V)%*%V
-    mu = sigma%*%nu_tilde
+    S_tilde <- diag(as.vector(tau_tilde))
+    L <- chol(diag(n) + sqrt(S_tilde)%*%K%*%sqrt(S_tilde))
+    V <- solve(t(L),sqrt(S_tilde)%*%K)
+    sigma <- K - t(V)%*%V
+    mu <- sigma%*%nu_tilde
   }
   # Compute Log Marginal Likelihood
   B <- eye(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde)
@@ -147,7 +172,7 @@ ExpectationPropagation <- function(K, class_labels){
   log_Z <- term1 + term2 + term3 + term4
 
 
-  params <- list(mu,sigma,log_Z)
+  params <- list(mu,sigma, nu_tilde, tau_tilde, log_Z)
   return(params)
 }
 
@@ -231,21 +256,70 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 ############################################################
 ##### Model Selection Code #####
 
+#' @export
 #'
+#' @description \code{compute_marginal_likelihood_gradient} Computes Marginal likeilhood Gradient for the GPC Model, when using Expectation Prop.
+#' Used for as model evidence in order to compute optimal parameters/ hyperparameters for the model. Implemented so far
+#' only for the GaussKernel kernel function. Might be expanded in the future.
+#'
+#' @param X (matrix) : The design matrix of (S/D) EC curves
+#' @param kernel_param (float) : Bandwidth parameter for the Gaussian Kernel
+#' @param class_labels (vector) : vector of +1,-1 of class labels.
+#'
+#' @return grad_log_Z (float): the gradient log likelihood given the parameters.
+compute_marginal_likelihood_gradient <- function(X, kernel_param, class_labels){
+  K <- GaussKernel(X, kernel_param)
+  params <- ExpectationPropagation(K, class_labels)
+  nu_tilde <- params[3]
+  tau_tilde <- params[4]
+
+  # compute gradient
+  S_tilde = diag(as.vector(tau_tilde))
+  L <- chol(eye(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde))
+  b <- nu_tilde - sqrt(S_tilde) %*% solve(L) %*% solve(t(L)) %*% sqrt(S_tilde) %*% K %*% nu_tilde
+  R <- b%*%t(b) - sqrt(S_tilde) %*% solve(t(L)) %*% solve(L) %*% sqrt(S_tilde)
+  C <- gradGaussKernel(X, kernel_param)
+
+  grad_log_Z <- 0.5*sum(diag(R %*% C))
+
+  return(grad_log_Z)
+}
+
 #'
 #' @export
 #'
-#' @description \code{compute_approx_marginal_likelihood} Computes Approximate Marginal likeilhood for the GPC Model, when using Expectation Prop.
-#' Used for as model evidence in order to compute optimal parameters/ hyperparameters for the model.
+#' @description \code{compute_marginal_likelihood} Computes Marginal likeilhood for the GPC Model, when using Expectation Prop.
+#' Used for as model evidence in order to compute optimal parameters/ hyperparameters for the model. Implemented so far
+#' only for the GaussKernel kernel function. Might be expanded in the future.
 #'
-#' @param
+#' @param X (matrix) : The design matrix of (S/D) EC curves
+#' @param kernel_param (float) : Bandwidth parameter for the Gaussian Kernel
+#' @param class_labels (vector) : vector of +1,-1 of class labels.
 #'
-#' @return Z (float): the approximate log likelihood given the parameters.
-compute_approx_marginal_likelihood <- function(){
+#' @return log_Z (float): the EP log likelihood given the parameters.
+compute_marginal_likelihood <- function(X, kernel_param, class_labels){
+  K <- GaussKernel(X, kernel_param)
+  params <- ExpectationPropagation(K, class_labels)
+  log_Z <- params[5]
 
+  return(log_Z)
 }
 
-optimize_params_EP <- function()
+#' @export
+#'
+#' @description \code{optimize_params_EP} Uses nonlinear conjugate gradient optimizer to pick out the best value of the kernel params
+#'
+#' @param X (matrix) : The design matrix of (S/D) EC curves
+#' @param kernel_param (float) : Bandwidth parameter for the Gaussian Kernel
+#' @param class_labels (vector) : vector of +1,-1 of class labels.
+#'
+#' @return Rcgmin output
+optimize_params_EP <- function(X, class_labels, initial_params){
+  fn <- function(param) compute_marginal_likelihood(X,param,class_labels)
+  gr <- function(param) compute_marginal_likelihood_gradient(X,param,class_labels)
+
+  return(Rcgmin(initial_params, fn, gr))
+}
 
 
 ############################################################
