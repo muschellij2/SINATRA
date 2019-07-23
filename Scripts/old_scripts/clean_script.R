@@ -1,19 +1,10 @@
 #### Aligning and Scaling the meshes ####
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
+setwd('~/Dropbox/Data + Experiments Tim Sudijono/')
 library(Morpho)
 library(rgl)
 library(Rvcg)
 dir='~/Documents/face_meshes/off_converted_meshes/front_angry/'
 out_path = '~/Documents/face_meshes/off_cleaned_meshes/front_angry/'
-
-b = list.files(dir, full.names = TRUE)
-
-mesh1 = vcgImport(b[8])
-plot3d(mesh1, col = 'white')
-cleanmesh = vcgIsolated(mesh1)
-plot3d(cleanmesh, col = 'white')
-cleanmesh = vcgClean(cleanmesh, sel = c(0,1,2,3,4,5,7,0,1,2,3,4,5,6,7, 0,1,2,3,4,5,6,7))
-plot3d(cleanmesh,col = 'white')
 
 clean_face_files=function(input_dir,output_dir){
   files=list.files(path = dir,full.names = TRUE)
