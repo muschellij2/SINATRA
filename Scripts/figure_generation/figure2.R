@@ -1,4 +1,4 @@
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
+setwd('/Users/brucewang/')
 library(R.utils)
 sourceDirectory('~/Documents/SINATRA/SINATRA_Pipeline_Branch/')
 sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')

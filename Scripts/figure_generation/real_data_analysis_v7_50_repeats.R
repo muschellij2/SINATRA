@@ -1,7 +1,7 @@
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
-library(R.utils)
-sourceDirectory('~/Documents/SINATRA/SINATRA_Pipeline_Branch/')
-sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
+#library(R.utils)
+#sourceDirectory('~/Documents/SINATRA/SINATRA_Pipeline_Branch/')
+#sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
+library(sinatra)
 #load('Caricature_ROCV2.Rdata')
 #library(svd)
 #set.seed(15)
@@ -89,7 +89,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dirs.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dirs.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
@@ -99,9 +99,10 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dirs.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dirs.pdf')
 
 # Plotting Now
+load('~/Documents/new_aligned_shapesv3/V13_3peak_2gp_v50_bw/rocs_and_rate.R')
 dir = data_dirs[10]
 load(paste(dir,'/rocs_and_rate.R',sep=''))
 old_data_dir = paste(dir,'/mesh/gp1',sep='')
@@ -113,7 +114,7 @@ class_2_probs = read.csv(paste(dir,'/gp2_spt.csv',sep=''), header = FALSE)
 ind = 3
 old_veg1 = vcgImport(old_data_files[ind])
 new_veg1 = vcgImport(new_data_files[ind])
-og_mesh = vcgImport(file = 'Data/new_aligned_shapesv3/Old_Follivore/clean_V13_sas.off')
+og_mesh = vcgImport(file = '~/Documents/clean_V13_sas.off')
 new_veg_1 = process_off_file_v3(new_data_files[ind])
 old_veg_1 = process_off_file_v3(old_data_files[ind])
 v1 = t(new_veg1$vb[-4,])
@@ -243,7 +244,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve_len_1_frame,aes(x = X1, y = X2, group 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_lengths.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Lengths") +
@@ -253,7 +254,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_lengths.pdf')
 # Varying Angle Up
 
 base_dir = '~/Documents/new_aligned_shapesv3/'
@@ -329,7 +330,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_angles.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_angles.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
@@ -339,7 +340,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_angles.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_angles.pdf')
 
 
 
@@ -420,7 +421,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dir_per_cone.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_1_roc_dir_per_cone.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
@@ -430,7 +431,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dir_per_cone.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/3_peaks/Class_2_roc_dir_per_cone.pdf')
 
 
 #### 5 v 5 ####
@@ -601,7 +602,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve_len_1_frame,aes(x = X1, y = X2, group 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_lengths.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Lengths") +
@@ -611,7 +612,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_lengths.pdf')
 
 #Angles
 base_dir = '~/Documents/new_aligned_shapesv4/'
@@ -919,7 +920,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve1_frame,aes(x = X1, y = X2, group = X3)
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
@@ -929,7 +930,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve2_frame,aes(x = X1, y = X2, group = X3
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc.pdf')
 
 # Varying Length Up
 
@@ -1016,7 +1017,7 @@ ROC_curve_plt <- ggplot(data <- roc_curve_len_1_frame,aes(x = X1, y = X2, group 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_1_roc_lengths.pdf')
 ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group = X3)) +
   geom_line(stat = "identity",aes(color = factor(X3) )) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Lengths") +
@@ -1026,7 +1027,7 @@ ROC_curve_plt2 <- ggplot(data <- roc_curve_len_2_frame,aes(x = X1, y = X2, group
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt2)
-ggsave('~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_lengths.pdf')
+ggsave('~/Dropbox/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/CaricaturedTeeth/5_peaks/Class_2_roc_lengths.pdf')
 
 # Plotting now
 color1='blue'
