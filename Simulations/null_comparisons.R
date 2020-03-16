@@ -26,7 +26,7 @@ difference <- function(x,y){
 # Two classes of spheres with random noise on the surface, assign random classes
 
 
-desired_num_cones <- 20
+desired_num_cones <- 25
 cap_radius <- 0.15
 directions_per_cone <- 10
 
@@ -38,7 +38,7 @@ dir <- generate_equidistributed_cones(desired_num_cones,cap_radius,directions_pe
 
 nsim <- 10
 curve_length <- 25
-ball_radius <- 2.5
+ball_radius <- 2
 subdivision <- 4
 
 data <- matrix(NA,nrow=0,ncol = 1+curve_length*( dim(dir)[1]))
@@ -63,6 +63,19 @@ for (i in 1:nsim){
     dist1 = difference(dir[1,], sphere1$vb[1:3,i])
     if (dist1 < 0.2){
       sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
+      neighbors <- c(neighbors,i)
+    }
+    
+    dist1 = difference(dir[130,], sphere1$vb[1:3,i])
+    if (dist1 < 0.2){
+      sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
+      neighbors <- c(neighbors,i)
+    }
+    
+    dist1 = difference(dir[240,], sphere1$vb[1:3,i])
+    if (dist1 < 0.2){
+      sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
+      neighbors <- c(neighbors,i)
     }
   }
 
@@ -115,11 +128,23 @@ for (i in 1:num_v){
     sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
     neighbors <- c(neighbors,i)
   }
+  
+  dist1 = difference(dir[130,], sphere1$vb[1:3,i])
+  if (dist1 < 0.2){
+    sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
+    neighbors <- c(neighbors,i)
+  }
+  
+  dist1 = difference(dir[240,], sphere1$vb[1:3,i])
+  if (dist1 < 0.2){
+    sphere1$vb[1:3,i] <- sphere1$vb[1:3,i]*((1 + 10*(0.2 - dist1)))^0.5
+    neighbors <- c(neighbors,i)
+  }
 }
 complex <- convert_off_file(sphere1)
 
 #### Test reconstruction of vertices
-reconstructed_vs <- compute_selected_vertices_cones(dir, complex, rate_values, curve_length, 0.001,
+reconstructed_vs <- compute_selected_vertices_cones(dir, complex, rate_values, curve_length, 0.00001,
                                 directions_per_cone, ball_radius,
                                 TRUE, 0)
 print(length(reconstructed_vs))
@@ -129,7 +154,7 @@ plot3d(sphere1, col = cols, back="lines", specular="white", axes = FALSE,xlab = 
 
 
 
-#### reconstruct birth times of vertices
+qew#### reconstruct birth times of vertices
 cuts <- 1000
 vert_matrix <- reconstruct_vertices_on_shape(dir, complex, rate_values, curve_length, cuts = cuts,
                                              directions_per_cone, ball_radius, TRUE)
