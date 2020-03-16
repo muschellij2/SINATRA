@@ -17,8 +17,8 @@ ball = TRUE
 ball_radius = 0.5
 ec_type = 'ECT'
 
-num_causal_region = 1
-num_shared_region = 9
+num_causal_region = 3
+num_shared_region = 3
 causal_points = 10
 shared_points = 10
 
@@ -39,9 +39,152 @@ data = generate_data_sphere_simulation(nsim = nsim,dir = dirs, curve_length = le
                                        shared_regions = shared_regions, ec_type = ec_type)
 
 
+#### Plot Soln ####
+
+mesh = vcgSphere(subdivision = 3)
+mesh$vb[1:3,] = t(data$complex_points[[1]])
+cols = rep('white', dim(mesh$vb)[2])
+cols[data$causal_points1] = 'red'
+cols[data$noise] = 'blue'
+plot3d(mesh, col = cols)
+
+#### Function ####
+mesh_to_matrix = function(mesh){
+  v_points = mesh$vb[-4,]
+  x = c(t(mesh$vb))
+  return(x)
+}
+generate_data_sphere_simulation_new = function (nsim, curve_length, dir, noise_points = 5, causal_points = 5, 
+          ball = TRUE, ball_radius = 2, ec_type = "ECT", subdivision = 3, 
+          cusps, causal_regions_1 = c(1), causal_regions_2 = c(3), 
+          shared_regions = c(4)) 
+{
+  data <- matrix(NA, nrow = 0, ncol = 1 + curve_length * (dim(dir)[1]))
+  regions = generate_equidistributed_points(cusps, cusps)
+  sphere = vcgSphere(subdivision = subdivision)
+  print(paste("Causal Regions 1: "))
+  print(causal_regions_1)
+  print("Causal Regions 2: ")
+  print(causal_regions_2)
+  print("Shared Regions: ")
+  print(shared_regions)
+  complex_points = list()
+  shared_points_list = list()
+  total_shared_points = c()
+  total_closest_points_class1 = c()
+  total_closest_points_class2 = c()
+  total_cusps_list = c()
+  region_vertex_dictionary <- vector("list", dim(regions)[1])
+  sphere_vertices <- asEuclidean(t(sphere$vb))
+  distances <- as.matrix(pdist(regions, sphere_vertices))
+  for (i in 1:(dim(sphere_vertices))[1]) {
+    closest_region <- which.min(distances[, i])
+    region_vertex_dictionary[[closest_region]] <- c(region_vertex_dictionary[[closest_region]], 
+                                                    i)
+  }
+  vertex_region_dictionary <- apply(distances, 2, FUN = which.min)
+  for (j in 1:length(causal_regions_1)) {
+    causal_dir1 = regions[causal_regions_1[j], ]
+    closest_points_class1 = knnx.index(data = t(sphere$vb[-4, 
+                                                          ]), query = matrix(causal_dir1, ncol = 3), k = causal_points)
+    total_closest_points_class1 = c(total_closest_points_class1, 
+                                    closest_points_class1)
+    total_cusps_list[[length(total_cusps_list) + 1]] = closest_points_class1
+  }
+  for (j in 1:length(causal_regions_2)) {
+    causal_dir2 = regions[causal_regions_2[j], ]
+    closest_points_class2 = knnx.index(data = t(sphere$vb[-4, 
+                                                          ]), query = matrix(causal_dir2, ncol = 3), k = causal_points)
+    total_closest_points_class2 = c(total_closest_points_class2, 
+                                    closest_points_class2)
+    total_cusps_list[[length(total_cusps_list) + 1]] = closest_points_class2
+  }
+  for (k in 1:length(shared_regions)) {
+    shared_dir = regions[shared_regions[k], ]
+    closest_points_shared = knnx.index(data = t(sphere$vb[-4, 
+                                                          ]), query = matrix(shared_dir, ncol = 3), k = noise_points)
+    total_shared_points = c(total_shared_points, closest_points_shared)
+  }
+  for (i in 1:nsim) {
+    sphere1 = vcgSphere(subdivision = subdivision)
+    sphere2 = vcgSphere(subdivision = subdivision)
+    sphere1$vb[1:3, ] = sphere1$vb[1:3, ] * rnorm(dim(sphere1$vb)[2], 
+                                                  mean = 1, sd = 0.035)
+    sphere2$vb[1:3, ] = sphere2$vb[1:3, ] * rnorm(dim(sphere2$vb)[2], 
+                                                  mean = 1, sd = 0.035)
+    for (j in 1:length(causal_regions_1)) {
+      causal_dir1 = regions[causal_regions_1[j], ]
+      closest_points_class1 = knnx.index(data = t(sphere$vb[-4, 
+                                                            ]), query = matrix(causal_dir1, ncol = 3), k = causal_points)
+      sphere1$vb[1:3, closest_points_class1] = sphere1$vb[1:3, 
+                                                          closest_points_class1] * 0.55 + rnorm(1, mean = 0, 
+                                                                                                sd = 0.1)
+    }
+    for (j in 1:length(causal_regions_2)) {
+      causal_dir2 = regions[causal_regions_2[j], ]
+      closest_points_class2 = knnx.index(data = t(sphere$vb[-4, 
+                                                            ]), query = matrix(causal_dir2, ncol = 3), k = causal_points)
+      sphere2$vb[1:3, closest_points_class2] = sphere2$vb[1:3, 
+                                                          closest_points_class2] * 0.55 + rnorm(1, mean = 0, 
+                                                                                                sd = 0.1)
+    }
+    for (k in 1:length(shared_regions)) {
+      shared_dir = regions[shared_regions[k], ]
+      closest_points_shared = knnx.index(data = t(sphere$vb[-4, 
+                                                            ]), query = matrix(shared_dir, ncol = 3), k = noise_points)
+      shared_points = sphere$vb[1:3, closest_points_shared] * 
+        1.35 + rnorm(1, mean = 0, sd = 0.1)
+      sphere1$vb[1:3, closest_points_shared] = shared_points
+      sphere2$vb[1:3, closest_points_shared] = shared_points
+    }
+    sphere_mesh1 = convert_off_file(sphere1)
+    sphere_mesh2 = convert_off_file(sphere2)
+    complex_points[[(2 * i - 1)]] = t(sphere1$vb[1:3, ])
+    complex_points[[2 * i]] = t(sphere2$vb[1:3, ])
+    shared_points_list[[i]] = shared_points
+    ec_curve_class1 <- matrix(NA, nrow = 1, ncol = 0)
+    ec_curve_class2 <- matrix(NA, nrow = 1, ncol = 0)
+    for (j in 1:dim(dir)[1]) {
+      vertex_function_class_1 <- sphere_mesh1$Vertices %*% 
+        c(dir[j, 1], dir[j, 2], dir[j, 3])
+      vertex_function_class_2 <- sphere_mesh2$Vertices %*% 
+        c(dir[j, 1], dir[j, 2], dir[j, 3])
+      if (ball == TRUE) {
+        curve1 <- compute_standardized_ec_curve(sphere_mesh1, 
+                                                vertex_function_class_1, curve_length - 1, 
+                                                first_column_index = FALSE, ball_radius)
+        curve2 <- compute_standardized_ec_curve(sphere_mesh2, 
+                                                vertex_function_class_2, curve_length - 1, 
+                                                first_column_index = FALSE, ball_radius)
+      }
+      else {
+        curve1 <- compute_discrete_ec_curve(sphere_mesh1, 
+                                            vertex_function_class_1, curve_length - 1, 
+                                            first_column_index = FALSE)
+        curve2 <- compute_discrete_ec_curve(sphere_mesh2, 
+                                            vertex_function_class_2, curve_length - 1, 
+                                            first_column_index = FALSE)
+      }
+      curve1 <- update_ec_curve(curve1, ec_type)
+      curve2 <- update_ec_curve(curve2, ec_type)
+      ec_curve_class1 <- c(ec_curve_class1, curve1[, 2])
+      ec_curve_class2 <- c(ec_curve_class2, curve2[, 2])
+    }
+    data <- rbind(data, c(1, ec_curve_class1))
+    data <- rbind(data, c(-1, ec_curve_class2))
+  }
+  data_list = list(data = data, noise = total_shared_points, 
+                   causal_points1 = total_closest_points_class1, causal_points2 = total_closest_points_class2, 
+                   complex_points = complex_points, shared_points_list = shared_points_list, 
+                   total_cusps_list = total_cusps_list, region_vertex_dict = region_vertex_dictionary, 
+                   vertex_region_dict = vertex_region_dictionary)
+  return(data_list)
+}
+
+m = mesh_to_matrix(mesh)
 #### Sanity Checks ####
 
-j = cor(t(data$data[,-1]))
+j = cor(t(data_summary$data[,-1]))
 heatmap(j)
 
 
