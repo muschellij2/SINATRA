@@ -53,7 +53,7 @@ RATE = function(X, f.draws = NULL, pre.specify = FALSE, beta.draws = NULL, prop.
 
     ### Compute the Kullback-Leibler divergence (KLD) for Each Predictor ###
     #mu = c(ginv(X)%*%colMeans(f.draws))
-    mu = v%*%u%*% colMeans(f.draws)
+    mu = v %*% u %*% colMeans(f.draws)
     int = 1:length(mu); l = nullify;
 
     if(length(l)>0){int = int[-l]}

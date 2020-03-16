@@ -137,7 +137,7 @@ find_rate_variables_kernel <- function(gp_data, kernel, type = 'ESS'){
   #RATE
   f <- rep(0,n)
   Kn <- kernel(t(X))
-  diag(Kn)=1
+  Kn <- Kn + 0.001*diag(n)
 
   # Get the samples of the latent posterior. The code for each of these methods can be found in 'GPC_Approximate_Inference'
   if ( type == 'Laplace' ){
@@ -206,7 +206,7 @@ squared_exp_kernel <- function(X, bandwidth){
   K <- matrix(0,nrow = n, ncol = n)
   for(i in 1:n){
     for(j in 1:n){
-        K[i,j] <- exp(-sum((X[,i] - X[,j])^2)/(2*p*bandwidth^2))
+        K[i,j] <- exp(-sum((X[,i] - X[,j])^2)/(2*bandwidth^2))
     }
   }
   return(K)

@@ -53,6 +53,50 @@ gradGaussKernel <- function(X,bandwidth){
   return(grad_cov)
 }
 
+#' Gaussian Kernel Implementation
+#'
+#' @description \code{UnstandardizedGaussKernel} computes the covariance matrix given by the Gaussian kernel below, without
+#' setting the diagonal to zero.
+#'
+#' @param X (p x n matrix): the design matrix where columns are observations
+#' @param bandwidth (float): free parameter for the Gaussian kernel
+#'
+SqExpKernel <- function(X,bandwidth){
+  n <- dim(X)[2]
+  p <- dim(X)[1]
+
+  K <- matrix(0,nrow = n, ncol = n)
+  for(i in 1:n){
+    for(j in 1:n){
+        K[i,j] <- exp(-sum((X[,i] - X[,j])^2)/(2*bandwidth^2))
+    }
+  }
+
+  return(K)
+}
+
+#' Gaussian Kernel Implementation
+#'
+#' @description \code{gradUnstandardizedGaussKernel} computes the gradient covariance matrix given by the Gaussian kernel below, without
+#' setting the diagonal to zero.
+#'
+#' @param X (p x n matrix): the design matrix where columns are observations
+#' @param bandwidth (float): free parameter for the Gaussian kernel
+#'
+gradSqExpKernel <- function(X,bandwidth){
+  n <- dim(X)[2]
+  p <- dim(X)[1]
+
+  K <- matrix(0,nrow = n, ncol = n)
+  for(i in 1:n){
+    for(j in 1:n){
+        K[i,j] <- exp(-sum((X[,i] - X[,j])^2)/(2*bandwidth^2))*(sum((X[,i] - X[,j])^2)/(bandwidth^3))
+    }
+  }
+
+  return(K)
+}
+
 
 
 #' Derive Rate Values
@@ -173,9 +217,9 @@ ExpectationPropagation <- function(K, class_labels){
   }
   # Compute Log Marginal Likelihood
   B <- diag(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde)
-  T <- diag(tau_minus)
+  T <- diag(as.vector(tau_minus))
   term1 <- 0.5*sum(log(1 + tau_tilde/tau_minus)) - sum(log(diag(L)))
-  term2 <- 0.5*log
+  term2 <- 0.5*sum(log(pnorm(class_labels*mu_minus)/sqrt(1 + sigma_minus^2)))
   term3 <- 0.5*t(nu_tilde)%*%(K - K %*% sqrt(S_tilde) %*% solve(B) %*% sqrt(S_tilde) %*% K - (T + solve(S_tilde)) ) %*% (nu_tilde)
   term4 <- 0.5* t(mu_minus)%*% T %*% solve(S_tilde + T) %*% (S_tilde %*% mu_minus - 2*nu_tilde)
 
@@ -278,17 +322,19 @@ Elliptical_Slice_Sampling <- function(K,class_labels,num_mcmc_samples, probit = 
 #'
 #' @return grad_log_Z (float): the gradient log likelihood given the parameters.
 compute_marginal_likelihood_gradient <- function(X, kernel_param, class_labels){
-  K <- GaussKernel(t(X), kernel_param)
+  n <- length(class_labels)
+  K <- SqExpKernel(t(X), kernel_param)
+  K <- K + 0.001*diag(length(class_labels))
   params <- ExpectationPropagation(K, class_labels)
-  nu_tilde <- params[3]
-  tau_tilde <- params[4]
+  nu_tilde <- params[[3]]
+  tau_tilde <- params[[4]]
 
   # compute gradient
   S_tilde = diag(as.vector(tau_tilde))
   L <- chol(diag(n) + sqrt(S_tilde) %*% K %*% sqrt(S_tilde))
   b <- nu_tilde - sqrt(S_tilde) %*% solve(L) %*% solve(t(L)) %*% sqrt(S_tilde) %*% K %*% nu_tilde
   R <- b%*%t(b) - sqrt(S_tilde) %*% solve(t(L)) %*% solve(L) %*% sqrt(S_tilde)
-  C <- gradGaussKernel(X, kernel_param)
+  C <- gradSqExpKernel(t(X), kernel_param)
 
   grad_log_Z <- 0.5*sum(diag(R %*% C))
 
@@ -308,9 +354,10 @@ compute_marginal_likelihood_gradient <- function(X, kernel_param, class_labels){
 #'
 #' @return log_Z (float): the EP log likelihood given the parameters.
 compute_marginal_likelihood <- function(X, kernel_param, class_labels){
-  K <- GaussKernel(t(X), kernel_param)
+  K <- SqExpKernel(t(X), kernel_param)
+  K <- K + 0.001*diag(length(class_labels))
   params <- ExpectationPropagation(K, class_labels)
-  log_Z <- params[5]
+  log_Z <- params[[5]]
 
   return(log_Z)
 }
