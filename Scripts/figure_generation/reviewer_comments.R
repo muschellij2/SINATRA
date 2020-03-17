@@ -4,6 +4,8 @@ library(FNN)
 library(rgl)
 library(Rvcg)
 library(plyr)
+library(pdist)
+library(gglasso)
 
 #Parameters for the Analysis
 
@@ -59,7 +61,6 @@ generate_data_sphere_simulation_new = function (nsim, curve_length, dir, noise_p
           cusps, causal_regions_1 = c(1), causal_regions_2 = c(3), 
           shared_regions = c(4)) 
 {
-  data <- matrix(NA, nrow = 0, ncol = 1 + curve_length * (dim(dir)[1]))
   regions = generate_equidistributed_points(cusps, cusps)
   sphere = vcgSphere(subdivision = subdivision)
   print(paste("Causal Regions 1: "))
@@ -105,6 +106,7 @@ generate_data_sphere_simulation_new = function (nsim, curve_length, dir, noise_p
                                                           ]), query = matrix(shared_dir, ncol = 3), k = noise_points)
     total_shared_points = c(total_shared_points, closest_points_shared)
   }
+  data <- matrix(NA, nrow = 0, ncol = (1+length(sphere$vb)))
   for (i in 1:nsim) {
     sphere1 = vcgSphere(subdivision = subdivision)
     sphere2 = vcgSphere(subdivision = subdivision)
@@ -144,32 +146,38 @@ generate_data_sphere_simulation_new = function (nsim, curve_length, dir, noise_p
     shared_points_list[[i]] = shared_points
     ec_curve_class1 <- matrix(NA, nrow = 1, ncol = 0)
     ec_curve_class2 <- matrix(NA, nrow = 1, ncol = 0)
-    for (j in 1:dim(dir)[1]) {
-      vertex_function_class_1 <- sphere_mesh1$Vertices %*% 
-        c(dir[j, 1], dir[j, 2], dir[j, 3])
-      vertex_function_class_2 <- sphere_mesh2$Vertices %*% 
-        c(dir[j, 1], dir[j, 2], dir[j, 3])
-      if (ball == TRUE) {
-        curve1 <- compute_standardized_ec_curve(sphere_mesh1, 
-                                                vertex_function_class_1, curve_length - 1, 
-                                                first_column_index = FALSE, ball_radius)
-        curve2 <- compute_standardized_ec_curve(sphere_mesh2, 
-                                                vertex_function_class_2, curve_length - 1, 
-                                                first_column_index = FALSE, ball_radius)
-      }
-      else {
-        curve1 <- compute_discrete_ec_curve(sphere_mesh1, 
-                                            vertex_function_class_1, curve_length - 1, 
-                                            first_column_index = FALSE)
-        curve2 <- compute_discrete_ec_curve(sphere_mesh2, 
-                                            vertex_function_class_2, curve_length - 1, 
-                                            first_column_index = FALSE)
-      }
-      curve1 <- update_ec_curve(curve1, ec_type)
-      curve2 <- update_ec_curve(curve2, ec_type)
-      ec_curve_class1 <- c(ec_curve_class1, curve1[, 2])
-      ec_curve_class2 <- c(ec_curve_class2, curve2[, 2])
-    }
+#    for (j in 1:dim(dir)[1]) {
+#      vertex_function_class_1 <- sphere_mesh1$Vertices %*% 
+#        c(dir[j, 1], dir[j, 2], dir[j, 3])
+#      vertex_function_class_2 <- sphere_mesh2$Vertices %*% 
+#        c(dir[j, 1], dir[j, 2], dir[j, 3])
+    curve1 = mesh_to_matrix(sphere1)
+    curve2 = mesh_to_matrix(sphere2)
+    print(length(curve1))
+      #if (ball == TRUE) {
+      #  curve1 <- compute_standardized_ec_curve(sphere_mesh1, 
+      #                                          vertex_function_class_1, curve_length - 1, 
+      #                                          first_column_index = FALSE, ball_radius)
+      #  curve2 <- compute_standardized_ec_curve(sphere_mesh2, 
+      #                                          vertex_function_class_2, curve_length - 1, 
+      #                                          first_column_index = FALSE, ball_radius)
+      #}
+      #else {
+      #  curve1 <- compute_discrete_ec_curve(sphere_mesh1, 
+      #                                      vertex_function_class_1, curve_length - 1, 
+      #                                      first_column_index = FALSE)
+      #  curve2 <- compute_discrete_ec_curve(sphere_mesh2, 
+      #                                      vertex_function_class_2, curve_length - 1, 
+      #                                      first_column_index = FALSE)
+      #}
+      #curve1 <- update_ec_curve(curve1, ec_type)
+      #curve2 <- update_ec_curve(curve2, ec_type)
+      #ec_curve_class1 <- c(ec_curve_class1, curve1[, 2])
+      #ec_curve_class2 <- c(ec_curve_class2, curve2[, 2])
+    ec_curve_class1 <- c(ec_curve_class1, curve1)
+    ec_curve_class2 <- c(ec_curve_class2, curve2)
+    print(length(ec_curve_class1))
+    #}
     data <- rbind(data, c(1, ec_curve_class1))
     data <- rbind(data, c(-1, ec_curve_class2))
   }
@@ -182,6 +190,32 @@ generate_data_sphere_simulation_new = function (nsim, curve_length, dir, noise_p
 }
 
 m = mesh_to_matrix(mesh)
+
+#### Test New Function ####
+library(glmnet)
+data2 = generate_data_sphere_simulation_new(nsim = nsim,dir = dirs, curve_length = len,noise_points = shared_points,
+                                       causal_points = causal_points,ball_radius = ball_radius, subdivision = subdivision,
+                                       cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
+                                       shared_regions = shared_regions, ec_type = ec_type)
+groups = rep(1:(dim(data2$data)[2]/3),each = 3)
+#lasso = cv.gglasso(x = data2$data[,-1], y = data2$data[,1], group = groups, loss = "logit")
+lasso = cv.glmnet(x = data2$data[,-1], y = data2$data[,1], alpha = 0.0,  family = "binomial")
+coefs  = coef(lasso, s = 'lambda.min')
+
+#Binary Option
+nonzero = which(abs(coefs[-1])>0.8)
+results = unique(groups[nonzero])
+
+
+mesh = vcgSphere(subdivision = 3)
+mesh$vb[1:3,] = t(data2$complex_points[[1]])
+cols = rep('white', dim(mesh$vb)[2])
+cols[data$causal_points1] = 'red'
+cols[data$causal_points2] = 'red'
+cols[data$noise] = 'blue'
+cols[results] = 'green'
+plot3d(mesh, col = cols)
+plot3d(mesh, col = heat_colors)
 #### Sanity Checks ####
 
 j = cor(t(data_summary$data[,-1]))
