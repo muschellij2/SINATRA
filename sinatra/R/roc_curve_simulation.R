@@ -1,5 +1,11 @@
 library(numbers)
 
+
+mesh_to_matrix = function(mesh){
+  v_points = mesh$vb[-4,]
+  x = c(t(mesh$vb))
+  return(x)
+}
 #### Generate ROC curves ####
 
 #' Generates ROC curve averaged over multiple runs.
@@ -36,7 +42,7 @@ library(numbers)
 generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, curve_length = 10, grid_size = 25, distance_to_causal_point = 0.1, causal_points = 10,
                                                          shared_points = 3, num_cones = 5, eta = 0.1, truncated = FALSE, two_curves = FALSE,
                                                          ball_radius = 2, ball = TRUE, type = 'vertex',min_points = 2,directions_per_cone = 5, cap_radius = 0.15,
-                                                         radius = 0, mode = 'sphere',
+                                                         radius = 0, mode = 'sphere', num_cusps = 10, 
                                                          subdivision = 3, num_causal_region = 5, num_shared_region = 5,
                                                          ec_type = 'ECT'){
   if (type == 'vertex'){
@@ -47,7 +53,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
     while (i<runs+1){
       roc_curve = try(generate_ROC_with_coned_directions(nsim = nsim, curve_length = curve_length, grid_size = grid_size, distance_to_causal_point = distance_to_causal_point,
                                                          causal_points = causal_points,shared_points = shared_points,num_cones = num_cones,
-                                                         eta = eta,truncated = truncated, two_curves = two_curves,
+                                                         eta = eta,truncated = truncated, two_curves = two_curves, num_cusps = num_cusps,
                                                          ball = ball, ball_radius = ball_radius,type = type, min_points = min_points,num_causal_region = num_causal_region,
                                                          num_shared_region = num_shared_region,cap_radius = cap_radius,radius = radius,
                                                          directions_per_cone = directions_per_cone, mode = mode,ec_type = ec_type))
@@ -79,7 +85,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
     while (i<runs+1){
       roc_curve = try(generate_ROC_with_coned_directions(nsim = nsim, curve_length = curve_length, grid_size = grid_size, distance_to_causal_point = distance_to_causal_point,
                                                          causal_points = causal_points,shared_points = shared_points,num_cones = num_cones,
-                                                         eta = eta,truncated = truncated, two_curves = two_curves,
+                                                         eta = eta,truncated = truncated, two_curves = two_curves,num_cusps = num_cusps,
                                                          ball = ball, ball_radius = ball_radius,type = type, min_points = min_points,num_causal_region = num_causal_region,
                                                          num_shared_region = num_shared_region,cap_radius = cap_radius,radius = radius,
                                                          directions_per_cone = directions_per_cone, mode = mode,ec_type = ec_type))
@@ -143,7 +149,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
 #' @return roc_curve (matrix): The ROC curve for both classes of shapes
 
 generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, grid_size = 25, distance_to_causal_point = 0.1,
-                                               causal_points = 10,shared_points = 3, num_cones = 5, eta = 0.1,
+                                               causal_points = 10,shared_points = 3, num_cones = 5, eta = 0.1, num_cusps = 10,
                                                truncated = 300, two_curves = TRUE, ball = TRUE, ball_radius = 2.5, type = 'vertex',
                                                min_points = 3,directions_per_cone = 4, cap_radius = 0.15, radius = 0,ec_type = 'ECT',
                                                mode = 'sphere',
@@ -156,7 +162,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
 
   if (mode == 'sphere'){
     #cusps = 2*num_causal_region + num_shared_region + 1
-    cusps = 2*num_causal_region + num_shared_region + 1
+    cusps = num_cusps
     causal_dirs = generate_equidistributed_points(cusps,cusps)
     causal_regions_1 = sample(1:cusps,num_causal_region)
     causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
@@ -179,6 +185,21 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     directions <- directions
     ec_curve_data <- data$data
   }
+  else if (mode == 'sphere_baseline'){
+    print(mode)
+    cusps = num_cusps
+    causal_dirs = generate_equidistributed_points(cusps,cusps)
+    causal_regions_1 = sample(1:cusps,num_causal_region)
+    causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
+    shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
+    directions <- generate_equidistributed_cones(num_cones,cap_radius,directions_per_cone)
+    data <- generate_data_sphere_simulation_baseline(nsim = nsim,dir = directions, curve_length = curve_length,noise_points = shared_points,
+                                            causal_points = causal_points, ball_radius = ball_radius, subdivision = subdivision,
+                                            cusps = cusps, causal_regions_1 = causal_regions_1, causal_regions_2 = causal_regions_2,
+                                            shared_regions = shared_regions, ec_type = ec_type)
+    directions <- directions
+    ec_curve_data <- data$data
+  }
   else{
     print(mode)
     directions <- generate_equidistributed_cones(num_cones,cap_radius,directions_per_cone)
@@ -192,7 +213,22 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
   num_cones <- dim(directions)[1]/directions_per_cone
 
   print("getting rate values")
-  rate_values <- find_rate_variables_with_other_sampling_methods(ec_curve_data, bandwidth = 0.01, type = 'ESS')[,2]
+  if (mode == 'sphere_baseline'){
+    rate_values = abs(find_elastic_variables(ec_curve_data,weights = TRUE))
+    rate_values[,1] = rep((1:(dim(rate_values)[1]/3)),each = 3)
+    library(dplyr)
+    df = as.data.table(rate_values)
+    
+    new_df = aggregate(df[,2],list(df$V1),mean)
+    
+    
+    rate_values = new_df$V2
+  }
+  else{
+    print('Running RATE')
+#    rate_values = abs(find_elastic_variables(ec_curve_data,weights = TRUE))[,2]
+    rate_values <- find_rate_variables_with_other_sampling_methods(ec_curve_data, bandwidth = 0.01, type = 'ESS')[,2]
+  }
   #Indices for Two Classes
   index1 = seq(1,nsim,2)
   complex_points1 = data$complex_points[index1]
@@ -386,6 +422,20 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
       #  if (min(dist2)< distance_to_causal_point) class_2_true_vertices=c(class_2_true_vertices,j)
       #}
     }
+    if (mode == 'sphere_baseline'){
+      class_1_true_vertices = data$causal_points1
+      class_2_true_vertices = data$causal_points2
+      
+      shared_vertices = data$noise
+      shared_points = data$shared_points_list
+      
+      sphere1 = vcgSphere(subdivision = subdivision)
+      num_vertices = dim(sphere1$vb)[2]
+      sphere1$vb[1:3,] = t(data_points[[j]])
+      
+      complex = convert_off_file(sphere1)
+      
+    }
 
     combined_true_vertices = union(class_1_true_vertices,class_2_true_vertices)
 
@@ -409,13 +459,17 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
     # build the ROC by varying the ROC; we bucket the rate values into quantiles and select the thresholds that way; should make length.out = 1000, or higher
     # can also recover the case where we add rate values one at a time by taking length.out to be the number of rate values.
     if (truncated == -1){
+#      print(length(rate_values))
       for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
 
         #sink("/dev/null")
         rate_positive_vertices <- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
                                                                  cone_size = directions_per_cone, ball_radius = ball_radius, radius = radius)
-        print(length(rate_positive_vertices))
+        if (mode == 'sphere_baseline'){
+          rate_positive_vertices = which(rate_values >= threshold)
+        }
+#        print(length(rate_positive_vertices))
         #sink()
 
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
@@ -443,6 +497,8 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
           true_vertices = class_2_true_vertices
           false_vertices = class_2_false_vertices
         }
+        previous_tpr_fpr = calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                             true_vertices,false_vertices)
         if (isTRUE((all.equal(c(1,1),previous_tpr_fpr)))){
           rate_ROC2 = matrix(1,ncol = 2, nrow = dim(total_rate_roc) - dim(rate_ROC)[1])
           rate_ROC = rbind(rate_ROC,rate_ROC2)
@@ -451,12 +507,17 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
       }
     }
     else{
+#      print(length(rate_values))
       for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
 
 
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
                                                                  cone_size = directions_per_cone, ball_radius = ball_radius, radius = radius)
+        
+        if (mode == 'sphere_baseline'){
+          rate_positive_vertices = which(rate_values >= threshold)
+        }
 
 
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)

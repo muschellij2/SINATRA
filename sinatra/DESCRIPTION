@@ -29,6 +29,10 @@ Imports:
 	reshape2,
 	MASS,
 	parallel,
+	numbers,
+	Rcgmin,
+	glmnet,
+	data.table,
 Suggests: 
     testthat,
     knitr,
