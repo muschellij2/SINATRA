@@ -134,7 +134,7 @@ ggplot(roc_curve_frame_limit, aes(x = V1,y = V2,group = V3)) + geom_line(alpha =
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 save.image('~/Documents/spheres2020-04-23/roc_curves_10_function.Rdata')
-load('~/Documents/spheres2020-04-23/roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres2020-04-23/roc_curves_10_function.Rdata')
 
 ## Scrambled
 path = '~/Documents/spheres2020-04-23'
@@ -253,7 +253,7 @@ ggplot(roc_curve_frame_limit_scrambled, aes(x = V1,y = V2,group = V3)) + geom_li
   theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 save.image('~/Documents/spheres2020-04-23/roc_curves_10_function_scrambled.Rdata')
-load('~/Documents/spheres2020-04-23/roc_curves_10_function_scrambled.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres2020-04-23/roc_curves_10_function_scrambled.Rdata')
 
 #### Sanity check ####
 rate_values = log(rate_values)
@@ -345,8 +345,9 @@ rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
 names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 roc_curve_frame_limit2 = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit2[,3] = 'Limit Shapes'
 roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled[roc_curve_frame_limit_scrambled[,3] == 'Limit Shapes Class 1',]
-roc_curve_frame_limit_scrambled2[,3] = 'Scrambled Map Limit Shapes Classs 1'
+roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
 ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
@@ -360,6 +361,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, 
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) + scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_2causal_1shared.csv',row.names = FALSE)
 #### Fig 2.b. ####
 num_causal_region = 6
 num_shared_region = 3
@@ -493,7 +495,7 @@ ggplot(roc_curve_frame_limit2, aes(x = V1,y = V2,group = V3)) + geom_line(alpha 
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 save.image('~/Documents/spheres6_3_2020-05-15/roc_curves_10_function.Rdata')
-load('~/Documents/spheres6_3_2020-05-15/roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres6_3_2020-05-15/roc_curves_10_function.Rdata')
 
 ## Scrambled
 path = '~/Documents/spheres6_3_2020-05-15'
@@ -662,8 +664,9 @@ roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3
 names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 roc_curve_frame_limit2 = roc_curve_frame_limit2[roc_curve_frame_limit2[,3] == 'Limit Shapes Class 1',]
-roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled2[roc_curve_frame_limit_scrambled2[,3] == 'Limit Shapes Class 1',]
-roc_curve_frame_limit_scrambled2[,3] = 'Scrambled Map Limit Shapes Class 1'
+roc_curve_frame_limit2[,3] = 'Limit Shapes'
+#roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled2[roc_curve_frame_limit_scrambled2[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
 ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75, size = 2,aes(color = factor(V3) )) +
@@ -678,8 +681,9 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75,
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_6causal_3shared.csv',row.names = FALSE)
 save.image('~/Documents/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
-load('~/Documents/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 #### Fig 2.c. ####
 num_causal_region = 10
 num_shared_region = 5
@@ -924,7 +928,7 @@ ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) + geom_line(alpha 
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 save.image('~/Documents/spheres10_5_2020-05-15/scrambled_roc_curves_10_function.Rdata')
-load('~/Documents/spheres10_5_2020-05-15/scrambled_roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres10_5_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 
 
 
@@ -989,8 +993,9 @@ rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
 names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 roc_curve_frame_limit3 = roc_curve_frame_limit3[roc_curve_frame_limit3[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit3[,3] = 'Limit Shapes'
 roc_curve_frame_limit_scrambled3 = roc_curve_frame_limit_scrambled3[roc_curve_frame_limit_scrambled3[,3] == 'Limit Shapes Class 1',]
-roc_curve_frame_limit_scrambled3[,3] = 'Scrambled Map Limit Shapes Class 1'
+roc_curve_frame_limit_scrambled3[,3] = 'Limit Shapes (Misspecified)'
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit3)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled3)
 ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75, size = 2,aes(color = factor(V3) )) +
@@ -1005,3 +1010,4 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75,
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_10causal_5shared.csv',row.names = FALSE)
