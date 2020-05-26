@@ -3,7 +3,7 @@ library(numbers)
 
 mesh_to_matrix = function(mesh){
   v_points = mesh$vb[-4,]
-  x = c(t(mesh$vb))
+  x = c(v_points)
   return(x)
 }
 #### Generate ROC curves ####
@@ -62,7 +62,6 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
         if (dir.exists(wd) == FALSE){
           dir.create(wd)
         }
-      }
       workdir1 = paste(wd,'/v1',sep = '')
       workdir2 = paste(wd,'/v2',sep = '')
       if (dir.exists(workdir1) == FALSE){
@@ -70,6 +69,7 @@ generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, cu
       }
       if (dir.exists(workdir2) == FALSE){
         dir.create(workdir2)
+      }
       }
       roc_curve = try(generate_ROC_with_coned_directions(nsim = nsim, curve_length = curve_length, grid_size = grid_size, distance_to_causal_point = distance_to_causal_point,
                                                          causal_points = causal_points,shared_points = shared_points,num_cones = num_cones,
@@ -1236,6 +1236,7 @@ compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, c
 #'Computes the ROC curve by assessing the overlap of reconstructed vertices and causal vertices on the teeth.
 #' @export
 #' @import Rvcg
+#' @import stringr
 #'
 #' @description We compute the ROC curve by assessing the overlap of reconstructed vertices and causal vertices.
 #'We do this for every tooth in the directory then average the ROC curves. The user must pass in the locations of the directories for the two meshes,
@@ -1274,6 +1275,7 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
   }
   roc_list = list()
   files = list.files(data_dir,full.names = TRUE)
+  files = files[str_detect(files,'off')]
   for (j in 1:length(files)){
     print(j)
     mesh = vcgImport(files[j])
@@ -1305,9 +1307,14 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
       for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
 
         #sink("/dev/null")
-        rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
-                                                                 len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
+        if (mode == 'baseline'){
+          rate_positive_vertices = which(rate_values > threshold)
+        }
+        else{
+            rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
+                                                                     len = curve_length, threshold = threshold,
+                                                                     cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
+        }
         #sink()
 
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
@@ -1348,9 +1355,14 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
 
 
 
-        rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
-                                                                 len = curve_length, threshold = threshold,
-                                                                 cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
+        if (mode == 'baseline'){
+          rate_positive_vertices = which(rate_values > threshold)
+        }
+        else{
+          rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
+                                                                   len = curve_length, threshold = threshold,
+                                                                   cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
+        }
 
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
 
