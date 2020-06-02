@@ -18,6 +18,7 @@ scale_and_normalize = function(x){
   return(x)
 }
 
+
 #Parameters for the Analysis
 path = '~/Documents/spheres2020-04-23'
 dirs = list.dirs(path, full.names = TRUE, FALSE)
@@ -277,16 +278,16 @@ plot3d(shape, col = cols)
 
 
 #### Create some data ####
-#g1 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-#                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-#                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-#                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-#                                   mode = 'sphere_baseline',num_cusps = cusps,
-#                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max, write = TRUE)
+g1 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
+                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
+                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
+                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
+                                   mode = 'sphere_baseline',num_cusps = cusps,
+                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max, write = FALSE)
 
 
 #write.csv(g1,'~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_max.csv')
-g1 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_max.csv')[,-1][,-4]
+g1 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_max2.csv')[,-1][,-4]
 roc_curve_frame1.1 = data.frame(g1)
 library(ggplot2)
 roc_curve_frame1.1 = roc_curve_frame1.1[as.numeric(as.character(roc_curve_frame1.1[,3])) == 1,]
@@ -300,7 +301,7 @@ roc_curve_frame1.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame1.1)[1])
 #
 #
 #write.csv(g1.2,'~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_mean.csv')
-g1.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_mean.csv')[,-1][,-4]
+g1.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_mean2.csv')[,-1][,-4]
 roc_curve_frame1.2 = data.frame(g1.2)
 library(ggplot2)
 roc_curve_frame1.2 = roc_curve_frame1.2[roc_curve_frame1.2[,3] == 1,]
@@ -314,7 +315,7 @@ roc_curve_frame1.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame1.2)[1])
 #
 #
 #write.csv(g1.3,'~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_max.csv')
-g1.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_max.csv')[,-1][,-4]
+g1.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_max2.csv')[,-1][,-4]
 roc_curve_frame1.3 = data.frame(g1.3)
 library(ggplot2)
 roc_curve_frame1.3 = roc_curve_frame1.3[roc_curve_frame1.3[,3] == 1,]
@@ -328,7 +329,7 @@ roc_curve_frame1.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame1.3)[1])
 #
 
 #write.csv(g1.4,'~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_mean.csv')
-g1.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_mean.csv')[,-1][,-4]
+g1.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_ridge_mean2.csv')[,-1][,-4]
 roc_curve_frame1.4 = data.frame(g1.4)
 library(ggplot2)
 roc_curve_frame1.4 = roc_curve_frame1.4[roc_curve_frame1.4[,3] == 1,]
@@ -360,8 +361,8 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, 
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) + scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes.pdf')
-write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_2causal_1shared.csv',row.names = FALSE)
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes2.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_2causal_1shared2.csv',row.names = FALSE)
 #### Fig 2.b. ####
 num_causal_region = 6
 num_shared_region = 3
@@ -604,7 +605,7 @@ roc_curve_frame_limit_scrambled2 = as.data.frame(rbind(total_roc1, total_roc2))
 roc_curve_frame_limit_scrambled2$V1 = as.numeric(as.character(roc_curve_frame_limit_scrambled2$V1))
 roc_curve_frame_limit_scrambled2$V2 = as.numeric(as.character(roc_curve_frame_limit_scrambled2$V2))
 
-g2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_max.csv')[,-1][,-4]
+g2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_max2.csv')[,-1][,-4]
 roc_curve_frame2.1 = data.frame(g2)
 library(ggplot2)
 roc_curve_frame2.1 = roc_curve_frame2.1[as.numeric(as.character(roc_curve_frame2.1[,3])) == 1,]
@@ -618,7 +619,7 @@ roc_curve_frame2.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame2.1)[1])
 #
 #
 #write.csv(g2.2,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_mean.csv')
-g2.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_mean.csv')[,-1][,-4]
+g2.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_mean2.csv')[,-1][,-4]
 roc_curve_frame2.2 = data.frame(g2.2)
 library(ggplot2)
 roc_curve_frame2.2 = roc_curve_frame2.2[roc_curve_frame2.2[,3] == 1,]
@@ -632,7 +633,7 @@ roc_curve_frame2.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame2.2)[1])
 #
 #
 #write.csv(g2.3,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_max.csv')
-g2.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_max.csv')[,-1][,-4]
+g2.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_max2.csv')[,-1][,-4]
 roc_curve_frame2.3 = data.frame(g2.3)
 library(ggplot2)
 roc_curve_frame2.3 = roc_curve_frame2.3[roc_curve_frame2.3[,3] == 1,]
@@ -646,7 +647,7 @@ roc_curve_frame2.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame2.3)[1])
 #
 #
 #write.csv(g2.4,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_mean.csv')
-g2.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_mean.csv')[,-1][,-4]
+g2.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_mean2.csv')[,-1][,-4]
 roc_curve_frame2.4 = data.frame(g2.4)
 library(ggplot2)
 roc_curve_frame2.4 = roc_curve_frame2.4[roc_curve_frame2.4[,3] == 1,]
@@ -680,8 +681,8 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75,
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared.pdf')
-write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_6causal_3shared.csv',row.names = FALSE)
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared2.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_6causal_3shared2.csv',row.names = FALSE)
 save.image('~/Documents/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 load('~/Dropbox (Princeton)/SINATRA_Data/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 #### Fig 2.c. ####
@@ -811,7 +812,7 @@ ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) + geom_line(alpha 
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 save.image('~/Documents/spheres10_5_2020-05-15/roc_curves_10_function.Rdata')
-load('~/Documents/spheres10_5_2020-05-15/roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres10_5_2020-05-15/roc_curves_10_function.Rdata')
 
 path = '~/Documents/spheres10_5_2020-05-15'
 dirs = list.dirs(path, full.names = TRUE, FALSE)
@@ -933,7 +934,7 @@ load('~/Dropbox (Princeton)/SINATRA_Data/spheres10_5_2020-05-15/scrambled_roc_cu
 
 
 #write.csv(g3,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_max.csv')
-g3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_max.csv')[,-1][,-4]
+g3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_max2.csv')[,-1][,-4]
 roc_curve_frame3.1 = as.data.frame(g3)
 library(ggplot2)
 roc_curve_frame3.1 = roc_curve_frame3.1[as.numeric(as.character(roc_curve_frame3.1[,3])) == 1,]
@@ -948,7 +949,7 @@ roc_curve_frame3.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame3.1)[1])
 #
 
 #write.csv(g3.2,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_mean.csv')
-g3.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_mean.csv')[,-1][,-4]
+g3.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_mean2.csv')[,-1][,-4]
 roc_curve_frame3.2 = data.frame(g3.2)
 library(ggplot2)
 roc_curve_frame3.2 = roc_curve_frame3.2[roc_curve_frame3.2[,3] == 1,]
@@ -962,7 +963,7 @@ roc_curve_frame3.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame3.2)[1])
 #
 
 #write.csv(g3.3,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_max.csv')
-g3.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_max.csv')[,-1][,-4]
+g3.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_max2.csv')[,-1][,-4]
 roc_curve_frame3.3 = data.frame(g3.3)
 library(ggplot2)
 roc_curve_frame3.3 = roc_curve_frame3.3[roc_curve_frame3.3[,3] == 1,]
@@ -976,7 +977,7 @@ roc_curve_frame3.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame3.3)[1])
 #
 #
 #write.csv(g3.4,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_mean.csv')
-g3.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_mean.csv')[,-1][,-4]
+g3.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_mean2.csv')[,-1][,-4]
 roc_curve_frame3.4 = data.frame(g3.4)
 library(ggplot2)
 roc_curve_frame3.4 = roc_curve_frame3.4[roc_curve_frame3.4[,3] == 1,]
@@ -1009,5 +1010,5 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75,
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared.pdf')
-write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_10causal_5shared.csv',row.names = FALSE)
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared2.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_10causal_5shared2.csv',row.names = FALSE)

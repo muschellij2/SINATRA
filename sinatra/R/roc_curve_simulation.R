@@ -1304,7 +1304,10 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
     # build the ROC by varying the ROC; we bucket the rate values into quantiles and select the thresholds that way; should make length.out = 1000, or higher
     # can also recover the case where we add rate values one at a time by taking length.out to be the number of rate values.
     if (truncated == 0){
-      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
+      vec = quantile(rate_values,probs = seq(1,0,length.out = length(rate_values)))
+      vec[length(rate_values)] = -0.01
+#      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
+      for (threshold in vec ){
 
         #sink("/dev/null")
         if (mode == 'baseline'){
@@ -1351,7 +1354,9 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
       }
     }
     else{
-      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      vec = quantile(rate_values,probs = seq(1,0,length.out = truncated))
+      vec[truncated] = -0.01
+      for (threshold in vec){
 
 
 
