@@ -362,14 +362,14 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones", size = 14) +
   ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
-  xlim(0, 0.2) + 
-  geom_abline(intercept = 0, slope = 1,alpha = 0.5) + 
+  coord_cartesian(xlim=c(0, 0.2)) + 
+#  geom_abline(intercept = 0, slope = 1,alpha = 0.5) + 
 #  coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) + scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes2.pdf')
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes2_truncated.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_2causal_1shared2.csv',row.names = FALSE)
 #### Fig 2.b. ####
 num_causal_region = 6
@@ -613,6 +613,8 @@ roc_curve_frame_limit_scrambled2 = as.data.frame(rbind(total_roc1, total_roc2))
 roc_curve_frame_limit_scrambled2$V1 = as.numeric(as.character(roc_curve_frame_limit_scrambled2$V1))
 roc_curve_frame_limit_scrambled2$V2 = as.numeric(as.character(roc_curve_frame_limit_scrambled2$V2))
 
+save.image('~/Documents/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 g2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_max2.csv')[,-1][,-4]
 roc_curve_frame2.1 = data.frame(g2)
 library(ggplot2)
@@ -684,18 +686,17 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3))  +
   geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  coord_cartesian(xlim=c(0, 0.2)) + 
   ggtitle(sprintf("6 Causal Regions, 3 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
-  coord_equal(ratio=1) +
+  #geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+#  coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared2.pdf')
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared2_truncated.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_6causal_3shared2.csv',row.names = FALSE)
-save.image('~/Documents/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
-load('~/Dropbox (Princeton)/SINATRA_Data/spheres6_3_2020-05-15/scrambled_roc_curves_10_function.Rdata')
 #### Fig 2.c. ####
 num_causal_region = 10
 num_shared_region = 5
@@ -1018,12 +1019,13 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
   ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
-  coord_equal(ratio=1) +
+  coord_cartesian(xlim=c(0, 0.2)) + 
+  #geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
+  #coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared2.pdf')
+ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared2_truncated.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_10causal_5shared2.csv',row.names = FALSE)

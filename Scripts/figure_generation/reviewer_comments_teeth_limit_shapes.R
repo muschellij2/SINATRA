@@ -107,33 +107,19 @@ roc_curve_frame1.4 = roc_curve_frame1.4[roc_curve_frame1.4[,3] == 1,]
 roc_curve_frame1.4[,3] = rep('Baseline (RR Mean)',dim(roc_curve_frame1.4)[1])
 library(ggplot2)
 #### Load in the SINATRA Curves ####
-data_dirs = list.dirs(base_dir,recursive = FALSE)
-rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
-for (k in 2:length(data_dirs)){
-  dir = data_dirs[k]
-  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
-  rdfmeans = rdfmeans + temp
-}
-rdfmeans = rdfmeans/length(data_dirs)
-rdfmeans = data.frame(rdfmeans)
-rdfmeans = rdfmeans[rdfmeans$X3==35,]
-rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
-names(rdfmeans) = names(roc_curve_frame)
-roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
-ggplot() + 
-  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
-  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
- # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
-  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
-  coord_equal(ratio=1) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
-        axis.title=element_text(size=16,face="bold")) +
-  scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3.pdf')
+#data_dirs = list.dirs(base_dir,recursive = FALSE)
+#rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
+#for (k in 2:length(data_dirs)){
+#  dir = data_dirs[k]
+#  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
+#  rdfmeans = rdfmeans + temp
+#}
+#rdfmeans = rdfmeans/length(data_dirs)
+#rdfmeans = data.frame(rdfmeans)
+#rdfmeans = rdfmeans[rdfmeans$X3==35,]
+#rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
+#names(rdfmeans) = names(roc_curve_frame)
+#roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 
 
 ### Limit Shapes ####
@@ -372,40 +358,42 @@ ggplot() +
   # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
   ggtitle(sprintf("3 Caricatured Peaks")) +
-  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
-  coord_equal(ratio=1) +
+  coord_cartesian(xlim= c(0,0.2))+
+#  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+#  coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3_limit.pdf')
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3_limit_truncated.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/3peaks_caricature_roc.csv',row.names = FALSE)
 #### 5 Peaks ####
 base_dir = '~/Documents/new_aligned_shapesv4/'
 
-g2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 0.5, truncated = 500)
-write.csv(g2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_max.csv')
+#g2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 0.5, truncated = 500)
+#write.csv(g2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_max.csv')
 g2 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_max.csv')[,-1][,-4]
 roc_curve_frame2.1 = data.frame(g2)
 library(ggplot2)
 roc_curve_frame2.1 = roc_curve_frame2.1[roc_curve_frame2.1[,3] == 1,]
 roc_curve_frame2.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame2.1)[1])
-g2.2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 0.5, truncated = 500)
-write.csv(g2.2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_mean.csv')
+#g2.2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 0.5, truncated = 500)
+#write.csv(g2.2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_mean.csv')
 g2.2 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_mean.csv')[,-1][,-4]
 roc_curve_frame2.2 = data.frame(g2.2)
 library(ggplot2)
 roc_curve_frame2.2 = roc_curve_frame2.2[roc_curve_frame2.2[,3] == 1,]
 roc_curve_frame2.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame2.2)[1])
-g2.3 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 1, truncated = 500)
-write.csv(g2.3[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_max.csv')
+#g2.3 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 1, truncated = 500)
+#write.csv(g2.3[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_max.csv')
 g2.3 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_max.csv')[,-1][,-4]
 roc_curve_frame2.3 = data.frame(g2.3)
 library(ggplot2)
 roc_curve_frame2.3 = roc_curve_frame2.3[roc_curve_frame2.3[,3] == 1,]
 roc_curve_frame2.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame2.3)[1])
-g2.4 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 1, truncated = 500)
-write.csv(g2.4[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_mean.csv')
+#g2.4 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 1, truncated = 500)
+#write.csv(g2.4[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_mean.csv')
 g2.4 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_mean.csv')[,-1][,-4]
 roc_curve_frame2.4 = data.frame(g2.4)
 library(ggplot2)
@@ -413,34 +401,34 @@ roc_curve_frame2.4 = roc_curve_frame2.4[roc_curve_frame2.4[,3] == 1,]
 roc_curve_frame2.4[,3] = rep('Baseline (RR Mean)',dim(roc_curve_frame2.4)[1])
 library(ggplot2)
 #### Load in the SINATRA Curves ####
-data_dirs = list.dirs(base_dir,recursive = FALSE)
-roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3,roc_curve_frame2.4)
-rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
-for (k in 2:length(data_dirs)){
-  dir = data_dirs[k]
-  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
-  rdfmeans = rdfmeans + temp
-}
-rdfmeans = rdfmeans/length(data_dirs)
-rdfmeans = data.frame(rdfmeans)
-rdfmeans = rdfmeans[rdfmeans$X3==35,]
-rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
-names(rdfmeans) = names(roc_curve_frame)
-roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
-ggplot() + 
-  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
-  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
-  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
-  coord_equal(ratio=1) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
-        axis.title=element_text(size=16,face="bold")) +
-  scale_colour_hue(l=40)
-ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4.pdf')
+#data_dirs = list.dirs(base_dir,recursive = FALSE)
+#roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3,roc_curve_frame2.4)
+#rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
+#for (k in 2:length(data_dirs)){
+#  dir = data_dirs[k]
+#  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
+#  rdfmeans = rdfmeans + temp
+#}
+#rdfmeans = rdfmeans/length(data_dirs)
+#rdfmeans = data.frame(rdfmeans)
+#rdfmeans = rdfmeans[rdfmeans$X3==35,]
+#rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
+#names(rdfmeans) = names(roc_curve_frame)
+#roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
+#ggplot() + 
+#  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
+#  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+#  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
+#  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+#  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
+#  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+#  coord_equal(ratio=1) +
+#  theme_bw() +
+#  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+#        axis.title=element_text(size=16,face="bold")) +
+#  scale_colour_hue(l=40)
+#ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4.pdf')
 
 
 ### Limit Shapes ####
@@ -556,7 +544,7 @@ library(ggplot2)
 roc_curve_frame_limit = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
 
 save.image('~/Documents/new_aligned_shapesv4/limitshapes.Rdata')
-load('~/Documents/new_aligned_shapesv4/limitshapes.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/new_aligned_shapesv4/limitshapes.Rdata')
 
 ### Limit Shapes ####
 path = '~/Documents/new_aligned_shapesv4'
@@ -665,7 +653,7 @@ roc_curve_frame_limit_scrambled = as.data.frame(rbind(total_roc1, total_roc2))
 roc_curve_frame_limit_scrambled$V1 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V1))
 roc_curve_frame_limit_scrambled$V2 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V2))
 save.image('~/Documents/new_aligned_shapesv4/limitshapes_scrambled.Rdata')
-load('~/Documents/new_aligned_shapesv4/limitshapes_scrambled.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/new_aligned_shapesv4/limitshapes_scrambled.Rdata')
 roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3,roc_curve_frame2.4)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 roc_curve_frame_limit2 = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
@@ -685,15 +673,17 @@ ggplot() +
   # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
   ggtitle(sprintf("5 Caricatured Peaks")) +
-  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
-  coord_equal(ratio=1) +
+  coord_cartesian(xlim= c(0,0.2))+
+#  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+#  coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
 
-ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4_limit.pdf')
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4_limit_truncated.pdf')
+write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/5peaks_caricature_roc.csv',row.names = FALSE)
 
 #### Test New Function ####
 library(glmnet)
