@@ -55,10 +55,10 @@ mfrow3d(nr=6,nc = 10)
 rgl.bg(color = 'white')
 
 
-tarsius_files = list.files('~/Documents/doug_new_teeth_by_species/Tarsius/',full.names = TRUE)
-microcebus_files = list.files('~/Documents/doug_new_teeth_by_species/Microcebus/',full.names = TRUE)
-mirza_files = list.files('~/Documents/doug_new_teeth_by_species/Mirza/',full.names = TRUE)
-saimiri_files = list.files('~/Documents/doug_new_teeth_by_species/Saimiri/',full.names = TRUE)
+tarsius_files = list.files('~/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/doug_new_teeth_by_species/Tarsius/',full.names = TRUE)
+microcebus_files = list.files('~/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/doug_new_teeth_by_species/Microcebus/',full.names = TRUE)
+mirza_files = list.files('~/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/doug_new_teeth_by_species/Mirza/',full.names = TRUE)
+saimiri_files = list.files('~/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/doug_new_teeth_by_species/Saimiri/',full.names = TRUE)
 
 for (file_name in tarsius_files){
   file = vcgImport(file_name)

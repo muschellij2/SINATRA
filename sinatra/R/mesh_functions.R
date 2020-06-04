@@ -21,7 +21,7 @@ process_off_file_v3=function(input_dir){
 
 #' Create EC matrix from meshes.
 #' @export
-#'
+#' @import stringr
 #' @description  Create an EC curve matrix given an input directory and set of directions to compute the (S/D) EC curve over.
 #' Each row corresponds to one mesh, and the columns correspond to the sub-level sets of the directions in the matrix.
 #'
@@ -37,47 +37,63 @@ process_off_file_v3=function(input_dir){
 create_ec_matrix_mult_d=function(directory,directions,len,ball_radius = 1, ball = FALSE,ec_type = 'ECT'){
   curve_length = len
   file_names=list.files(path=directory,full.names = TRUE)
-  number_files=length(file_names)
-  data <- matrix(NA,nrow=number_files,ncol = curve_length*dim(directions)[1])
+  file_names = file_names[str_detect(file_names,'off')]
+  number_files=length(file_names) 
+  nvertices =  length(mesh_to_matrix(vcgImport(file_names[1])))
+  if (ec_type == 'baseline'){
+      data <- matrix(NA,nrow=number_files,ncol = nvertices)
+  }
+  else{
+      data <- matrix(NA,nrow=number_files,ncol = curve_length*dim(directions)[1])
+  }
   for (i in 1:number_files){
     print(paste('On File', i))
     off=process_off_file_v3(file_names[i])
-    curve_mult_d <- matrix(NA,nrow = 1,ncol=0)
-    if (ball == FALSE){
-      for (j in 1:dim(directions)[1]){
-        vertex_function=off$Vertices%*%directions[j,]
-        curve <- compute_discrete_ec_curve(off, vertex_function, len-1, first_column_index = FALSE)
-        if (ec_type == 'ECT'){
-          curve = curve
-        }
-        if (ec_type == 'SECT'){
-          curve <- integrate_ec_curve(curve)
-        }
-        curve_mult_d <- cbind(curve_mult_d,t(curve[,2]))
-      }
-      data[i,] <- curve_mult_d
+    if (ec_type == 'baseline'){
+      mesh = vcgImport(file_names[i])
+      curve = mesh_to_matrix(mesh)
+      data[i,] <- curve
     }
-    if (ball == TRUE){
-      for (j in 1:dim(directions)[1]){
-        vertex_function=off$Vertices%*%directions[j,]
-        curve <- compute_standardized_ec_curve(off, vertex_function, len-1, first_column_index = FALSE,ball_radius = ball_radius)
-        if (ec_type == 'ECT'){
-          curve = curve
+    else{
+      curve_mult_d <- matrix(NA,nrow = 1,ncol=0)
+        if (ball == FALSE){
+          for (j in 1:dim(directions)[1]){
+            vertex_function=off$Vertices%*%directions[j,]
+            curve <- compute_discrete_ec_curve(off, vertex_function, len-1, first_column_index = FALSE)
+            if (ec_type == 'ECT'){
+              curve = curve
+            }
+            if (ec_type == 'SECT'){
+              curve <- integrate_ec_curve(curve)
+            }
+            curve_mult_d <- cbind(curve_mult_d,t(curve[,2]))
+          }
+          data[i,] <- curve_mult_d
         }
-        if (ec_type == 'SECT'){
-          curve <- integrate_ec_curve(curve)
+        if (ball == TRUE){
+          for (j in 1:dim(directions)[1]){
+            vertex_function=off$Vertices%*%directions[j,]
+            curve <- compute_standardized_ec_curve(off, vertex_function, len-1, first_column_index = FALSE,ball_radius = ball_radius)
+            if (ec_type == 'ECT'){
+              curve = curve
+            }
+            if (ec_type == 'SECT'){
+              curve <- integrate_ec_curve(curve)
+            }
+            if (ec_type == 'DECT'){
+              curve = differentiate_ec_curve(curve)
+            }
+            curve_mult_d <- cbind(curve_mult_d,t(curve[,2]))
+            # omit the length data, for now
+          }
+          data[i,] <- curve_mult_d
         }
-        if (ec_type == 'DECT'){
-          curve = differentiate_ec_curve(curve)
-        }
-        curve_mult_d <- cbind(curve_mult_d,t(curve[,2]))
-        # omit the length data, for now
-      }
-      data[i,] <- curve_mult_d
     }
   }
+  print(dim(data))
   return(data)
 }
+
 
 #' Generate design matrix from meshes in two directories.
 #'  @description Given two classes & directories, we generate the (S/D) EC curves and the associated class labels
@@ -119,12 +135,30 @@ create_comparison_matrix_mult_d=function(directory1,directory2,directions,len, b
 #'@param ball_radius (float): The radius of the ball to compute the (S/D) EC on; if you want the curve to be computed relative to the shape, don't touch this parameter.
 #'
 #'@return final_list (list): A list containing the design matrix of meshes from the two classes and the importances of each variable.
-real_data_summary = function(dir1,dir2,direction=dir,len=len,ec_type = 'ECT', ball = TRUE, ball_radius = 1.5){
+real_data_summary = function(dir1,dir2,direction=dir,len=len,ec_type = 'ECT', ball = TRUE, ball_radius = 1.5, mode = 'rate', reduce = max, alpha = 0.5){
   #Generate Matrix of EC curves and labels
   comparison_matrix=create_comparison_matrix_mult_d(dir1,dir2,direction,len,ec_type = ec_type, ball = ball, ball_radius = ball_radius)
 
   #Feature Selection
-  want_indices_rate_total=find_rate_variables_with_other_sampling_methods(comparison_matrix,bandwidth = 0.01, type = 'ESS')
-  final_list=list(data = comparison_matrix, Rate2=want_indices_rate_total)
+  if (mode == 'rate'){
+    want_indices=find_rate_variables_with_other_sampling_methods(comparison_matrix,bandwidth = 0.01, type = 'ESS')
+    want_indices = want_indices[,2]
+  }
+  if (mode == 'elastic_net'){
+    print(dim(comparison_matrix))
+    rate_values = abs(find_elastic_variables(comparison_matrix,weights = TRUE, alpha = alpha))
+    print(dim(rate_values))
+    rate_values[,1] = rep((1:(dim(rate_values)[1]/3)),each = 3)
+    library(dplyr)
+    df = as.data.table(rate_values)
+    
+    new_df = aggregate(df[,2],list(df$V1),reduce)
+    
+    
+    want_indices = new_df$V2
+    
+  }
+  
+  final_list=list(data = comparison_matrix, Rate2=want_indices)
   return(final_list)
 }

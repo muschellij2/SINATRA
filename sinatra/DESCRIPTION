@@ -33,6 +33,7 @@ Imports:
 	Rcgmin,
 	glmnet,
 	data.table,
+    stringr,
 Suggests: 
     testthat,
     knitr,

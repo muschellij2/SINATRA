@@ -456,6 +456,7 @@ find_bayesian_variables=function(data,param=0.5,radius=0,weights=FALSE){
 #### Elastic Net ####
 #' Conducts the Lasso Feature Selection
 #'
+#' @export
 #' @description \code{find_elastic_variables} returns a vector of the selected features/indices of the curve
 #'
 #' The function uses Elastic Net to conduct feature selection. A cross validated elastic net model is fit on the binary response data,
@@ -468,11 +469,11 @@ find_bayesian_variables=function(data,param=0.5,radius=0,weights=FALSE){
 #' This is done to capture critical points that may be 'close' to the selected feature.
 #' @return The output is a vector of indices/features to be selected.
 #'
-find_elastic_variables=function(data,radius=0,weights=FALSE){
+find_elastic_variables=function(data,radius=0,weights=FALSE, alpha = 0.5){
   #Transforming the data to -1, and 1 if it isn't already for logistic regression purposes.
   data[,1]=ifelse(data[,1]>0,1,0)
   #Fit the model
-  regression_model=cv.glmnet(data[,-1], data[,1], alpha = 0.5,intercept = FALSE,family='binomial')
+  regression_model=cv.glmnet(data[,-1], data[,1], alpha = alpha,intercept = FALSE,family='binomial')
   #Extract the coefficients
   tmp_coeffs = as.matrix(coef(regression_model,s=regression_model$lambda.1se))
   regression_coeff=as.vector(tmp_coeffs)
