@@ -1,3 +1,4 @@
+rm(list=ls())
 set.seed(4913, kind = "L'Ecuyer-CMRG")
 library(sinatra)
 library(FNN)
@@ -9,13 +10,14 @@ library(gglasso)
 library(numbers)
 library(data.table)
 library(stringr)
-
+library(ggplot2)
 #Parameters for the Analysis
 
 cap_radius = 0.15
 num_cones = 5
 directions_per_cone = 5
 len = 75
+num_vertices = 5131
 
 #### Function ####
 summarize_list = function(roc_curve_list){
@@ -30,10 +32,17 @@ summarize_list = function(roc_curve_list){
   return(curve)
   
 }
-roc_curve_teeth_baseline = function(data_dir,var_selection='elastic_net',ec_type = 'baseline',reduce = max,alpha = 0.5){
+
+
+scale_and_normalize = function(x){
+  x = abs(x)
+  x = x/max(x)
+  return(x)
+}
+roc_curve_teeth_baseline = function(data_dir,var_selection='elastic_net',ec_type = 'baseline',reduce = max,alpha = 0.5, truncated = 500){
   roc_curves1 = list()
   roc_curves2 = list()
-  data_dirs = list.dirs(base_dir,recursive = FALSE)
+  data_dirs = list.dirs(data_dir,recursive = FALSE)
   for (k in 1:length(data_dirs)){
       dir = data_dirs[k]
       dir1 = paste(dir,'/mesh/gp1',sep='')
@@ -52,12 +61,12 @@ roc_curve_teeth_baseline = function(data_dir,var_selection='elastic_net',ec_type
                                       len = pset$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type, reduce = reduce, alpha = alpha, mode = var_selection)
       roc_curve = compute_roc_curve_teeth(data_dir1 = dir1, data_dir2 = dir2, gamma = 0.25,class_1_probs = class_1_probs,class_2_probs = class_2_probs,
                                             rate_values = data_summary$Rate2,directions_per_cone = pset$directions_per_cone,curve_length = pset$len,
-                                            directions = pset$dirs,truncated = 500,ball_radius = ball_radius, ball = ball, radius = 1, two_curves = TRUE,mode = 'baseline')
+                                            directions = pset$dirs,truncated = truncated,ball_radius = ball_radius, ball = ball, radius = 1, two_curves = TRUE,mode = 'baseline')
         #print(roc_curve)
 #        roc_curve[,3] = dirs
         roc_frame = data.frame(roc_curve)
-        roc_curves1[[k]] = roc_frame[1:500,]
-        roc_curves2[[k]] = roc_frame[500:1000,]
+        roc_curves1[[k]] = roc_frame[1:truncated,]
+        roc_curves2[[k]] = roc_frame[truncated:(2*truncated),]
   }
   roc_curve1 = summarize_list(roc_curves1)
   roc_curve2 = summarize_list(roc_curves2)
@@ -68,220 +77,623 @@ roc_curve_teeth_baseline = function(data_dir,var_selection='elastic_net',ec_type
 
 base_dir = '~/Documents/new_aligned_shapesv3/'
 
-g1 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 0.5)
-write.csv(g1[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_max.csv')
+#g1 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 0.5)
+#write.csv(g1[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_max.csv')
 g1 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_max.csv')[,-1][,-4]
 roc_curve_frame1.1 = data.frame(g1)
 library(ggplot2)
 roc_curve_frame1.1 = roc_curve_frame1.1[roc_curve_frame1.1[,3] == 1,]
 roc_curve_frame1.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame1.1)[1])
-g1.2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 0.5)
-write.csv(g1.2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_mean.csv')
+#g1.2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 0.5)
+#write.csv(g1.2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_mean.csv')
 g1.2 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v3_elastic_net_mean.csv')[,-1][,-4]
 roc_curve_frame1.2 = data.frame(g1.2)
 library(ggplot2)
 roc_curve_frame1.2 = roc_curve_frame1.2[roc_curve_frame1.2[,3] == 1,]
 roc_curve_frame1.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame1.2)[1])
-g1.3 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 1)
-write.csv(g1.3[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_max.csv')
+#g1.3 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 1)
+#write.csv(g1.3[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_max.csv')
 g1.3 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_max.csv')[,-1][,-4]
 roc_curve_frame1.3 = data.frame(g1.3)
 library(ggplot2)
 roc_curve_frame1.3 = roc_curve_frame1.3[roc_curve_frame1.3[,3] == 1,]
 roc_curve_frame1.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame1.3)[1])
-g1.4 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 1)
-write.csv(g1.4[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_mean.csv')
+#g1.4 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 1)
+#write.csv(g1.4[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_mean.csv')
 g1.4 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v3_ridge_net_mean.csv')[,-1][,-4]
 roc_curve_frame1.4 = data.frame(g1.4)
 library(ggplot2)
 roc_curve_frame1.4 = roc_curve_frame1.4[roc_curve_frame1.4[,3] == 1,]
 roc_curve_frame1.4[,3] = rep('Baseline (RR Mean)',dim(roc_curve_frame1.4)[1])
-roc_curve_frame = rbind(roc_curve_frame1.1,roc_curve_frame1.2,roc_curve_frame1.3,roc_curve_frame1.4)
 library(ggplot2)
-load('~/Documents/SINATRA/Simulations/Results/new/df_ROC_causal1_shared2_10.RData')
-rdfmeans = rdfmeans[rdfmeans$Class == 1,]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[rdfmeans$Num_Cones==60,]
-rdfmeans = rdfmeans[c('FPR','TPR')]
+#### Load in the SINATRA Curves ####
+data_dirs = list.dirs(base_dir,recursive = FALSE)
+rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
+for (k in 2:length(data_dirs)){
+  dir = data_dirs[k]
+  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
+  rdfmeans = rdfmeans + temp
+}
+rdfmeans = rdfmeans/length(data_dirs)
+rdfmeans = data.frame(rdfmeans)
+rdfmeans = rdfmeans[rdfmeans$X3==35,]
 rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
 names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity") +
+ggplot() + 
+  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+ # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
-  ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
+  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
   coord_equal(ratio=1) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black")) 
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared.pdf')
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        axis.title=element_text(size=16,face="bold")) +
+  scale_colour_hue(l=40)
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3.pdf')
 
-#### Fig 2.b. ####
-num_causal_region = 6
-num_shared_region = 3
-causal_points = 10
-shared_points = 10
-#g2 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-#                                                 causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-#                                                 truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-#                                                 min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-#                                                 mode = 'sphere_baseline',num_cusps = cusps,
-#                                                 subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max)
-#
-#
-#write.csv(g2,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_max.csv')
-g2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_max.csv')[,-1][,-4]
+
+### Limit Shapes ####
+path = '~/Documents/new_aligned_shapesv3'
+dirs = list.dirs(path, full.names = TRUE, FALSE)
+roc_curves1.1 = list()
+roc_curves1.2 = list()
+truncated = 500
+functions_to_summarize = 10
+for (i in 1:length(dirs)){
+  dir = dirs[i]
+  print(dir)
+  total_rate_roc1 = matrix(0, nrow = truncated,ncol = 2)
+  total_rate_roc2 = matrix(0, nrow = truncated,ncol = 2)
+  dir1 = paste(dir,'/mesh/gp1/', sep = '')
+  dir2 = paste(dir,'/mesh/gp2/', sep = '')
+  causal_points1_vec = read.csv(paste(dir,'/gp1_spt.csv',sep = ''))
+  causal_points2_vec = read.csv(paste(dir,'/gp2_spt.csv',sep = ''))
+  
+  class_1_true_vertices = which(causal_points1_vec > 0.25)
+  class_2_true_vertices = which(causal_points2_vec > 0.25)
+  
+  class_1_false_vertices = setdiff(1:num_vertices,class_1_true_vertices)
+  class_2_false_vertices = setdiff(1:num_vertices,class_2_true_vertices)
+  
+  limit_shapes_output_files1 = list.files(path = dir1, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs1 = limit_shapes_output_files1[str_detect(limit_shapes_output_files1,'csv')]
+  limit_shapes_csvs1 = limit_shapes_csvs1[str_detect(limit_shapes_csvs1,'scrambled')== FALSE]
+  
+  limit_shapes_output_files2 = list.files(path = dir2, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs2 = limit_shapes_output_files2[str_detect(limit_shapes_output_files2,'csv')]
+  limit_shapes_csvs2 = limit_shapes_csvs2[str_detect(limit_shapes_csvs2,'scrambled')== FALSE]
+  
+  #ROC curve for class 1
+  
+  counter = 0 
+  for (file in limit_shapes_csvs1){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_1_true_vertices,class_1_false_vertices))
+      
+      true_vertices = class_1_true_vertices
+      false_vertices = class_1_false_vertices
+    }
+    total_rate_roc1 = total_rate_roc1 + rate_ROC
+    
+  }
+  total_rate_roc1 = (total_rate_roc1 / counter)
+  #ROC Curve for Class 2
+  counter = 0 
+  for (file in limit_shapes_csvs2){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated)) ){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_2_true_vertices,class_2_false_vertices))
+      
+      true_vertices = class_2_true_vertices
+      false_vertices = class_2_false_vertices
+    }
+    total_rate_roc2 = total_rate_roc2 + rate_ROC
+    
+  }
+  total_rate_roc2 = (total_rate_roc2 / counter)
+  
+  roc_curves1.1[[i]] = total_rate_roc1
+  roc_curves1.2[[i]] = total_rate_roc2
+}
+
+total_roc1 = matrix(0, nrow = dim(roc_curves1.1[[1]]), ncol = dim(roc_curves1.2[[1]])[2])
+for (j in 1:length(roc_curves1.1)){
+  total_roc1 = total_roc1 + roc_curves1.1[[j]]
+}
+total_roc1 = total_roc1/length(roc_curves1.1)
+total_roc2 = matrix(0, nrow = dim(roc_curves1.1[[1]]), ncol = dim(roc_curves1.2[[1]])[2])
+for (j in 1:length(roc_curves1.2)){
+  total_roc2 = total_roc2 + roc_curves1.2[[j]]
+}
+total_roc2 = total_roc2/length(roc_curves1.2)
+total_roc1 = rbind(c(0,0), total_roc1)
+total_roc2 = rbind(c(0,0), total_roc2)
+total_roc1 =  cbind(total_roc1,rep('Limit Shapes Class 1', dim(total_roc1)[1]))
+total_roc2 =  cbind(total_roc2,rep('Limit Shapes Class 2', dim(total_roc2)[1]))
+roc_curve_frame_limit = as.data.frame(rbind(total_roc1, total_roc2))
+roc_curve_frame_limit$V1 = as.numeric(as.character(roc_curve_frame_limit$V1))
+roc_curve_frame_limit$V2 = as.numeric(as.character(roc_curve_frame_limit$V2))
+save.image('~/Dropbox (Princeton)//new_aligned_shapesv3/limitshapes.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/new_aligned_shapesv3/limitshapes.Rdata')
+
+### Limit Shapes ####
+path = '~/Documents/new_aligned_shapesv3'
+dirs = list.dirs(path, full.names = TRUE, FALSE)
+roc_curves1.1 = list()
+roc_curves1.2 = list()
+truncated = 500
+functions_to_summarize = 10
+for (i in 1:length(dirs)){
+  dir = dirs[i]
+  print(dir)
+  total_rate_roc1 = matrix(0, nrow = truncated,ncol = 2)
+  total_rate_roc2 = matrix(0, nrow = truncated,ncol = 2)
+  dir1 = paste(dir,'/mesh/gp1/', sep = '')
+  dir2 = paste(dir,'/mesh/gp2/', sep = '')
+  causal_points1_vec = read.csv(paste(dir,'/gp1_spt.csv',sep = ''))
+  causal_points2_vec = read.csv(paste(dir,'/gp2_spt.csv',sep = ''))
+  
+  class_1_true_vertices = which(causal_points1_vec > 0.25)
+  class_2_true_vertices = which(causal_points2_vec > 0.25)
+  
+  class_1_false_vertices = setdiff(1:num_vertices,class_1_true_vertices)
+  class_2_false_vertices = setdiff(1:num_vertices,class_2_true_vertices)
+  
+  limit_shapes_output_files1 = list.files(path = dir1, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs1 = limit_shapes_output_files1[str_detect(limit_shapes_output_files1,'csv')]
+  limit_shapes_csvs1 = limit_shapes_csvs1[str_detect(limit_shapes_csvs1,'scrambled')== TRUE]
+  
+  limit_shapes_output_files2 = list.files(path = dir2, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs2 = limit_shapes_output_files2[str_detect(limit_shapes_output_files2,'csv')]
+  limit_shapes_csvs2 = limit_shapes_csvs2[str_detect(limit_shapes_csvs2,'scrambled')== TRUE]
+  
+  #ROC curve for class 1
+  
+  counter = 0 
+  for (file in limit_shapes_csvs1){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_1_true_vertices,class_1_false_vertices))
+      
+      true_vertices = class_1_true_vertices
+      false_vertices = class_1_false_vertices
+    }
+    total_rate_roc1 = total_rate_roc1 + rate_ROC
+    
+  }
+  total_rate_roc1 = (total_rate_roc1 / counter)
+  #ROC Curve for Class 2
+  counter = 0 
+  for (file in limit_shapes_csvs2){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated)) ){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_2_true_vertices,class_2_false_vertices))
+      
+      true_vertices = class_2_true_vertices
+      false_vertices = class_2_false_vertices
+    }
+    total_rate_roc2 = total_rate_roc2 + rate_ROC
+    
+  }
+  total_rate_roc2 = (total_rate_roc2 / counter)
+  
+  roc_curves1.1[[i]] = total_rate_roc1
+  roc_curves1.2[[i]] = total_rate_roc2
+}
+
+total_roc1 = matrix(0, nrow = dim(roc_curves1.1[[1]]), ncol = dim(roc_curves1.2[[1]])[2])
+for (j in 1:length(roc_curves1.1)){
+  total_roc1 = total_roc1 + roc_curves1.1[[j]]
+}
+total_roc1 = total_roc1/length(roc_curves1.1)
+total_roc2 = matrix(0, nrow = dim(roc_curves1.1[[1]]), ncol = dim(roc_curves1.2[[1]])[2])
+for (j in 1:length(roc_curves1.2)){
+  total_roc2 = total_roc2 + roc_curves1.2[[j]]
+}
+total_roc2 = total_roc2/length(roc_curves1.2)
+total_roc1 = rbind(c(0,0), total_roc1)
+total_roc2 = rbind(c(0,0), total_roc2)
+total_roc1 =  cbind(total_roc1,rep('Limit Shapes Class 1', dim(total_roc1)[1]))
+total_roc2 =  cbind(total_roc2,rep('Limit Shapes Class 2', dim(total_roc2)[1]))
+roc_curve_frame_limit_scrambled = as.data.frame(rbind(total_roc1, total_roc2))
+roc_curve_frame_limit_scrambled$V1 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V1))
+roc_curve_frame_limit_scrambled$V2 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V2))
+save.image('~/Documents/new_aligned_shapesv3/limitshapes_scrambled.Rdata')
+load('~/Dropbox (Princeton)/SINATRA_Data/new_aligned_shapesv3/limitshapes_scrambled.Rdata')
+roc_curve_frame = rbind(roc_curve_frame1.1,roc_curve_frame1.2,roc_curve_frame1.3,roc_curve_frame1.4)
+roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
+roc_curve_frame_limit2 = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit2[,3] = 'Limit Shapes'
+roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled[roc_curve_frame_limit_scrambled[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
+colnames(roc_curve_frame_limit2) = colnames(roc_curve_frame)
+colnames(roc_curve_frame_limit_scrambled2) = colnames(roc_curve_frame)
+roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
+roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
+
+ggplot() + 
+  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Limit"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Mean"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Max"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  ggtitle(sprintf("3 Caricatured Peaks")) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        axis.title=element_text(size=16,face="bold")) +
+  scale_colour_hue(l=40)
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3_limit.pdf')
+#### 5 Peaks ####
+base_dir = '~/Documents/new_aligned_shapesv4/'
+
+g2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 0.5, truncated = 500)
+write.csv(g2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_max.csv')
+g2 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_max.csv')[,-1][,-4]
 roc_curve_frame2.1 = data.frame(g2)
 library(ggplot2)
-roc_curve_frame2.1 = roc_curve_frame[roc_curve_frame2.1[,3] == 1,]
+roc_curve_frame2.1 = roc_curve_frame2.1[roc_curve_frame2.1[,3] == 1,]
 roc_curve_frame2.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame2.1)[1])
-#g2.2 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-#                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-#                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-#                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-#                                                   mode = 'sphere_baseline',num_cusps = cusps,
-#                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = mean)
-#
-#
-#write.csv(g2.2,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_mean.csv')
-g2.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_elastic_net_mean.csv')[,-1][,-4]
+g2.2 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 0.5, truncated = 500)
+write.csv(g2.2[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_mean.csv')
+g2.2 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_elastic_net_mean.csv')[,-1][,-4]
 roc_curve_frame2.2 = data.frame(g2.2)
 library(ggplot2)
 roc_curve_frame2.2 = roc_curve_frame2.2[roc_curve_frame2.2[,3] == 1,]
 roc_curve_frame2.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame2.2)[1])
-#g2.3 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-#                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-#                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-#                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-#                                                   mode = 'sphere_baseline',num_cusps = cusps,
-#                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 1,reduce = max)
-#
-#
-#write.csv(g2.3,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_max.csv')
-g2.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_max.csv')[,-1][,-4]
+g2.3 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = max, alpha = 1, truncated = 500)
+write.csv(g2.3[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_max.csv')
+g2.3 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_max.csv')[,-1][,-4]
 roc_curve_frame2.3 = data.frame(g2.3)
 library(ggplot2)
 roc_curve_frame2.3 = roc_curve_frame2.3[roc_curve_frame2.3[,3] == 1,]
 roc_curve_frame2.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame2.3)[1])
-#g2.4 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-#                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-#                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-#                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-#                                                   mode = 'sphere_baseline',num_cusps = cusps,
-#                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 1,reduce = mean)
-#
-#
-#write.csv(g2.4,'~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_mean.csv')
-g2.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared_ridge_mean.csv')[,-1][,-4]
+g2.4 = roc_curve_teeth_baseline(data_dir = base_dir,var_selection = 'elastic_net',ec_type = 'baseline',reduce = mean, alpha = 1, truncated = 500)
+write.csv(g2.4[[3]],'~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_mean.csv')
+g2.4 = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_ridge_net_mean.csv')[,-1][,-4]
 roc_curve_frame2.4 = data.frame(g2.4)
 library(ggplot2)
 roc_curve_frame2.4 = roc_curve_frame2.4[roc_curve_frame2.4[,3] == 1,]
 roc_curve_frame2.4[,3] = rep('Baseline (RR Mean)',dim(roc_curve_frame2.4)[1])
+library(ggplot2)
+#### Load in the SINATRA Curves ####
+data_dirs = list.dirs(base_dir,recursive = FALSE)
 roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3,roc_curve_frame2.4)
-library(ggplot2)
-load('~/Documents/SINATRA/Simulations/Results/new/df_ROC_causal3_shared6_10.RData')
-rdfmeans = rdfmeans[rdfmeans$Class == 1,]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[rdfmeans$Num_Cones==60,]
-rdfmeans = rdfmeans[c('FPR','TPR')]
+rdfmeans = read.csv(paste(data_dirs[1],'/roc_dirs1.csv', sep = ''))[,-4]
+for (k in 2:length(data_dirs)){
+  dir = data_dirs[k]
+  temp = read.csv(paste(dir,'/roc_dirs1.csv', sep = ''))[,-4]
+  rdfmeans = rdfmeans + temp
+}
+rdfmeans = rdfmeans/length(data_dirs)
+rdfmeans = data.frame(rdfmeans)
+rdfmeans = rdfmeans[rdfmeans$X3==35,]
 rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
 names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity") +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
-  ggtitle(sprintf("6 Causal Regions, 3 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
-  coord_equal(ratio=1) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black")) 
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared.pdf')
-#### Fig 2.c. ####
-num_causal_region = 10
-num_shared_region = 5
-causal_points = 10
-shared_points = 10
-g3 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                                 causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-                                                 truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                                 min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-                                                 mode = 'sphere_baseline',num_cusps = cusps,
-                                                 subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max)
-
-
-write.csv(g3,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_max.csv')
-g3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_max.csv')[,-1][,-4]
-roc_curve_frame3.1 = data.frame(g3)
-library(ggplot2)
-roc_curve_frame3.1 = roc_curve_frame[roc_curve_frame3.1[,3] == 1,]
-roc_curve_frame3.1[,3] = rep('Baseline (EN Max)',dim(roc_curve_frame3.1)[1])
-g3.2 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-                                                   mode = 'sphere_baseline',num_cusps = cusps,
-                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = mean)
-
-
-write.csv(g3.2,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_mean.csv')
-g3.2 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_elastic_net_mean.csv')[,-1][,-4]
-roc_curve_frame3.2 = data.frame(g3.2)
-library(ggplot2)
-roc_curve_frame3.2 = roc_curve_frame3.2[roc_curve_frame3.2[,3] == 1,]
-roc_curve_frame3.2[,3] = rep('Baseline (EN Mean)',dim(roc_curve_frame3.2)[1])
-g3.3 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-                                                   mode = 'sphere_baseline',num_cusps = cusps,
-                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 1,reduce = max)
-
-
-write.csv(g3.3,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_max.csv')
-g3.3 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_max.csv')[,-1][,-4]
-roc_curve_frame3.3 = data.frame(g3.3)
-library(ggplot2)
-roc_curve_frame3.3 = roc_curve_frame3.3[roc_curve_frame3.3[,3] == 1,]
-roc_curve_frame3.3[,3] = rep('Baseline (RR Max)',dim(roc_curve_frame3.3)[1])
-g3.4 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-                                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-                                                   mode = 'sphere_baseline',num_cusps = cusps,
-                                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 1,reduce = mean)
-
-
-write.csv(g3.4,'~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_mean.csv')
-g3.4 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared_ridge_mean.csv')[,-1][,-4]
-roc_curve_frame3.4 = data.frame(g3.4)
-library(ggplot2)
-roc_curve_frame3.4 = roc_curve_frame3.4[roc_curve_frame3.4[,3] == 1,]
-roc_curve_frame3.4[,3] = rep('Baseline (RR Mean)',dim(roc_curve_frame3.4)[1])
-roc_curve_frame = rbind(roc_curve_frame3.1,roc_curve_frame3.2,roc_curve_frame3.3,roc_curve_frame3.4)
-library(ggplot2)
-load('~/Documents/SINATRA/Simulations/Results/new/df_ROC_causal5_shared10_10.RData')
-rdfmeans = rdfmeans[rdfmeans$Class == 1,]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[,-2]
-rdfmeans = rdfmeans[rdfmeans$Num_Cones==60,]
-rdfmeans = rdfmeans[c('FPR','TPR')]
-rdfmeans[,3] = rep('SINATRA',dim(rdfmeans)[1])
-names(rdfmeans) = names(roc_curve_frame)
-roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity") +
+ggplot() + 
+  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
   ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
+  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
   coord_equal(ratio=1) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black")) 
-ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared.pdf')
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        axis.title=element_text(size=16,face="bold")) +
+  scale_colour_hue(l=40)
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4.pdf')
+
+
+### Limit Shapes ####
+path = '~/Documents/new_aligned_shapesv4'
+dirs = list.dirs(path, full.names = TRUE, FALSE)
+roc_curves2.1 = list()
+roc_curves2.2 = list()
+truncated = 1000
+functions_to_summarize = 10
+for (i in 1:length(dirs)){
+  dir = dirs[i]
+  print(dir)
+  total_rate_roc1 = matrix(0, nrow = truncated,ncol = 2)
+  total_rate_roc2 = matrix(0, nrow = truncated,ncol = 2)
+  dir1 = paste(dir,'/mesh/gp1/', sep = '')
+  dir2 = paste(dir,'/mesh/gp2/', sep = '')
+  causal_points1_vec = read.csv(paste(dir,'/gp1_spt.csv',sep = ''))
+  causal_points2_vec = read.csv(paste(dir,'/gp2_spt.csv',sep = ''))
+  
+  class_1_true_vertices = which(causal_points1_vec > 0.25)
+  class_2_true_vertices = which(causal_points2_vec > 0.25)
+  
+  class_1_false_vertices = setdiff(1:num_vertices,class_1_true_vertices)
+  class_2_false_vertices = setdiff(1:num_vertices,class_2_true_vertices)
+  
+  limit_shapes_output_files1 = list.files(path = dir1, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs1 = limit_shapes_output_files1[str_detect(limit_shapes_output_files1,'csv')]
+  limit_shapes_csvs1 = limit_shapes_csvs1[str_detect(limit_shapes_csvs1,'scrambled')== FALSE]
+  
+  limit_shapes_output_files2 = list.files(path = dir2, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs2 = limit_shapes_output_files2[str_detect(limit_shapes_output_files2,'csv')]
+  limit_shapes_csvs2 = limit_shapes_csvs2[str_detect(limit_shapes_csvs2,'scrambled')== FALSE]
+  
+  #ROC curve for class 1
+  
+  counter = 0 
+  for (file in limit_shapes_csvs1){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_1_true_vertices,class_1_false_vertices))
+      
+      true_vertices = class_1_true_vertices
+      false_vertices = class_1_false_vertices
+    }
+    total_rate_roc1 = total_rate_roc1 + rate_ROC
+    
+  }
+  total_rate_roc1 = (total_rate_roc1 / counter)
+  #ROC Curve for Class 2
+  counter = 0 
+  for (file in limit_shapes_csvs2){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated)) ){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_2_true_vertices,class_2_false_vertices))
+      
+      true_vertices = class_2_true_vertices
+      false_vertices = class_2_false_vertices
+    }
+    total_rate_roc2 = total_rate_roc2 + rate_ROC
+    
+  }
+  total_rate_roc2 = (total_rate_roc2 / counter)
+  
+  roc_curves2.1[[i]] = total_rate_roc1
+  roc_curves2.2[[i]] = total_rate_roc2
+}
+
+total_roc1 = matrix(0, nrow = dim(roc_curves2.1[[1]]), ncol = dim(roc_curves2.2[[1]])[2])
+for (j in 1:length(roc_curves2.1)){
+  total_roc1 = total_roc1 + roc_curves2.1[[j]]
+}
+total_roc1 = total_roc1/length(roc_curves2.1)
+total_roc2 = matrix(0, nrow = dim(roc_curves2.1[[1]]), ncol = dim(roc_curves2.2[[1]])[2])
+for (j in 1:length(roc_curves2.2)){
+  total_roc2 = total_roc2 + roc_curves2.2[[j]]
+}
+total_roc2 = total_roc2/length(roc_curves2.2)
+total_roc1 = rbind(c(0,0), total_roc1)
+total_roc2 = rbind(c(0,0), total_roc2)
+total_roc1 =  cbind(total_roc1,rep('Limit Shapes Class 1', dim(total_roc1)[1]))
+total_roc2 =  cbind(total_roc2,rep('Limit Shapes Class 2', dim(total_roc2)[1]))
+roc_curve_frame_limit = as.data.frame(rbind(total_roc1, total_roc2))
+roc_curve_frame_limit$V1 = as.numeric(as.character(roc_curve_frame_limit$V1))
+roc_curve_frame_limit$V2 = as.numeric(as.character(roc_curve_frame_limit$V2))
+write.csv(roc_curve_frame_limit,'~/Documents/SINATRA/Scripts/Data/cariature_v4_limit_shape.csv')
+roc_curve_frame_limit = read.csv('~/Documents/SINATRA/Scripts/Data/cariature_v4_limit_shape.csv')[,-1][,-4]
+roc_curve_frame_limit = data.frame(roc_curve_frame_limit)
+library(ggplot2)
+roc_curve_frame_limit = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
+
+save.image('~/Documents/new_aligned_shapesv4/limitshapes.Rdata')
+load('~/Documents/new_aligned_shapesv4/limitshapes.Rdata')
+
+### Limit Shapes ####
+path = '~/Documents/new_aligned_shapesv4'
+dirs = list.dirs(path, full.names = TRUE, FALSE)
+roc_curves2.1 = list()
+roc_curves2.2 = list()
+truncated = 500
+functions_to_summarize = 10
+for (i in 1:length(dirs)){
+  dir = dirs[i]
+  print(dir)
+  total_rate_roc1 = matrix(0, nrow = truncated,ncol = 2)
+  total_rate_roc2 = matrix(0, nrow = truncated,ncol = 2)
+  dir1 = paste(dir,'/mesh/gp1/', sep = '')
+  dir2 = paste(dir,'/mesh/gp2/', sep = '')
+  causal_points1_vec = read.csv(paste(dir,'/gp1_spt.csv',sep = ''))
+  causal_points2_vec = read.csv(paste(dir,'/gp2_spt.csv',sep = ''))
+  
+  class_1_true_vertices = which(causal_points1_vec > 0.25)
+  class_2_true_vertices = which(causal_points2_vec > 0.25)
+  
+  class_1_false_vertices = setdiff(1:num_vertices,class_1_true_vertices)
+  class_2_false_vertices = setdiff(1:num_vertices,class_2_true_vertices)
+  
+  limit_shapes_output_files1 = list.files(path = dir1, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs1 = limit_shapes_output_files1[str_detect(limit_shapes_output_files1,'csv')]
+  limit_shapes_csvs1 = limit_shapes_csvs1[str_detect(limit_shapes_csvs1,'scrambled')== TRUE]
+  
+  limit_shapes_output_files2 = list.files(path = dir2, full.names = TRUE,recursive = FALSE)
+  limit_shapes_csvs2 = limit_shapes_output_files2[str_detect(limit_shapes_output_files2,'csv')]
+  limit_shapes_csvs2 = limit_shapes_csvs2[str_detect(limit_shapes_csvs2,'scrambled')== TRUE]
+  
+  #ROC curve for class 1
+  
+  counter = 0 
+  for (file in limit_shapes_csvs1){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated))){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_1_true_vertices,class_1_false_vertices))
+      
+      true_vertices = class_1_true_vertices
+      false_vertices = class_1_false_vertices
+    }
+    total_rate_roc1 = total_rate_roc1 + rate_ROC
+    
+  }
+  total_rate_roc1 = (total_rate_roc1 / counter)
+  #ROC Curve for Class 2
+  counter = 0 
+  for (file in limit_shapes_csvs2){
+    rate_ROC <- matrix(0,nrow = 0,ncol = 2)
+    g = read.csv(file, header = FALSE)
+    g = g[,1:functions_to_summarize]
+    g = apply(g, MARGIN = 2, FUN = scale_and_normalize)
+    rate_values = apply(g, MARGIN = 1, FUN = max)
+    counter = counter + 1
+    
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = truncated)) ){
+      
+      #sink("/dev/null")
+      rate_positive_vertices = which(rate_values >= threshold)
+      
+      rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
+      rate_ROC <- rbind(rate_ROC, calculate_TPR_FPR(rate_positive_vertices,rate_negative_vertices,
+                                                    class_2_true_vertices,class_2_false_vertices))
+      
+      true_vertices = class_2_true_vertices
+      false_vertices = class_2_false_vertices
+    }
+    total_rate_roc2 = total_rate_roc2 + rate_ROC
+    
+  }
+  total_rate_roc2 = (total_rate_roc2 / counter)
+  
+  roc_curves2.1[[i]] = total_rate_roc1
+  roc_curves2.2[[i]] = total_rate_roc2
+}
+
+total_roc1 = matrix(0, nrow = dim(roc_curves2.1[[1]]), ncol = dim(roc_curves2.2[[1]])[2])
+for (j in 1:length(roc_curves2.1)){
+  total_roc1 = total_roc1 + roc_curves2.1[[j]]
+}
+total_roc1 = total_roc1/length(roc_curves2.1)
+total_roc2 = matrix(0, nrow = dim(roc_curves2.1[[1]]), ncol = dim(roc_curves2.2[[1]])[2])
+for (j in 1:length(roc_curves2.2)){
+  total_roc2 = total_roc2 + roc_curves2.2[[j]]
+}
+total_roc2 = total_roc2/length(roc_curves2.2)
+total_roc1 = rbind(c(0,0), total_roc1)
+total_roc2 = rbind(c(0,0), total_roc2)
+total_roc1 =  cbind(total_roc1,rep('Limit Shapes Class 1', dim(total_roc1)[1]))
+total_roc2 =  cbind(total_roc2,rep('Limit Shapes Class 2', dim(total_roc2)[1]))
+roc_curve_frame_limit_scrambled = as.data.frame(rbind(total_roc1, total_roc2))
+roc_curve_frame_limit_scrambled$V1 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V1))
+roc_curve_frame_limit_scrambled$V2 = as.numeric(as.character(roc_curve_frame_limit_scrambled$V2))
+save.image('~/Documents/new_aligned_shapesv4/limitshapes_scrambled.Rdata')
+load('~/Documents/new_aligned_shapesv4/limitshapes_scrambled.Rdata')
+roc_curve_frame = rbind(roc_curve_frame2.1,roc_curve_frame2.2,roc_curve_frame2.3,roc_curve_frame2.4)
+roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
+roc_curve_frame_limit2 = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit2[,3] = 'Limit Shapes'
+roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled[roc_curve_frame_limit_scrambled[,3] == 'Limit Shapes Class 1',]
+roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
+colnames(roc_curve_frame_limit2) = colnames(roc_curve_frame)
+colnames(roc_curve_frame_limit_scrambled2) = colnames(roc_curve_frame)
+roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
+roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
+
+ggplot() + 
+  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Limit"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Mean"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "Max"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
+  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  ggtitle(sprintf("5 Caricatured Peaks")) +
+  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
+  coord_equal(ratio=1) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        axis.title=element_text(size=16,face="bold")) +
+  scale_colour_hue(l=40)
+
+ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4_limit.pdf')
 
 #### Test New Function ####
 library(glmnet)

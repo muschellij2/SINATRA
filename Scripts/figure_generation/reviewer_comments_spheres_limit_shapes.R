@@ -278,13 +278,13 @@ plot3d(shape, col = cols)
 
 
 #### Create some data ####
-g1 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
-                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
-                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
-                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
-                                   mode = 'sphere_baseline',num_cusps = cusps,
-                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max, write = FALSE)
-
+#g1 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
+#                                   causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
+#                                   truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
+#                                   min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
+#                                   mode = 'sphere_baseline',num_cusps = cusps,
+#                                   subdivision = 3,num_causal_region = num_causal_region, num_shared_region = num_shared_region,alpha = 0.5,reduce = max, write = FALSE)
+#
 
 #write.csv(g1,'~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_max.csv')
 g1 = read.csv('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_elastic_net_max2.csv')[,-1][,-4]
@@ -347,16 +347,24 @@ names(rdfmeans) = names(roc_curve_frame)
 roc_curve_frame = rbind(roc_curve_frame,rdfmeans)
 roc_curve_frame_limit2 = roc_curve_frame_limit[roc_curve_frame_limit[,3] == 'Limit Shapes Class 1',]
 roc_curve_frame_limit2[,3] = 'Limit Shapes'
+roc_curve_frame_limit2 = rbind(c(0,0,'Limit Shapes'),roc_curve_frame_limit2 )
 roc_curve_frame_limit_scrambled2 = roc_curve_frame_limit_scrambled[roc_curve_frame_limit_scrambled[,3] == 'Limit Shapes Class 1',]
 roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
+roc_curve_frame_limit_scrambled2 = rbind(c(0,0,'Limit Shapes (Misspecified)'),roc_curve_frame_limit_scrambled2 )
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity", aes(color = factor(V3))) +
+roc_curve_frame$V1 = as.numeric(as.character(roc_curve_frame$V1))
+roc_curve_frame$V2 = as.numeric(as.character(roc_curve_frame$V2))
+ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + 
+  geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones", size = 14) +
   ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
-  coord_equal(ratio=1) +
+  xlim(0, 0.2) + 
+  geom_abline(intercept = 0, slope = 1,alpha = 0.5) + 
+#  coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
@@ -670,14 +678,17 @@ roc_curve_frame_limit2[,3] = 'Limit Shapes'
 roc_curve_frame_limit_scrambled2[,3] = 'Limit Shapes (Misspecified)'
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit2)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity",aes(color =factor(V3) )) +
+ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3))  +
+  geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
   ggtitle(sprintf("6 Causal Regions, 3 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
+  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
   coord_equal(ratio=1) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
@@ -801,15 +812,16 @@ roc_curve_frame_limit3 = as.data.frame(rbind(total_roc3.1, total_roc3.2))
 roc_curve_frame_limit3$V1 = as.numeric(as.character(roc_curve_frame_limit3$V1))
 roc_curve_frame_limit3$V2 = as.numeric(as.character(roc_curve_frame_limit3$V2))
 
-ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity",aes(color =factor(V3) )) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
-  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
-  coord_equal(ratio=1) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black")) 
+#ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) +
+#  geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2) +
+#  geom_line(data = subset(roc_curve_frame, V3 != "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2, linetype = 2) +
+#  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+#  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
+#  geom_abline(intercept = 0, slope = 1) + 
+#  coord_equal(ratio=1) +
+#  theme_bw() +
+#  theme(plot.title = element_text(hjust = 0.5),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#        panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 save.image('~/Documents/spheres10_5_2020-05-15/roc_curves_10_function.Rdata')
 load('~/Dropbox (Princeton)/SINATRA_Data/spheres10_5_2020-05-15/roc_curves_10_function.Rdata')
@@ -999,14 +1011,17 @@ roc_curve_frame_limit_scrambled3 = roc_curve_frame_limit_scrambled3[roc_curve_fr
 roc_curve_frame_limit_scrambled3[,3] = 'Limit Shapes (Misspecified)'
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit3)
 roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled3)
-ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.75, size = 2,aes(color = factor(V3) )) +
-  geom_line(stat = "identity",aes(color = factor(V3))) +
+ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + 
+  geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
   ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
-  geom_abline(intercept = 0, slope = 1) + 
+  geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
   coord_equal(ratio=1) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)

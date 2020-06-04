@@ -456,6 +456,7 @@ find_bayesian_variables=function(data,param=0.5,radius=0,weights=FALSE){
 #### Elastic Net ####
 #' Conducts the Lasso Feature Selection
 #'
+#' @export
 #' @description \code{find_elastic_variables} returns a vector of the selected features/indices of the curve
 #'
 #' The function uses Elastic Net to conduct feature selection. A cross validated elastic net model is fit on the binary response data,
