@@ -1,4 +1,7 @@
 set.seed(55)
+library(devtools)
+install()
+
 library(sinatra)
 library(FNN)
 library(rgl)

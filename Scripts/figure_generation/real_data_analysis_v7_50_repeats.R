@@ -278,7 +278,7 @@ for (dir in data_dirs){
     print(paste("on length", len, 'dir', dirs, 'angle', angle))
     pset = list(num_cones = dirs, cap_radius = angle, len = len, directions_per_cone = 5,
                       dirs = generate_equidistributed_cones(num_directions = dirs, cap_radius =  angle, directions_per_cone = 5))
-    data_summary=real_data_summary(dir1=new_data_dir,dir2 = old_data_dir,direction=pset$dirs,class1='Vegetable', class2='Vegetable',
+    data_summary = real_data_summary(dir1=new_data_dir,dir2 = old_data_dir,direction=pset$dirs,class1='Vegetable', class2='Vegetable',
                                       radius=0,accuracy=FALSE,len = pset$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
     roc_curve = compute_roc_curve_teeth(data_dir1 = old_data_dir, data_dir2 = new_data_dir, gamma = 0.25,class_1_probs = class_1_probs,class_2_probs = class_2_probs,
                                  rate_values = data_summary$Rate2[,2],directions_per_cone = pset$directions_per_cone,curve_length = pset$len,
@@ -300,6 +300,7 @@ for (dir in data_dirs){
   write.csv(roc_curves_total2,file = paste(dir,'/roc_angles2.csv',sep=''),row.names = FALSE)
   save.image(paste(dir,'/rocs_and_rate_angles.R',sep=''))
 }
+
 ### ROC Curve for angle ###
 base_dir = '~/Documents/new_aligned_shapesv3/'
 data_dirs = list.dirs(base_dir,recursive = FALSE)

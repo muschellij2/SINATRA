@@ -42,7 +42,7 @@ mesh_to_matrix = function(mesh){
 generate_averaged_ROC_with_coned_directions  <- function(runs = 5, nsim = 50, curve_length = 10, grid_size = 25, distance_to_causal_point = 0.1, causal_points = 10,
                                                          shared_points = 3, num_cones = 5, eta = 0.1, truncated = FALSE, two_curves = FALSE,
                                                          ball_radius = 2, ball = TRUE, type = 'vertex',min_points = 2,directions_per_cone = 5, cap_radius = 0.15,
-                                                         radius = 0, mode = 'sphere', num_cusps = 10, 
+                                                         radius = 0, mode = 'sphere', num_cusps = 10,
                                                          subdivision = 3, num_causal_region = 5, num_shared_region = 5,
                                                          ec_type = 'ECT'){
   if (type == 'vertex'){
@@ -218,10 +218,10 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     rate_values[,1] = rep((1:(dim(rate_values)[1]/3)),each = 3)
     library(dplyr)
     df = as.data.table(rate_values)
-    
+
     new_df = aggregate(df[,2],list(df$V1),mean)
-    
-    
+
+
     rate_values = new_df$V2
   }
   else{
@@ -326,6 +326,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
                                     rate_values,grid_size,eta = 0.1,directions_per_cone, curve_length,directions, truncated = -1,class = 0,
                                     ball_radius = ball_radius, ball = TRUE, radius = 0, mode = 'sphere', subdivision = 3){
   print('Computing ROC curve...')
+
   #Initializing the number of vertices
   num_vertices = grid_size^2
   data_points = data$complex_points
@@ -425,16 +426,16 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
     if (mode == 'sphere_baseline'){
       class_1_true_vertices = data$causal_points1
       class_2_true_vertices = data$causal_points2
-      
+
       shared_vertices = data$noise
       shared_points = data$shared_points_list
-      
+
       sphere1 = vcgSphere(subdivision = subdivision)
       num_vertices = dim(sphere1$vb)[2]
       sphere1$vb[1:3,] = t(data_points[[j]])
-      
+
       complex = convert_off_file(sphere1)
-      
+
     }
 
     combined_true_vertices = union(class_1_true_vertices,class_2_true_vertices)
@@ -514,7 +515,7 @@ compute_roc_curve_vertex = function(data,class_1_causal_points,class_2_causal_po
         rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                  len = curve_length, threshold = threshold,
                                                                  cone_size = directions_per_cone, ball_radius = ball_radius, radius = radius)
-        
+
         if (mode == 'sphere_baseline'){
           rate_positive_vertices = which(rate_values >= threshold)
         }
