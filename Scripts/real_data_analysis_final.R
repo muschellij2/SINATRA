@@ -1,4 +1,4 @@
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
 library(R.utils)
 #sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
 set.seed(55)
@@ -202,13 +202,13 @@ knn_median['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame$X1, by=list(tarsius_
 knn_median['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame$X1, by=list(tarsius_saimiri_frame$X2), FUN=median)[2]
 knn_median
 
-write.csv(tarsius_microcebus_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_mirza_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_saimiri_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_saimiri.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_microcebus_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_mirza_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_saimiri_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_saimiri.csv',col.names = FALSE,row.names = FALSE)
 
 tarsius_mirza_total = knn_pvals$tarsius_mirza_total_matrix
 name = 'tarsius_mirza'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_mirza_total[[k]]
@@ -219,7 +219,7 @@ for (k in 1:length(region_sizes)){
 }
 tarsius_microcebus_total = knn_pvals$tarsius_microcebus_total_matrix
 name = 'tarsius_microcebus'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_microcebus_total[[k]]
@@ -231,7 +231,7 @@ for (k in 1:length(region_sizes)){
 
 tarsius_saimiri_total = knn_pvals$tarsius_saimiri_total_matrix
 name = 'tarsius_saimiri'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/knn_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_saimiri_total[[k]]
@@ -273,23 +273,23 @@ area_median['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame$X1, by=list(tarsius
 area_median['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame$X1, by=list(tarsius_saimiri_frame$X2), FUN=median)[2]
 
 save.image('real_data_20190616.Rdata')
-load('real_data_20190616.Rdata')
+load('Old Stuff/real_data_20190616.Rdata')
 
 area_mean
 area_median
 knn_mean
 knn_median
 
-write.csv(tarsius_microcebus_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_mirza_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_saimiri_frame,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_saimiri.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_microcebus_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_mirza_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
+write.csv(tarsius_saimiri_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_saimiri.csv',col.names = FALSE,row.names = FALSE)
 
-write.csv(knn_median,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/knn_median_pvals.csv',row.names = FALSE)
-write.csv(area_median,file = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/area_median_pvals.csv',row.names = FALSE)
+write.csv(knn_median,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/knn_median_pvals.csv',row.names = FALSE)
+write.csv(area_median,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/area_median_pvals.csv',row.names = FALSE)
 
 tarsius_mirza_total = area_pvals$tarsius_mirza_total_matrix
 name = 'tarsius_mirza'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_mirza_total[[k]]
@@ -300,7 +300,7 @@ for (k in 1:length(region_sizes)){
 }
 tarsius_microcebus_total = area_pvals$tarsius_microcebus_total_matrix
 name = 'tarsius_microcebus'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_microcebus_total[[k]]
@@ -312,7 +312,7 @@ for (k in 1:length(region_sizes)){
 
 tarsius_saimiri_total = area_pvals$tarsius_saimiri_total_matrix
 name = 'tarsius_saimiri'
-stem = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
+stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
 for (k in 1:length(region_sizes)){
   reg_size = region_sizes[k]
   comp_matrix = tarsius_saimiri_total[[k]]
