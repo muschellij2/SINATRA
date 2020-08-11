@@ -126,7 +126,7 @@ roc_curve_frame_limit$V2 = as.numeric(as.character(roc_curve_frame_limit$V2))
 
 ggplot(roc_curve_frame_limit, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
   geom_line(stat = "identity") +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
   ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -246,7 +246,7 @@ roc_curve_frame_limit_scrambled$V2 = as.numeric(as.character(roc_curve_frame_lim
 
 ggplot(roc_curve_frame_limit_scrambled, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
   geom_line(stat = "identity") +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
   ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -360,7 +360,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method", size = 20) +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method", size = 20) +
   ggtitle(sprintf("2 Causal Regions, 1 Shared Regions, Size 10")) +
   coord_cartesian(xlim=c(0, 1.0)) + 
 #  geom_abline(intercept = 0, slope = 1,alpha = 0.5) + 
@@ -368,7 +368,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 14), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
+        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 18), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
 #ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes2_truncated.pdf')
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_2causal_1_shared_limit_shapes2.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_2causal_1shared2.csv',row.names = FALSE)
@@ -496,7 +496,7 @@ roc_curve_frame_limit2$V2 = as.numeric(as.character(roc_curve_frame_limit2$V2))
 
 ggplot(roc_curve_frame_limit2, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
   geom_line(stat = "identity") +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
   ggtitle(sprintf("6 Causal Regions, 3 Shared Regions, Size 10")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -686,7 +686,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3))  +
   geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method") +
   coord_cartesian(xlim=c(0, 1.0)) + 
   ggtitle(sprintf("6 Causal Regions, 3 Shared Regions, Size 10")) +
   #geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
@@ -694,7 +694,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3))  +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 14), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
+        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 18), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
 #ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared2_truncated.pdf')
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_6causal_3_shared2.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_6causal_3shared2.csv',row.names = FALSE)
@@ -817,7 +817,7 @@ roc_curve_frame_limit3$V2 = as.numeric(as.character(roc_curve_frame_limit3$V2))
 #ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) +
 #  geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2) +
 #  geom_line(data = subset(roc_curve_frame, V3 != "SINATRA"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 2, linetype = 2) +
-#  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+#  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
 #  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
 #  geom_abline(intercept = 0, slope = 1) + 
 #  coord_equal(ratio=1) +
@@ -934,7 +934,7 @@ roc_curve_frame_limit_scrambled3$V2 = as.numeric(as.character(roc_curve_frame_li
 
 ggplot(roc_curve_frame_limit3, aes(x = V1,y = V2,group = V3)) + geom_line(alpha = 0.8, size = 2,aes(color = factor(V3) )) +
   geom_line(stat = "identity") +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
   ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -1018,7 +1018,7 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "RR"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"), aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method") +
   ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
   coord_cartesian(xlim=c(0, 1.0)) + 
   #geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
@@ -1026,6 +1026,6 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 14), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
+        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 18), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared2.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/sphere_roc_10causal_5shared2.csv',row.names = FALSE)

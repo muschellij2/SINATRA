@@ -353,10 +353,10 @@ roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
 ggplot() + 
   geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
   geom_line(data = subset(roc_curve_frame, X3 %like% "Limit"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  geom_line(data = subset(roc_curve_frame, X3 %like% "Mean"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
-  geom_line(data = subset(roc_curve_frame, X3 %like% "Max"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "EN"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+#  geom_line(data = subset(roc_curve_frame, X3 %like% "Max"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method") +
   ggtitle(sprintf("3 Caricatured Peaks")) +
   coord_cartesian(xlim= c(0,1.0))+
 #  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
@@ -364,7 +364,7 @@ ggplot() +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 14), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
+        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 18), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v3_limit.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/3peaks_caricature_roc.csv',row.names = FALSE)
 #### 5 Peaks ####
@@ -418,7 +418,7 @@ library(ggplot2)
 #  geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
 #  geom_line(data = subset(roc_curve_frame, X3 != "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
 #  # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
-#  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+#  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
 #  ggtitle(sprintf("10 Causal Regions, 5 Shared Regions, Size 10")) +
 #  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
 #  coord_equal(ratio=1) +
@@ -667,10 +667,10 @@ roc_curve_frame = rbind(roc_curve_frame,roc_curve_frame_limit_scrambled2)
 ggplot() + 
   geom_line(data = subset(roc_curve_frame, X3 == "SINATRA"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5) +
   geom_line(data = subset(roc_curve_frame, X3 %like% "Limit"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  geom_line(data = subset(roc_curve_frame, X3 %like% "Mean"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
-  geom_line(data = subset(roc_curve_frame, X3 %like% "Max"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+#  geom_line(data = subset(roc_curve_frame, X3 %like% "Mean"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+  geom_line(data = subset(roc_curve_frame, X3 %like% "EN"), aes(x = X1,y = X2,group = X3,color = factor(X3)),alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
   # geom_line(stat = "identity",aes(color = factor(X3)), linetype = 'dotted') +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method") +
   ggtitle(sprintf("5 Caricatured Peaks")) +
   coord_cartesian(xlim= c(0,1.0))+
 #  geom_abline(intercept = 0, slope = 1, alpha = 0.5) + 
@@ -678,7 +678,7 @@ ggplot() +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = 'bold'),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=20),
-        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 14), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
+        axis.title=element_text(size=20,face="bold"), legend.text = element_text(size = 18), legend.title = element_text(size=20,face="bold")) + scale_colour_hue(l=40)
 
 ggsave('~/Documents/SINATRA/Scripts/Data/cariature_v4_limit.pdf')
 write.csv(roc_curve_frame,file = '~/Documents/SINATRA/Scripts/Data/5peaks_caricature_roc.csv',row.names = FALSE)
