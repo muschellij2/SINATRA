@@ -41,7 +41,7 @@ scale_and_normalize = function(x){
 }
 
 pval_correct = function(x){
-  if (x > 0.1){
+  if (x > 1/(exp(1))){
     return(0)
   }
   else{
@@ -452,6 +452,27 @@ misspecified_knn_mean_median
 write.csv(misspecified_area_mean_median,'~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/limit_shapes_misspecified_area_mean_median_pvals.csv')
 write.csv(misspecified_knn_mean_median,'~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/limit_shapes_misspecified_knn_mean_median_pvals.csv')
 
+
+#### P value correction ####
+
+knn_mean_median = read.csv('~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/limit_shapes_knn_mean_median_pvals.csv')[,-1]
+area_mean_median = read.csv('~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/limit_shapes_area_mean_median_pvals.csv')[,-1]
+
+
+knn_mean_median_corrected = apply(X = knn_mean_median,MARGIN = c(1,2),FUN = pval_correct)
+knn_mean_median_corrected[,1] = knn_mean_median[,1]
+
+
+area_mean_median_corrected = apply(X = area_mean_median,MARGIN = c(1,2),FUN = pval_correct)
+area_mean_median_corrected[,1] = area_mean_median[,1]
+
+cols = colnames(area_mean_median_corrected)
+real_order = c(cols[1],cols[4],cols[3],cols[2])
+
+write.csv(x = area_mean_median_corrected[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/corrected_limit_shapes_area_mean_median_pvals.csv')
+write.csv(x = knn_mean_median_corrected[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/corrected_limit_shapes_knn_mean_median_pvals.csv')
+
+####
 
 mesh = vcgImport(data_files[i])
 cols = rep('white',dim(mesh$vb)[2])

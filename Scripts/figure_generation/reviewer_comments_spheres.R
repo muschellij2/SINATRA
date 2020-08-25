@@ -22,7 +22,7 @@ num_shared_region = 1
 causal_points = 10
 shared_points = 10
 
-subdivision = 4
+subdivision = 3
 
 nsim = 25
 
@@ -32,8 +32,10 @@ causal_regions_1 = sample(1:cusps,num_causal_region)
 causal_regions_2 = sample((1:cusps)[-causal_regions_1],num_causal_region)
 shared_regions = sample((1:cusps)[-c(causal_regions_1,causal_regions_2)],num_shared_region)
 
+runs = 1
+
 #### Fig 2.a. ####
-g1 = generate_averaged_ROC_with_coned_directions(runs = 100, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
+g1 = generate_averaged_ROC_with_coned_directions(runs = runs, nsim = 50, curve_length = 30, grid_size = 25, distance_to_causal_point = 0.1, 
                                    causal_points = causal_points,shared_points = shared_points, num_cones = 20, eta = 0.1, 
                                    truncated = 200, two_curves = TRUE, ball = TRUE, ball_radius = 1.5, type = 'vertex',
                                    min_points = 3, directions_per_cone = 5, cap_radius = 0.15, radius = 1,ec_type = 'ECT',
