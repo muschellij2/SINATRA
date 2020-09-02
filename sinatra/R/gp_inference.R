@@ -143,7 +143,9 @@ find_rate_variables_with_other_sampling_methods <- function(gp_data,bandwidth = 
 
   #is.positive.semi.definite(q_hat)
   # use RATE:
+  print('Running RATE')
   cores= detectCores()
+#  cores = 8
   res = RATE(X=X,f.draws=fhat.samples,prop.var = 1,snp.nms = colnames(X),cores = cores)
   rates = res$RATE
   return(cbind(1:length(rates),rates))
