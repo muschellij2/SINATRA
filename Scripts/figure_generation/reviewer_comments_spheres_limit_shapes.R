@@ -1024,7 +1024,8 @@ ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
   #coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold")) +
   scale_colour_hue(l=40)
 ggsave('~/Documents/SINATRA/Scripts/Data/baseline_10causal_5_shared2_truncated.pdf')

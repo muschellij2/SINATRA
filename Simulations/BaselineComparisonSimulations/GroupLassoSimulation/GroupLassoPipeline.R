@@ -9,7 +9,7 @@ library(ggplot2)
 library(rgl)
 library(Rvcg)
 library(FNN)
-#source('../Simulations/BaselineComparisonSimulations/GroupLassoSimulation/GenerateSimulatedShapes.R')
+#source('~/projects/Research/SINATRA/Simulations/BaselineComparisonSimulations/GroupLassoSimulation/GenerateSimulatedShapes.R')
 
 
 
@@ -20,7 +20,6 @@ causal_region_size = 20
 shared_region_size = 20
 
 subdivision = 4
-
 nsim = 25
 
 num_shape_scaffold = 100
@@ -54,7 +53,9 @@ class2_positive_landmarks = shape_data[[3]]
 # Do both group lasso and elastic net with group parameters.
 groups <- rep(1:(dim(data)[2]/3),each = 3)
 #lasso <- cv.gglasso(x = data[,-1], y = data[,1], group = groups, loss = "logit")
-lasso = cv.glmnet(x = data[,-1], y = data[,1], alpha = 1.0,  family = "binomial") # how do these work?
+
+lasso = cv.glmnet(x = data[,-1], y = data[,1], alpha = 1.0,  family = "binomial",
+                  intercept = TRUE, loss = "logit", nlambda = 500, pred.loss = "loss",nfolds = 10) # how do these work?
 coefs <- coef(lasso, s = 'lambda.min')
 # pick a cross validation parameter.
 #coefs <- coef(lasso, s = c(0,0.0001,0.001,0.01,0.10,0.5,1.0,10))
@@ -70,8 +71,8 @@ causal_regions_1
 causal_regions_2
 
 
-landmarks = matrix(data[1,-1],ncol=3,byrow = TRUE)
-rgl::plot3d(landmarks[,1], landmarks[,2], landmarks[,3])
+#landmarks = matrix(data[1,-1],ncol=3,byrow = TRUE)
+#rgl::plot3d(landmarks[,1], landmarks[,2], landmarks[,3])
 #need to scatter plot with RGL.
 
 ## Can also run GPs
@@ -81,25 +82,33 @@ rgl::plot3d(landmarks[,1], landmarks[,2], landmarks[,3])
 
 
 #### Can compare these ROC curves directly to the sinatra simulation ...
+causal_regions = 1
+shared_regions = 2
 generate_ROC_baseline(num_shape_scaffold = 50,
                       num_landmarks = 500,
                       num_causal_region = causal_regions,
                       num_shared_region = shared_regions)
-causal_regions = 5
-shared_regions = 10
+
 
 # is the issuewith LASSO and highly correlated variables? Because landmarks are in close proximity, the variables are
 # hence quite correlated. How does Lasso select  between two correlated variables?
 
 # vary the number of cusps...
 # how do you make the TPR / FPR fair?
-averaged_roc_curve <- generate_averaged_ROC_baseline(runs = 8,
-                                                     num_shape_scaffold = 100,
-                                                      num_landmarks = 2000,
+causal_regions = 1
+shared_regions = 2
+averaged_roc_curve <- generate_averaged_ROC_baseline(runs = 10,
+                                                     num_shape_scaffold = 25,
+                                                     num_landmarks = 500,
                                                      num_causal_region = causal_regions,
                                                      num_shared_region = shared_regions)
 data <- data.frame(averaged_roc_curve)
 
+### Save the data
+
+#write.csv(data,
+          file = '~/projects/Research/SINATRA/Results/LandmarkSimulations/group_lasso_1causal_2shared_2000landmarks_sphere_simulated_roc.csv',
+          row.names = FALSE)
 
 #### Summarize plots....
 ROC_curve_plt <- ggplot(data <- data, aes(x = X1, y = X2)) +
@@ -111,6 +120,8 @@ ROC_curve_plt <- ggplot(data <- data, aes(x = X1, y = X2)) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5))
 print(ROC_curve_plt)
+
+ggsave('~/projects/Research/SINATRA/Results/LandmarkSimulations/group_lasso_1causal_2shared_2000landmarks_sphere_simulated_roc.pdf')
 
 
 

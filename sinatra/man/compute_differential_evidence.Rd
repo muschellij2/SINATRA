@@ -4,16 +4,21 @@
 \alias{compute_differential_evidence}
 \title{Compute a null distribution for function values on a region of a mesh}
 \usage{
-
-compute_differential_evidence(complex, mesh_fcn, vertex,
-  region_size = 100, num_test_regions = 100, method = "knn")
+compute_differential_evidence(
+  complex,
+  mesh_fcn,
+  vertex,
+  region_size = 100,
+  num_test_regions = 100,
+  method = "knn"
+)
 }
 \arguments{
 \item{mesh_fcn}{(1 x M vector) the values of the function on the vertices of the mesh.}
 
 \item{vertex}{(int) the index of the desired vertex to analyze on the mesh}
 
-\item{region_size}{(int) the number of vertices to be in the region. We choose the region via knn. The assumption is that the
+\item{region_size}{(int) the number of vertices to be in the region. We choose the region via knn. The assumption is that the 
 density if vertices in the mesh is uniform, or at least approximately.}
 
 \item{num_test_regions}{(int) the number of regions to sample from}

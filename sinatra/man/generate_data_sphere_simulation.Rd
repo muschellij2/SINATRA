@@ -4,11 +4,23 @@
 \alias{generate_data_sphere_simulation}
 \title{Generate (S/D) EC curves for a collection of perturbed spheres}
 \usage{
-generate_data_sphere_simulation(nsim, curve_length, dir,
-  noise_points = 5, causal_points = 5, ball = TRUE,
-  ball_radius = 2, ec_type = "ECT", subdivision = 3, cusps,
-  causal_regions_1 = c(1), causal_regions_2 = c(3),
-  shared_regions = c(4))
+generate_data_sphere_simulation(
+  nsim,
+  curve_length,
+  dir,
+  noise_points = 5,
+  causal_points = 5,
+  ball = TRUE,
+  ball_radius = 2,
+  ec_type = "ECT",
+  subdivision = 3,
+  cusps,
+  causal_regions_1 = c(1),
+  causal_regions_2 = c(3),
+  shared_regions = c(4),
+  write = FALSE,
+  workdir = "~/Documents/spheres/v100"
+)
 }
 \arguments{
 \item{curve_length}{(int) : Number of sub-level sets in each EC computation.}
