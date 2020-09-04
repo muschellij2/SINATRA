@@ -25,7 +25,9 @@ RATE = function(X, f.draws = NULL, pre.specify = FALSE, beta.draws = NULL, prop.
   }
 
   ### Register those Cores ###
-  registerDoParallel(cores=cores)
+  cl = makeCluster(cores-1)
+#  registerDoParallel(cores=cores)
+  registerDoParallel(cl,cores = (cores-1))
 
   if(pre.specify == FALSE){
 
@@ -57,6 +59,8 @@ RATE = function(X, f.draws = NULL, pre.specify = FALSE, beta.draws = NULL, prop.
     int = 1:length(mu); l = nullify;
 
     if(length(l)>0){int = int[-l]}
+    
+    print('Computing KLD')
 
     KLD = foreach(j = int, .combine='c')%dopar%{
       q = unique(c(j,l))
@@ -107,6 +111,7 @@ RATE = function(X, f.draws = NULL, pre.specify = FALSE, beta.draws = NULL, prop.
   ESS = 1/(1+Delta)*100
 
   ### Return a list of the values and results ###
+  stopCluster(cl)
   return(list("KLD"=KLD,"RATE"=RATE,"Delta"=Delta,"ESS"=ESS))
 }
 

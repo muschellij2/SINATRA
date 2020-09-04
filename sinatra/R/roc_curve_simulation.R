@@ -241,9 +241,7 @@ generate_ROC_with_coned_directions <- function(nsim = 10, curve_length = 25, gri
     rate_values[,1] = rep((1:(dim(rate_values)[1]/3)),each = 3)
     library(dplyr)
     df = as.data.table(rate_values)
-
     new_df = aggregate(df[,2],list(df$V1),reduce)
-
     rate_values = new_df$V2
   }
   else{

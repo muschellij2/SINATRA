@@ -1,30 +1,32 @@
-setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
+setwd('/Users/Bruce/Documents/')
 library(R.utils)
-#sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
+#sourceCpp('~/gitrepos/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
 set.seed(55)
 library(sinatra)
 library(FNN)
 library(rgl)
 library(Rvcg)
+library(svd)
+library(Matrix)
 library(plyr)
 
 #Parameters for the Analysis
-pset1 = list(dir1 = '~/Documents/doug_new_teeth_by_species/Microcebus/',dir2 = '~/Documents/doug_new_teeth_by_species/Mirza/',
+pset1 = list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Microcebus/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Mirza/',
              num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
                 dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
-pset2 =  list(dir1 = '~/Documents/doug_new_teeth_by_species/Microcebus/',dir2 = '~/Documents/doug_new_teeth_by_species/Tarsius/',
+pset2 =  list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Microcebus/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Tarsius/',
               num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
               dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
-pset3 = list(dir1 = '~/Documents/doug_new_teeth_by_species/Microcebus/',dir2 = '~/Documents/doug_new_teeth_by_species/Saimiri/',
+pset3 = list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Microcebus/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Saimiri/',
              num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
              dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
-pset4 = list(dir1 = '~/Documents/doug_new_teeth_by_species/Tarsius/',dir2 = '~/Documents/doug_new_teeth_by_species/Saimiri/',
+pset4 = list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Tarsius/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Saimiri/',
              num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
              dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
-pset5 = list(dir1 = '~/Documents/doug_new_teeth_by_species/Tarsius/',dir2 = '~/Documents/doug_new_teeth_by_species/Mirza/',
+pset5 = list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Tarsius/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Mirza/',
              num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
              dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
-pset6 = list(dir1 = '~/Documents/doug_new_teeth_by_species/Saimiri/',dir2 = '~/Documents/doug_new_teeth_by_species/Mirza/',
+pset6 = list(dir1 = '~/Documents/new_teeth_ect_aligned_by_species/Saimiri/',dir2 = '~/Documents/new_teeth_ect_aligned_by_species/Mirza/',
              num_cones = 35, cap_radius = 0.25, len = 75, directions_per_cone = 5,
              dirs = generate_equidistributed_cones(num_directions = 35, cap_radius =  0.25, directions_per_cone = 5))
 
@@ -39,14 +41,15 @@ ball_radius = 0.5
 ec_type = 'ECT'
 #### Start Comparison ####
 
-comp1 = real_data_summary(dir1=pset1$dir1,dir2 = pset1$dir2,direction=pset1$dirs,len = pset1$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
+#comp1 = real_data_summary(dir1=pset1$dir1,dir2 = pset1$dir2,direction=pset1$dirs,len = pset1$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
 comp2 = real_data_summary(dir1=pset2$dir1,dir2 = pset2$dir2,direction=pset2$dirs,len = pset2$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
-comp3 = real_data_summary(dir1=pset3$dir1,dir2 = pset3$dir2,direction=pset3$dirs,len = pset3$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
+#comp3 = real_data_summary(dir1=pset3$dir1,dir2 = pset3$dir2,direction=pset3$dirs,len = pset3$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
 comp4 = real_data_summary(dir1=pset4$dir1,dir2 = pset4$dir2,direction=pset4$dirs,len = pset4$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
 comp5 = real_data_summary(dir1=pset5$dir1,dir2 = pset5$dir2,direction=pset5$dirs,len = pset5$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
-comp6 = real_data_summary(dir1=pset6$dir1,dir2 = pset6$dir2,direction=pset6$dirs,len = pset6$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
+#comp6 = real_data_summary(dir1=pset6$dir1,dir2 = pset6$dir2,direction=pset6$dirs,len = pset6$len, ball = ball, ball_radius = ball_radius, ec_type = ec_type)
 
-
+save.image('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
+load('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
 
 
 
@@ -67,7 +70,7 @@ get_vertex_rate = function(dir_name, cuts, pset, comp, ball = TRUE, ball_radius 
     file_name = list.files(dir_name,full.names = TRUE)[k]
     print(paste('On File', file_name))
     mesh = process_off_file_v3(file_name)
-    heat = reconstruct_vertices_on_shape(dir = pset$dirs,complex = mesh,rate_vals = comp$Rate2[,2],
+    heat = reconstruct_vertices_on_shape(dir = pset$dirs,complex = mesh,rate_vals = comp$Rate2,
                                          len = pset$len,cuts = cuts,cone_size = pset$directions_per_cone,ball_radius = ball_radius, ball = ball,radius =1)
     mesh_list[[k]] = heat[,2]
   }
@@ -78,13 +81,19 @@ get_vertex_rate = function(dir_name, cuts, pset, comp, ball = TRUE, ball_radius 
 #### Use Comp 2,4,5 ####
 
 tarsius_microcebus_rates = get_vertex_rate(dir_name = pset2$dir2,cuts = (5*75*35),pset = pset2,comp = comp2)
+save.image('~/Documents/new_teeth_ect_aligned_by_species/tarsius_microcebus.Rdata')
 tarsius_saimiri_rates = get_vertex_rate(dir_name = pset4$dir1,cuts = (5*75*35),pset = pset4,comp = comp4)
+save.image('~/Documents/new_teeth_ect_aligned_by_species/tarsius_saimiri.Rdata')
 tarsius_mirza_rates = get_vertex_rate(dir_name = pset5$dir1,cuts = (5*75*35),pset = pset5,comp = comp5)
-save.image('real_data_20190613.Rdata')
+save.image('~/Documents/new_teeth_ect_aligned_by_species/tarsius_mirza.Rdata')
+#load('~/Documents/new_teeth_ect_aligned_by_species/tarsius_microcebus.Rdata')
+#load('~/Documents/new_teeth_ect_aligned_by_species/tarsius_mirza.Rdata')
+#load('~/Documents/new_teeth_ect_aligned_by_species/tarsius_saimiri.Rdata')
+save.image('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
 
 #### Write to Directory ####
 
-load('real_data_20190613.Rdata')
+load('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
 
 
 
@@ -93,6 +102,15 @@ load('real_data_20190613.Rdata')
 #3 : 813
 #4 : 249
 #6 : 291
+pval_correct = function(x){
+  if (x > 1/(exp(1))){
+    return(0)
+  }
+  else{
+    new_val = -exp(1) * x * log(x)
+    return(1/new_val)
+  }
+}
 find_pval_matrices = function(region_sizes,file_names,meshes,indices,num_test_regions,method, tarsius_mirza,tarsius_saimiri,tarsius_microcebus){
   tarsius_microcebus_total_matrix = list()
   tarsius_saimiri_total_matrix = list()
@@ -175,12 +193,13 @@ find_pval_matrices = function(region_sizes,file_names,meshes,indices,num_test_re
   
   
 }
-
+file_names = list.files(pset2$dir2, full.names = TRUE)
 region_sizes = c(10,50,100,150,200)
 num_test_regions = 500
 method = 'knn'
 meshes = (1:33)
 indices = c(261,295,833,224,939,278,252,593,177,357,4845,4215,4619,162,244,4618,4225,31,4705,4524,219,4301,4898,262,4860,69,64,4478,4452,4224,102,179,4176)
+#indices = c(261,833,224,939,278,252,593,177,357,4845,4215,4619,162,244,4618,4225,31,4705,4524,219,4301,4898,262,4860,69,64,4478,4452,4224,102,179,3964,4176)
 
 knn_pvals = find_pval_matrices(region_sizes = region_sizes,file_names = file_names,meshes = meshes,indices = indices,num_test_regions = num_test_regions,method = method,tarsius_mirza = tarsius_mirza_rates,tarsius_microcebus= tarsius_microcebus_rates,tarsius_saimiri = tarsius_saimiri_rates)
 
@@ -201,6 +220,9 @@ colnames(knn_median) = c('Region Size', 'Tarsius-Microcebus')
 knn_median['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame$X1, by=list(tarsius_mirza_frame$X2), FUN=median)[2]
 knn_median['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame$X1, by=list(tarsius_saimiri_frame$X2), FUN=median)[2]
 knn_median
+
+save.image('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
+load('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
 
 write.csv(tarsius_microcebus_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
 write.csv(tarsius_mirza_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/knn_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
@@ -249,75 +271,59 @@ file_names = list.files(pset2$dir2,full.names = TRUE)
 method = 'area'
 region_sizes = c(10,50,100,150,200)
 num_test_regions = 500
-indices = c(261,295,833,224,939,278,252,593,177,357,4845,4215,4619,162,244,4618,4225,31,4705,4524,219,4301,4898,262,4860,69,64,4478,4452,4224,102,179,4176)
+#indices = c(261,295,833,224,939,278,252,593,177,357,4845,4215,4619,162,244,4618,4225,31,4705,4524,219,4301,4898,262,4860,69,64,4478,4452,4224,102,179,4176)
 indices = indices
 #[21:30]
 meshes = (1:33)
 #[21:30]
 area_pvals = find_pval_matrices(region_sizes = region_sizes,file_names = file_names,meshes = meshes,indices = indices,num_test_regions = num_test_regions,method = method,tarsius_mirza = tarsius_mirza_rates,tarsius_microcebus= tarsius_microcebus_rates,tarsius_saimiri = tarsius_saimiri_rates)
 
-tarsius_microcebus_frame = data.frame(area_pvals$tarsius_microcebus_pval_matrix)
-tarsius_mirza_frame = data.frame(area_pvals$tarsius_mirza_pval_matrix)
-tarsius_saimiri_frame = data.frame(area_pvals$tarsius_saimiri_pval_matrix)
+tarsius_microcebus_frame2 = data.frame(area_pvals$tarsius_microcebus_pval_matrix)
+tarsius_mirza_frame2 = data.frame(area_pvals$tarsius_mirza_pval_matrix)
+tarsius_saimiri_frame2 = data.frame(area_pvals$tarsius_saimiri_pval_matrix)
 
-area_mean = aggregate(tarsius_microcebus_frame$X1, by=list(tarsius_microcebus_frame$X2), FUN=mean)
+area_mean = aggregate(tarsius_microcebus_frame2$X1, by=list(tarsius_microcebus_frame$X2), FUN=mean)
 area_mean[,1] = region_sizes
 colnames(area_mean) = c('Region Size', 'Tarsius-Microcebus')
-area_mean['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame$X1, by=list(tarsius_mirza_frame$X2), FUN=mean)[2]
-area_mean['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame$X1, by=list(tarsius_saimiri_frame$X2), FUN=mean)[2]
+area_mean['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame2$X1, by=list(tarsius_mirza_frame2$X2), FUN=mean)[2]
+area_mean['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame2$X1, by=list(tarsius_saimiri_frame2$X2), FUN=mean)[2]
 
-area_median = aggregate(tarsius_microcebus_frame$X1, by=list(tarsius_microcebus_frame$X2), FUN=median)
+area_median = aggregate(tarsius_microcebus_frame2$X1, by=list(tarsius_microcebus_frame2$X2), FUN=median)
 area_median[,1] = region_sizes
 colnames(area_median) = c('Region Size', 'Tarsius-Microcebus')
-area_median['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame$X1, by=list(tarsius_mirza_frame$X2), FUN=median)[2]
-area_median['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame$X1, by=list(tarsius_saimiri_frame$X2), FUN=median)[2]
+area_median['Tarsius-Mirza'] = aggregate(tarsius_mirza_frame2$X1, by=list(tarsius_mirza_frame2$X2), FUN=median)[2]
+area_median['Tarsius-Saimiri'] = aggregate(tarsius_saimiri_frame2$X1, by=list(tarsius_saimiri_frame2$X2), FUN=median)[2]
 
-save.image('real_data_20190616.Rdata')
-load('Old Stuff/real_data_20190616.Rdata')
+
+save.image('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
+load('~/Documents/new_teeth_ect_aligned_by_species/rate_analysis.Rdata')
+
 
 area_mean
 area_median
 knn_mean
 knn_median
 
-write.csv(tarsius_microcebus_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_microcebus.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_mirza_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_mirza.csv',col.names = FALSE,row.names = FALSE)
-write.csv(tarsius_saimiri_frame,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_pval_data/area_method/tarius_saimiri.csv',col.names = FALSE,row.names = FALSE)
+cols = colnames(knn_median)
 
-write.csv(knn_median,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/knn_median_pvals.csv',row.names = FALSE)
-write.csv(area_median,file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/area_median_pvals.csv',row.names = FALSE)
+real_order = c(cols[1],cols[4],cols[3],cols[2])
 
-tarsius_mirza_total = area_pvals$tarsius_mirza_total_matrix
-name = 'tarsius_mirza'
-stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
-for (k in 1:length(region_sizes)){
-  reg_size = region_sizes[k]
-  comp_matrix = tarsius_mirza_total[[k]]
-  new_name = paste(name,'_roi_size_',reg_size,'.csv',sep = '')
-  file_name = paste(stem,new_name,sep = '')
-  write.csv(comp_matrix,file = file_name,col.names = FALSE,row.names = FALSE)
-  
-}
-tarsius_microcebus_total = area_pvals$tarsius_microcebus_total_matrix
-name = 'tarsius_microcebus'
-stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
-for (k in 1:length(region_sizes)){
-  reg_size = region_sizes[k]
-  comp_matrix = tarsius_microcebus_total[[k]]
-  new_name = paste(name,'_roi_size_',reg_size,'.csv',sep = '')
-  file_name = paste(stem,new_name,sep = '')
-  write.csv(comp_matrix,file = file_name,col.names = FALSE,row.names = FALSE)
-  
-}
 
-tarsius_saimiri_total = area_pvals$tarsius_saimiri_total_matrix
-name = 'tarsius_saimiri'
-stem = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/raw_rate_sums/area_method/'
-for (k in 1:length(region_sizes)){
-  reg_size = region_sizes[k]
-  comp_matrix = tarsius_saimiri_total[[k]]
-  new_name = paste(name,'_roi_size_',reg_size,'.csv',sep = '')
-  file_name = paste(stem,new_name,sep = '')
-  write.csv(comp_matrix,file = file_name,col.names = FALSE,row.names = FALSE)
-  
-}
+write.csv(x = area_median[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/ect_aligned_area_median_pvals.csv')
+write.csv(x = knn_median[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/ect_aligned_knn_median_pvals.csv')
+
+
+
+
+knn_median_corrected = apply(X = knn_median,MARGIN = c(1,2),FUN = pval_correct)
+knn_median_corrected[,1] = knn_median[,1]
+
+
+area_median_corrected = apply(X = area_median,MARGIN = c(1,2),FUN = pval_correct)
+area_median_corrected[,1] = area_median[,1]
+
+area_median_corrected
+
+write.csv(x = area_median_corrected[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/corrected_ect_aligned_area_median_pvals.csv')
+write.csv(x = knn_median_corrected[,real_order],file = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Old Drafts/Draft 2/Figures/real_data_results/corrected_ect_aligned_knn_median_pvals.csv')
+
