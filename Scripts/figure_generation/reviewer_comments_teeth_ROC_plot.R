@@ -14,7 +14,7 @@ colnames(roc_curve_frame) <- c('V1','V2','V3')
 
 # Add in Group Lasso to these results
 group_lasso_results_500 = read.csv(
-  sprintf("~/projects/Research/SINATRA/Results/LandmarkSimulations/%speaks_1500landmarks_caricature_roc.csv",
+  sprintf("~/projects/Research/SINATRA/Results/LandmarkSimulations/%speaks_500landmarks_caricature_roc.csv",
           peaks))
 
 colnames(group_lasso_results_500) <- c("V1","V2")
@@ -35,14 +35,17 @@ roc_curve_frame <- rbind(roc_curve_frame, group_lasso_results_2000)
 plt <- ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) + 
   geom_line(data = subset(roc_curve_frame, V3 == "SINATRA"),
             aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5) +
+  geom_line(data = subset(roc_curve_frame, V3 == "Group Lasso (1500 Landmarks)"),
+            aes(x = V1,y = V2,group = V3, color = factor(V3)),
+            alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.02, h=0)) +
+  geom_line(data = subset(roc_curve_frame, V3 == "Group Lasso (2000 Landmarks)"),
+            aes(x = V1,y = V2,group = V3, color = factor(V3)),
+            alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.02, h=0)) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "Limit"),
             aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "EN"),
             aes(x = V1,y = V2,group = V3,color = factor(V3)),
-            alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
-  geom_line(data = subset(roc_curve_frame, V3 %like% "Group Lasso"),
-            aes(x = V1,y = V2,group = V3,color = factor(V3)),
-            alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.01, h=0)) +
+            alpha = 0.75,  size = 1.5, linetype = 4,position=position_jitter(w=0.02, h=0)) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
   ggtitle(sprintf("%s Peaks Caricatured Teeth Results", peaks)) +
   #coord_cartesian(xlim=c(0, 0.2)) + 
@@ -55,11 +58,14 @@ plt <- ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5))) 
+  #scale_color_viridis(discrete = TRUE) 
+  #scale_color_brewer(palette="Accent") 
+  #scale_colour_hue(l=50, c = 100)
+  
 print(plt)
 
-ggsave(sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/caricature_%speaks_group_lasso.pdf",peaks))
+#ggsave(sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/caricature_%speaks_group_lasso.pdf",peaks))
 
 ##############################
 ### Template for old plots ###

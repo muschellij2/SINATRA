@@ -66,16 +66,16 @@ ggsave(sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/Sphe
 ### Template for Old plots ###
 ##############################
 
-causal_points = 1
-shared_points = 2
+causal_points = 5
+shared_points = 10
 reconstruction_type = 'EC'
-load(sprintf("~/projects/Research/SINATRA/Simulations/Results/df_ROC_causal%s_shared%s_10.RData",causal_points,shared_points))
+load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/new/df_ROC_causal%s_shared%s_10.RData",causal_points,shared_points))
 
 ### Plot results ###
 # plot the first class for simplicity
 class_one_ROC <- rdfmeans[rdfmeans$Class == 1,]
 ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Num_Cones)) +
-  geom_line(stat = "identity",size = 1) +
+  geom_line(stat = "identity",size = 0.6) +
   labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
   ggtitle(sprintf("%s Causal Regions, %s Shared Regions, Size 10", causal_points, shared_points)) +
   coord_cartesian(xlim=c(0, 1.0)) + 
@@ -83,12 +83,13 @@ ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Num
   coord_equal(ratio=1) +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 16, face = 'bold'),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),axis.text=element_text(size=12),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        axis.text=element_text(size=12),
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5)))
+  #scale_colour_hue(l=40)
 print(ROC_curve_plt)
 
 ggsave(
@@ -114,8 +115,8 @@ ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Rad
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5))) 
+  #scale_colour_hue(l=40)
 print(ROC_curve_plt)
 ggsave(
   sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/Sphere_Sims/Varying_Params/ConeAngle/causal%s_shared%s_10.pdf",
