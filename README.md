@@ -8,6 +8,8 @@ The purpose of this branch is to provide the exact scripts/code used to produce 
 ## Scripts
 The relevant locations for the scripts used to generate each figure, and process the data for each figure are located under Scripts/figure_generation. 
 
+## Raw Data
+For the locations of the data used in the studies, please use this link: https://www.dropbox.com/sh/rs8pjmhrwcdcuxk/AAC3Fj2_RNZLTVR_XhN4jiGxa?dl=0
 ## Simulations
 
 ## Further additions
