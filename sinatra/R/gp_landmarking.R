@@ -1,5 +1,4 @@
 #### Rough Implementation of GP Landmarking ####
-#setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
 library(Rvcg)
 library(Matrix)
 library(FNN)

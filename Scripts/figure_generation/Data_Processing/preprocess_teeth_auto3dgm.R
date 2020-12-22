@@ -3,14 +3,17 @@ setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
 library(Morpho)
 library(rgl)
 library(Rvcg)
-dir='Data/doug_new_teeth_scaled'
+library(sinatra)
+dir1='Data/doug_new_teeth'
+dir2='Data/doug_new_teeth_scaled'
 out_path = 'Data/doug_new_teeth_scaled_aligned'
 
-b = list.files(dir, full.names = TRUE)
+clean_files(dir1,dir2)
+b = list.files(dir2, full.names = TRUE)
 
 library(auto3dgm)
 
-Data_dir = dir
+Data_dir = dir2
 Output_dir = out_path
 #Data_dir = '~/Documents/face_meshes/to_be_aligned_meshes'
 #Output_dir = "~/Documents/face_meshes/newly_aligned_meshes"
