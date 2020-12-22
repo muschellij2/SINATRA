@@ -1,4 +1,4 @@
-setwd('/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/')
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
 library(R.utils)
 #sourceCpp('~/Documents/SINATRA/SINATRA_Pipeline_Branch/BAKRGibbs.cpp')
 set.seed(55)
@@ -66,14 +66,14 @@ rgl.viewpoint(userMatrix = rotation_matrix)
 plot3d(veg1,col = veg_colors_heat, back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
 #plot_selected_landmarks(veg1,veg1_vert,num_landmarks = 20)
 rgl.viewpoint(userMatrix = rotation_matrix)
-rgl.snapshot(filename = '~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts//figure1/figure1e_v6.png',fmt = 'png')
+rgl.snapshot(filename = '~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts//figure1/figure1e_v6.png',fmt = 'png')
 
 col.table=colfunc(1 + max(fruit_heat[,1]) - min(fruit_heat[,1]))
 color.bar(col.table,min=10000 * round(min(fruit_heat[,2]) - min(fruit_heat[,2]),4),max=10000 * round(max(fruit_heat[,2])-min(fruit_heat[,2]),4))
-dev.copy2pdf(file='~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts/figure1/figure_1d_tooth1_colorbar_v6.pdf',out.type = 'pdf')
+dev.copy2pdf(file='~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts/figure1/figure_1d_tooth1_colorbar_v6.pdf',out.type = 'pdf')
 col.table=colfunc(1 + max(veg_heat[,1]) - min(veg_heat[,1]))
 color.bar(col.table,min=10000*round(min(veg_heat[,2]) - min(veg_heat[,2]),4),max=10000*round(max(veg_heat[,2])-min(veg_heat[,2]),4))
-dev.copy2pdf(file='~/Dropbox (DataPlusMath)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts/figure1/figure_1d_tooth2_colorbar_v6.pdf',out.type = 'pdf')
+dev.copy2pdf(file='~/Dropbox (Princeton)/Sub-Image Analysis/Manuscript/Figures/Figure Drafts/figure1/figure_1d_tooth2_colorbar_v6.pdf',out.type = 'pdf')
 
 
 save.image('Figure1.Rdata')

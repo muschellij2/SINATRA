@@ -1,4 +1,5 @@
 library(numbers)
+library(stringr)
 
 
 mesh_to_matrix = function(mesh){
@@ -1202,7 +1203,8 @@ compute_roc_curve_cones <- function(data,class_1_causal_points,class_2_causal_po
 #' @return roc_curve (matrix) : The roc curves for both classes of shapes.
 compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, class_2_probs,
                                    rate_values, directions_per_cone, curve_length,directions, truncated = 0,
-                                   ball_radius = ball_radius, ball = TRUE , radius = 0,two_curves = FALSE, mode = 'teeth'){
+                                   ball_radius = ball_radius, ball = TRUE , radius = 0,two_curves = FALSE, mode = 'teeth',
+                                   base_shape_dir = base_shape_dir){
   if (two_curves == FALSE){
     roc_curve_label1 = 1
     roc_curve_label2 = 2
@@ -1214,14 +1216,14 @@ compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, c
   roc_curve1 =  compute_roc_curve_teeth_vertex(data_dir = data_dir1, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values,
                                                directions_per_cone = directions_per_cone, directions = directions, class = roc_curve_label1,truncated = truncated,
-                                               ball_radius = ball_radius,radius = radius, mode = mode)
+                                               ball_radius = ball_radius,radius = radius, mode = mode, base_shape_dir = base_shape_dir)
   roc_curve1 = cbind(roc_curve1, rep(1,dim(roc_curve1)[1]))
-  
+
   roc_curve2 =  compute_roc_curve_teeth_vertex(data_dir = data_dir2, gamma = gamma, class_1_probs = class_1_probs, class_2_probs = class_2_probs,
                                                curve_length = curve_length,  rate_values = rate_values,
                                                directions_per_cone = directions_per_cone, directions = directions, class = roc_curve_label2,truncated = truncated,
-                                               ball_radius = ball_radius, radius = radius, mode = mode)
-  
+                                               ball_radius = ball_radius, radius = radius, mode = mode, base_shape_dir = base_shape_dir)
+
   roc_curve2 = cbind(roc_curve2, rep(2,dim(roc_curve2)[1]))
 
   roc_curve = rbind(roc_curve1,roc_curve2)
@@ -1258,7 +1260,7 @@ compute_roc_curve_teeth = function(data_dir1, data_dir2, gamma, class_1_probs, c
 
 compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_probs,
                                           rate_values,directions_per_cone, curve_length,directions, truncated = 0,class = 0,
-                                          ball_radius = ball_radius, ball = TRUE , radius = 0, mode = 'teeth'){
+                                          ball_radius = ball_radius, ball = TRUE , radius = 0, mode = 'teeth', base_shape_dir){
   print('Computing ROC curve...')
   #Initializing the number of vertices
   remove = c()
@@ -1273,14 +1275,24 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
   }
   roc_list = list()
   files = list.files(data_dir,full.names = TRUE)
-  files = files[str_detect(files,'off')]
+  files = files[stringr::str_detect(files,'off')]
   for (j in 1:length(files)){
-    print(j)
+    cat("file number ", j)
     mesh = vcgImport(files[j])
-    complex = convert_off_file(mesh)
-    num_vertices = dim(complex$Vertices)[1]
-    class_1_true_vertices = which(class_1_probs > gamma)
-    class_2_true_vertices = which(class_2_probs > gamma)
+
+
+    num_vertices = length(rate_values) # captures the case when  we use landmarks or all the tooth vertices.
+    #browser()
+    if (mode == "landmark") {
+      base_shape = Rvcg::vcgImport(base_shape_dir)
+      landmark_indices = get_euclidean_fps_landmarks(base_shape, length(rate_values))
+    } else {
+      landmark_indices = 1:num_vertices
+    }
+
+
+    class_1_true_vertices = intersect(which(class_1_probs > gamma), landmark_indices)
+    class_2_true_vertices = intersect(which(class_2_probs > gamma), landmark_indices)
 
     combined_true_vertices = union(class_1_true_vertices,class_2_true_vertices)
 
@@ -1302,22 +1314,17 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
     # build the ROC by varying the ROC; we bucket the rate values into quantiles and select the thresholds that way; should make length.out = 1000, or higher
     # can also recover the case where we add rate values one at a time by taking length.out to be the number of rate values.
     if (truncated == 0){
-      vec = quantile(unique(rate_values),probs = seq(1,0,length.out = length(rate_values)))
-#      vec = rev(seq(min(rate_values),max(rate_values),length.out = length(rate_values)))
-      vec[length(rate_values)] = -0.01
-#      for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
-      for (threshold in vec ){
 
-        #sink("/dev/null")
-        if (mode == 'baseline'){
-          rate_positive_vertices = which(rate_values > threshold)
+    for (threshold in quantile(rate_values,probs = seq(1,0,length.out = length(rate_values))) ){
+
+        if (mode =='landmark'){
+          rate_positive_vertices = which(rate_values >= threshold)
         }
         else{
             rate_positive_vertices<- compute_selected_vertices_cones(dir = directions, complex = complex, rate_vals = rate_values,
                                                                      len = curve_length, threshold = threshold,
                                                                      cone_size = directions_per_cone, ball_radius = ball_radius,ball = ball, radius = radius)
         }
-        #sink()
 
         rate_negative_vertices <- setdiff(1:num_vertices,rate_positive_vertices)
 
@@ -1358,8 +1365,6 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
      # vec = quantile(rate_values,probs = seq(1,0,length.out = truncated))
       vec[truncated] = -0.01
       for (threshold in vec){
-
-
 
         if (mode == 'baseline'){
           rate_positive_vertices = which(rate_values > threshold)
@@ -1405,8 +1410,8 @@ compute_roc_curve_teeth_vertex = function(data_dir,gamma,class_1_probs,class_2_p
     }
 
     total_rate_roc = total_rate_roc + rate_ROC
-    power = try(TPR_at_specified_FPR_metric(0.1,rate_ROC))
-    print(power)
+    #power = try(TPR_at_specified_FPR_metric(0.1,rate_ROC))
+    #print(power)
   }
   total_rate_roc = (total_rate_roc / counter)
 

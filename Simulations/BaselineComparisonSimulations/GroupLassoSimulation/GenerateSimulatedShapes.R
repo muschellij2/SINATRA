@@ -156,7 +156,9 @@ generate_ROC_baseline = function(nsim = 20, num_shape_scaffold = 100, num_landma
   
   print("Getting Lasso Coefficients")
   groups = rep(1:(dim(data[,-1])[2]/3), each = 3)
-  lasso = cv.glmnet(x = data[,-1], y = data[,1], alpha = 1.0,  family = "binomial") # how do these work?
+  #lasso = cv.glmnet(x = data[,-1], y = data[,1], alpha = 1.0,  family = "binomial") # how do these work
+  lasso <- cv.gglasso(x = data[,-1], y = data[,1], group = groups, loss = "logit",
+                      intercept = TRUE, nlambda = 500, pred.loss = "loss",nfolds = 10)
   coefs = coef(lasso, s = 'lambda.min') # it might have  to do with  this choice of lasso coefficient.
   
   

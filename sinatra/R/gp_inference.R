@@ -2,6 +2,8 @@ library(Matrix)
 library(FastGP)
 library(parallel)
 library(Rcgmin)
+library(gglasso)
+library(glmnet)
 
 
 ####### RATE Code ######
@@ -471,16 +473,32 @@ find_bayesian_variables=function(data,param=0.5,radius=0,weights=FALSE){
 #' This is done to capture critical points that may be 'close' to the selected feature.
 #' @return The output is a vector of indices/features to be selected.
 #'
-find_elastic_variables=function(data,radius=0,weights=FALSE, alpha = 0.5){
-  #Transforming the data to -1, and 1 if it isn't already for logistic regression purposes.
-  data[,1]=ifelse(data[,1]>0,1,0)
+find_elastic_variables=function(data,radius=0,weights=FALSE, grouped_data = TRUE, alpha = 0.5){
   #Fit the model
-  regression_model=cv.glmnet(data[,-1], data[,1], alpha = alpha,intercept = FALSE,family='binomial')
-  #Extract the coefficients
-  tmp_coeffs = as.matrix(coef(regression_model,s=regression_model$lambda.1se))
-  regression_coeff=as.vector(tmp_coeffs)
+  #browser()
+
+  # need intercept = True
+  if(grouped_data == FALSE) {
+    regression_model=glmnet::cv.glmnet(data[,-1], data[,1], alpha = alpha,intercept = TRUE,family='binomial') # need groups added here
+    #Extract the coefficients
+    tmp_coeffs = as.matrix(coef(regression_model, s = "lambda.min"))
+    regression_coeff= as.vector(tmp_coeffs)
+  } else {
+    groups <- rep(1:(dim(data)[2]/3),each = 3)
+    model <- gglasso::cv.gglasso(x = data[,-1], y = 2*data[,1] - 1, group = groups,
+                                 intercept = TRUE, loss = "logit", nlambda = 500, pred.loss = "loss",nfolds = 10)
+    # cv with misclassification error doesn't work?
+
+    #browser()
+    # plot(lasso)
+    plot(model)
+    regression_coeff <- as.matrix(coef(model, s = 'lambda.min'))
+
+  }
+
   #Don't include the intercept
   regression_coeff=regression_coeff[2:length(regression_coeff)]
+
   if (weights==TRUE){
     return(cbind(1:length(regression_coeff),abs(regression_coeff)))
   }

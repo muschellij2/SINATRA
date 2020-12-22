@@ -42,8 +42,8 @@ library(auto3dgm)
 library(rgl)
 library(Rvcg)
 
-Data_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/HDM/all_scaled"
-Output_dir = "/Users/brucewang/Dropbox (DataPlusMath)/Data + Experiments Tim Sudijono/Data/all_files_alignedv4/"
+Data_dir = "/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/HDM/all_scaled"
+Output_dir = "/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/all_files_alignedv4/"
 #Data_dir = '~/Documents/face_meshes/to_be_aligned_meshes'
 #Output_dir = "~/Documents/face_meshes/newly_aligned_meshes"
 #Output_dir2  =  "~/Documents/face_meshes/newly_aligned_meshes/Aligned_Shapes/"
