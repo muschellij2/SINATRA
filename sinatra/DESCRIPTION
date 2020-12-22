@@ -32,7 +32,6 @@ Imports:
 	numbers,
 	Rcgmin,
 	glmnet,
-	data.table,
     stringr,
 Suggests: 
     testthat,
