@@ -5,7 +5,6 @@ library(Rvcg)
 library(FNN)
 library(R.utils)
 library(sinatra)
-sourceDirectory('~/gitrepos/SINATRA/SINATRA_Pipeline_Branch/')
 dir='~/Documents/new_teeth_ect_aligned_by_species/Tarsius/'
 # Mesh 1 has vertex 261
 # Mesh 2 has vertex 295
@@ -63,42 +62,4 @@ g = knnx.index(vertex, query = matrix(vertex[lm[7],],ncol = 3),k=30)
 plot3d(mesh, col = 'white')
 rgl.points(matrix(vertex[g[4524],],ncol = 3), size = 8, col = 'blue')
 rgl.viewpoint(userMatrix = rotation_matrix)
-
-
-
-
-#ids1 =  list.files(paste(Output_dir2),full.names = TRUE)
-ids1 =  list.files(paste(Data_dir),full.names = TRUE)
-
-#Ids = list.files(paste(Data_dir,'lowres',sep = ''))
-Ids = list.files(Data_dir)
-Names =  list.files(Data_dir)
-#Ids = c('AMNH-M-211491_M818')
-#Ids = Ids[-98]
-#Ids = Ids[-74]
-for (i in 1:length(Ids)){
-  Ids[i] = gsub("\\..*","",Ids[i])
-}
-
-Ids = Ids[-54]
-Names = Ids
-
-Levels=c(96,192)
-#FULL is a list of 3 returned elements.  The user gets to specify what is returned.
-FULL = align_shapes(Data_dir, Output_dir, Levels, Ids, Names)
-mfrow3d(nr=5,nc = 10)
-for (i in 1:50){
-  file = vcgImport(ids1[i])
-  plot3d(file, color = 'white', axes = FALSE, xlab = '',ylab = '',zlab='',specular = 'black')
-  rgl.viewpoint(userMatrix =rotation_matrix)
-}
-ids2 = list.files(paste(Output_dir,'/Aligned_Shapes', sep = ''),full.names = TRUE)
-mfrow3d(nr=5,nc = 10)
-for (i in 1:50){
-  file = vcgImport(ids2[i])
-  plot3d(file, color = 'white', axes = FALSE, xlab = '',ylab = '',zlab='',specular = 'black')
-  rgl.viewpoint(userMatrix =rotation_matrix)
-}
-
-
 
