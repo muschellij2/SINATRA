@@ -1,0 +1,125 @@
+---
+title: "Teeth for Comparisons V3"
+author: "Bruce Wang"
+date: "4/30/2019"
+output: html_document
+---
+
+```{r setup, echo = FALSE,message=FALSE,error=FALSE,warning=FALSE}
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
+library(knitr)
+library(rgl)
+library(FNN)
+library(pracma)
+library(Rvcg)
+library(Matrix)
+load('chris_doug_analysis.Rdata')
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
+knit_hooks$set(webgl = hook_webgl)
+```
+# Prosminians (Comparisons 1 - 3)
+
+## First comparison: Lepilemur (Top) vs Galago (Bottom)
+
+```{r testgl, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+
+mfrow3d(1,4)
+
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
+
+for (k in 1:length(list.files(pset1$dir1,full.names = TRUE))){
+  mesh = vcgImport(list.files(pset1$dir1,full.names = TRUE)[k])
+  plot3d(mesh, col = c1_mesh1_colors_list[[k]],back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+  rgl.viewpoint(userMatrix = rotation_matrix)
+}
+#
+#open3d()
+#mfrow3d(2,4)
+#
+#for (k in 1:length(list.files(pset1$dir2,full.names = TRUE))){
+#  mesh = vcgImport(list.files(pset1$dir2,full.names = TRUE)[k])
+#  plot3d(mesh, col = c1_mesh2_colors_list[[k]],back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+#  rgl.viewpoint(userMatrix = rotation_matrix)
+#}
+
+
+```
+
+```{r testgl1.5, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+
+
+open3d()
+mfrow3d(2,4)
+
+for (k in 1:length(list.files(pset1$dir2,full.names = TRUE))){
+  mesh = vcgImport(list.files(pset1$dir2,full.names = TRUE)[k])
+  plot3d(mesh, col = c1_mesh2_colors_list[[k]],back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+  rgl.viewpoint(userMatrix = rotation_matrix)
+}
+
+
+```
+
+## Second comparison: Varecia (Left) vs Lepilemur (Right)
+
+
+
+```{r testgl2, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+mfrow3d(1,4)
+
+setwd('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/')
+
+for (k in 1:length(list.files(pset2$dir1,full.names = TRUE))){
+  mesh = vcgImport(list.files(pset2$dir1,full.names = TRUE)[k])
+  plot3d(mesh, col = c1_mesh1_colors_list[[k]],back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+  rgl.viewpoint(userMatrix = rotation_matrix)
+}
+#
+#open3d()
+#mfrow3d(2,4)
+#
+#for (k in 1:length(list.files(pset2$dir2,full.names = TRUE))){
+#  mesh = vcgImport(list.files(pset2$dir2,full.names = TRUE)[k])
+#  plot3d(mesh, col = c1_mesh2_colors_list[[k]],back="lines", specular="black", axes = FALSE,xlab = '', ylab = '',zlab='')
+#  rgl.viewpoint(userMatrix = rotation_matrix)
+#}
+```
+
+## Third comparison: Varecia (Left) vs Tarsius (Right)
+
+
+
+
+```{r testgl3, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+```
+
+
+## Fourth comparison: Alouatta (Left) vs Ateles (Right)
+
+
+
+
+```{r testgl4, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+```
+
+## Fifth comparison: Brachyteles (Left) vs Ateles (Right)
+
+
+```{r testgl5, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+
+```
+## Sixth comparison: Alouatta (Left) vs Brachyteles (Right)
+
+
+```{r testgl6, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+```
+## Seventh comparison: Callicebus (Left) vs Saimiri (Right)
+
+
+```{r testgl7, webgl=TRUE,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
+```

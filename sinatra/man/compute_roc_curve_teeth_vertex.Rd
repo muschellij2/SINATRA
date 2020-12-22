@@ -18,7 +18,8 @@ compute_roc_curve_teeth_vertex(
   ball_radius = ball_radius,
   ball = TRUE,
   radius = 0,
-  mode = "teeth"
+  mode = "teeth",
+  base_shape_dir
 )
 }
 \arguments{

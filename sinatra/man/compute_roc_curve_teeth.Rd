@@ -19,7 +19,8 @@ compute_roc_curve_teeth(
   ball = TRUE,
   radius = 0,
   two_curves = FALSE,
-  mode = "teeth"
+  mode = "teeth",
+  base_shape_dir = base_shape_dir
 )
 }
 \arguments{
