@@ -5,8 +5,8 @@ library(ggplot2)
 library(data.table)
 
 ### load in previous results
-causal_points = 1
-shared_points = 2
+causal_points = 5
+shared_points = 10
 
 roc_curve_frame = read.csv(sprintf('~/projects/Research/SINATRA/Scripts/Data/sphere_roc_%scausal_%sshared2.csv',
                                    shared_points,
@@ -40,8 +40,14 @@ ROC_curve_plot <- ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
             aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
   geom_line(data = subset(roc_curve_frame, V3 %like% "Group Lasso"),
             aes(x = V1,y = V2,group = V3,color = factor(V3)),alpha = 0.75,  size = 1.5, linetype = 4) +
-  
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Method") +
+  scale_color_manual(values = c("SINATRA" = "Black",
+                                "Group Lasso (500 Landmarks)" = "#C49A00",
+                                "Group Lasso (2000 Landmarks)" = "#53B400",
+                                "Limit Shapes" = "#F8766D",
+                                "Limit Shapes (Misspecified)" = "#00B6EB",
+                                "Baseline (EN Max)" = "#A58AFF",
+                                "Baseline (EN Mean)" = "#FB61D7")) + 
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Method") +
   ggtitle(sprintf("%s Causal Regions, %s Shared Regions, Size 10",causal_points,shared_points)) +
   #coord_cartesian(xlim=c(0, 0.2)) + 
   geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
@@ -53,8 +59,8 @@ ROC_curve_plot <- ggplot(roc_curve_frame, aes(x = V1,y = V2,group = V3)) +
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5))) 
+  #scale_colour_hue(l=40)
 print(ROC_curve_plot)
 
 
@@ -76,7 +82,7 @@ load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/new/df_R
 class_one_ROC <- rdfmeans[rdfmeans$Class == 1,]
 ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Num_Cones)) +
   geom_line(stat = "identity",size = 0.6) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Cones") +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Cones") +
   ggtitle(sprintf("%s Causal Regions, %s Shared Regions, Size 10", causal_points, shared_points)) +
   coord_cartesian(xlim=c(0, 1.0)) + 
   geom_abline(intercept = 0, slope = 1, alpha =0.5) + 
@@ -95,7 +101,12 @@ print(ROC_curve_plt)
 ggsave(
   sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/Sphere_Sims/causal%s_shared%s_10.pdf",
           causal_points,shared_points))
-### Varying parameters
+
+##########################
+### Varying parameters ###
+##########################
+causal_points = 5
+shared_points = 10
 #can't recall difference between underscore 5 and 10 ... 
 
 load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/df_ROC_coneangle_causal%s_shared%s_10.RData",
@@ -104,8 +115,8 @@ load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/df_ROC_c
 ### Plot results ###
 class_one_ROC <- rdfmeans[rdfmeans$Class == 1,]
 ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Radii)) +
-  geom_line(stat = "identity", size = 1) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Cone Angle") +
+  geom_line(stat = "identity", size = 0.6) +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Cone Angle") +
   ggtitle(sprintf("Varying Cone Angle")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -129,8 +140,8 @@ load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/df_ROC_c
 ### Plot results ###
 class_one_ROC <- rdfmeans[rdfmeans$Class == 1,]
 ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Lengths)) +
-  geom_line(stat = "identity",size = 1) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "Lengths") +
+  geom_line(stat = "identity",size = 0.6) +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "Lengths") +
   ggtitle(sprintf("Varying Curve Length")) +
   geom_abline(intercept = 0, slope = 1) + 
   coord_equal(ratio=1) +
@@ -140,8 +151,8 @@ ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Len
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5)))  
+  #scale_colour_hue(l=40)
 print(ROC_curve_plt)
 ggsave(
   sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/Sphere_Sims/Varying_Params/CurveLength/causal%s_shared%s_10.pdf",
@@ -155,8 +166,8 @@ load(sprintf("~/projects/Research/SINATRA/Simulations/Sphere_Simulation/df_ROC_d
 ### Plot results ###
 class_one_ROC <- rdfmeans[rdfmeans$Class == 1,]
 ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Dir_Per_Cone)) +
-  geom_line(stat = "identity", size = 1) +
-  labs(x = "FPR (False Positive Rate)", y = "TPR (True Positive Rate)", color = "# Directions") +
+  geom_line(stat = "identity", size = 0.6) +
+  labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)", color = "# Directions") +
   ggtitle(sprintf("Varying Directions Per Cone")) +
   geom_abline(intercept = 0, slope = 1)+
   coord_equal(ratio=1) +
@@ -166,8 +177,8 @@ ROC_curve_plt <- ggplot(data <- class_one_ROC, aes(x = FPR, y = TPR, color = Dir
         axis.title=element_text(size=16,face="bold"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size=16,face="bold")) +
-  guides(color = guide_legend(override.aes = list(size = 1.5))) +
-  scale_colour_hue(l=40)
+  guides(color = guide_legend(override.aes = list(size = 1.5))) 
+  #scale_colour_hue(l=40)
 print(ROC_curve_plt)
 ggsave(
   sprintf("~/Dropbox/Sub-Image Analysis/Manuscript/bioRxiv/New_Figures/Sphere_Sims/Varying_Params/DirectionsPerCone/causal%s_shared%s_10.pdf",
