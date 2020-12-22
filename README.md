@@ -5,6 +5,9 @@ Sub-Image Analysis using Topological Summary Statistics.
 
 The purpose of this branch is to provide the exact scripts/code used to produce to the simulation and real data results in the SINATRA manuscript.
 
+## Scripts
+The relevant locations for the scripts used to generate each figure, and process the data for each figure are located under Scripts/figure_generation. 
+
 ## Simulations
 
 ## Further additions
