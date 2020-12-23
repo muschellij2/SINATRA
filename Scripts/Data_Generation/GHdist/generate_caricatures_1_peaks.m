@@ -2,8 +2,8 @@
 clearvars;
 close all;
 path(pathdef);
-addpath('~/gitrepos/SINATRA/GHdist/')
-addpath('~/gitrepos/SINATRA/GHdist/utils')
+addpath('~/gitrepos/SINATRA/Data_Generation/GHdist/')
+addpath('~/gitrepos/SINATRA/Data_Generation/GHdist/utils')
 path(path, genpath('./utils'));
 
 %%
@@ -22,7 +22,6 @@ meshNames = getFileNames(raw_mesh_path);
 %%
 for k = 1:50
     raw_mesh_path = '/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/new_aligned_shapesv3/Old_Follivore/';
-    %out_mesh_path = ['/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/new_aligned_shapesv3/' meshName '_3peak_2gp_v' int2str(k) '_bw/'];
     out_mesh_path = ['/Users/brucewang/Documents/new_aligned_shapesv5/' meshName '_1peak_2gp_v' int2str(k) '_bw/'];
     touch([out_mesh_path 'mesh/']);
 
