@@ -12,7 +12,7 @@ The relevant locations for the scripts used to generate each figure, and process
 For the locations of the data used in the studies, please use this link: https://www.dropbox.com/sh/rs8pjmhrwcdcuxk/AAC3Fj2_RNZLTVR_XhN4jiGxa?dl=0
 
 ## Data Generation
-To generate the caricatured data, run the MATLAB scripts in Data_Generation/GHdist/, originally sourced from : https://github.com/shaharkov/GPLmkBDMatch. 
+To generate the caricatured data, run the MATLAB scripts in Scripts/Data_Generation/GHdist/, originally sourced from : https://github.com/shaharkov/GPLmkBDMatch. 
 
 ## Simulations
 
