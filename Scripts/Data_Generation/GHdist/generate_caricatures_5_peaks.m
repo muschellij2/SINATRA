@@ -3,7 +3,9 @@ clearvars;
 close all;
 path(pathdef);
 %addpath('/Users/brucewang/Dropbox (Princeton)/Data + Experiments Tim Sudijono/Data/GHdist/')
-addpath('~/gitrepos/SINATRA/Scripts/Data_Generation/GHdist/utils')
+
+addpath('~/gitrepos/SINATRA/Scripts/Data_Generation/GHdist/utils/'); 
+
 path(path, genpath('./utils'));
 
 %%
