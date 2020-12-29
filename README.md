@@ -6,7 +6,7 @@ Sub-Image Analysis using Topological Summary Statistics.
 The purpose of this branch is to provide the exact scripts/code used to produce to the simulation and real data results in the SINATRA manuscript.
 
 ## Scripts
-The relevant locations for the scripts used to generate each figure, and process the data for each figure are located under Scripts/figure_generation. To run the Limit Shapes algorithm, we refer to [Huang et. al (2019)](http://www.lix.polytechnique.fr/~maks/papers/limit_shapes_SGP19.pdf). We will provide a link to the repo/driver when the software becomes publicly available. 
+The relevant locations for the scripts used to generate each figure, and process the data for each figure are located under Scripts/figure_generation. To run the Limit Shapes algorithm, we refer to [Huang et. al (2019)](http://www.lix.polytechnique.fr/~maks/papers/limit_shapes_SGP19.pdf). To access the gitrepo for Limit Shapes, please use this link [https://github.com/ruqihuang/LimitShape]. The MATLAB driver scripts are provided in Scripts/LimitShape_Scripts . Please note that to use these scripts, you will need to clone the LimitShape repo using `git clone https://github.com/ruqihuang/LimitShape` and add the local repo/utils path at the top of your script. 
 
 To run a demo of the ECT alignment algorithm, we have provided a tutorial in the folder Scripts/postECT_alignment. Note that the permutation to rotation step is quite time consuming, so we have provided pre-computed permutation-rotations in the dropbox link provided below in the directory named ECT_alignment_demo.
 
